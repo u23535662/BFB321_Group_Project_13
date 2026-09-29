@@ -3,7 +3,7 @@
 # Methods of importing data: Excell, CSV
 
 # ===== Imporing packages =====
-import sympy as sym
+import sympy as sy
 import matplotlib.pyplot as plt
 import pandas as pd
 import scipy.stats as stats
@@ -12,7 +12,7 @@ from datetime import date
 # ===== Importing external files =====
 
 # Creating custom file path
-file_path = input("Enter file path for Excell file:") or r"C:\Users\User\OneDrive\UP\Y4\S2\BFB321\Code\BFB_Group\Riaan\Data.xlsx"
+file_path = input("Enter file path for Excell file:") or r"C:\Users\User\OneDrive\UP\Y4\S2\BFB321\Code\BFB321_Group_Project_13\Backend\Data.xlsx"
 
 try:
     # Importing file
@@ -40,8 +40,21 @@ avg_daily_demand = 120.0
 std_daily_demand = 15.0 
 
 variance = (avg_lead_time * (std_daily_demand ** 2)) + ((avg_daily_demand ** 2) * (std_lead_time ** 2))
-safety_stock = Z * sym.sqrt(variance)
+safety_stock = Z * sy.sqrt(variance)
 
 reorder_point = (avg_daily_demand * avg_lead_time) + safety_stock
 
 print(f"Dynamic Reorder Point: {round(reorder_point)} units")
+
+# ===== Plotting lead time data =====
+plt.figure(1)
+plt.hist(df['lead_time_days'])
+plt.title("Lead times histogram")
+plt.xlabel("Lead times")
+plt.ylabel("Frequency")
+
+plt.figure(2)
+sorted_df = df.sort_values(by="Inventory_Update_Date")
+plt.plot(sorted_df['Inventory_Update_Date'], sorted_df['lead_time_days'])
+plt.plot(sorted_df['Inventory_Update_Date'], 20)
+plt.show()
