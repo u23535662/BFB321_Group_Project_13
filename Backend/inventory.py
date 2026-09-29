@@ -12,7 +12,9 @@ from datetime import date
 # ===== Importing external files =====
 
 # Creating custom file path
-file_path = input("Enter file path for Excell file:") or r"C:\Users\User\OneDrive\UP\Y4\S2\BFB321\Code\BFB321_Group_Project_13\Backend\Data.xlsx"
+script_dir = pathlib.Path(__file__).parent
+default = script_dir / "Data.xlsx"
+file_path = input("Enter file path for Excell file:") or default
 
 try:
     # Importing file
@@ -35,6 +37,7 @@ df['lead_time_days'] = (df['Inventory_Update_Date'] - df['Inventory_Order_Date']
 avg_lead_time = df['lead_time_days'].mean()
 std_lead_time = df['lead_time_days'].std()
 Z = stats.norm.ppf(0.95)
+
 
 avg_daily_demand = 120.0
 std_daily_demand = 15.0 
