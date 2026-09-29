@@ -7,10 +7,21 @@
   font-style: normal;
   font-variation-settings: "wdth" 100;
   font-size: 1rem;
+}
+/* NAV BAR PAGES FONT */
+.noto-sans-display-page {
+  font-family: "Noto Sans Display", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 400;
+  font-style: normal;
+  font-variation-settings: "wdth" 100;
+  font-size: 1.2rem;
+  color: #152d2f;
 
   text-decoration: none;
   list-style: none;
 }
+
 /* FONTS END  */
 
 /* BODY START */
@@ -41,7 +52,7 @@ body {
   margin-top: auto;
   margin-bottom: auto;
 
-  background-color: #dfdfe1;
+  background-color: rgb(84, 147, 136);
   width: 15rem;
   height: 100%;
   border-radius: 1rem;
@@ -92,17 +103,8 @@ li {
 .logoimg {
   width: auto;
   height: 100%;
-  /* object-fit: cover; */
   border-radius: 1rem;
 }
-
-/* .openclose {
-  justify-content: center;
-  align-items: center;
-  width: 20%;
-  aspect-ratio: 1/1;
-  background-color: #dfdfe1;
-} */
 
 .fa-solid,
 .fa-grip-lines {
@@ -113,32 +115,16 @@ li {
 }
 
 .pagenames {
-  /* display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: space-between;
-
-  background-color: #b6b2b2;
-  width: 80%;
-  height: 4rem;
-  border-radius: 1rem;
-  gap: 0.5rem;
-
-  age1 { */
   display: flex;
   flex-direction: row;
   justify-content: space-between;
   align-items: center;
 
-  /* padding-left: 0.72rem;
-  padding-right: 0.72rem;
-  padding-top: 0.72rem;
-  padding-bottom: 0.72rem; */
-
   border-radius: 1rem;
   gap: 0.5rem;
+  padding: 0.5rem;
 
-  background-color: #b6b2b2;
+  background-color: #ffffff;
   width: 90%;
   height: 40%;
 }
@@ -172,99 +158,44 @@ li {
   gap: 2rem;
 
   grid-template-columns: 23rem 23rem 23rem;
-  grid-template-rows: 20rem 20rem;
+  grid-template-rows: 1fr 20rem;
   grid-template-areas:
     "blockprices blocksuppliers blocklowstock"
     "blockgraph blockgraph blocklowstock";
 }
 
-/* .leftside {
-  height: 50%;
-  width: 60%;
-  align-items: center;
-  flex-direction: row;
-} */
-
 .blocksuppliers {
   grid-area: blocksuppliers;
-  /* display: flex;
-  justify-content: space-between;
-  align-items: center;
-  flex-direction: column;
-
-  flex: 0 0 calc(30% - (1rem / 2));
-  box-sizing: border-box; */
 
   background-color: rgb(169, 217, 208, 0.6);
-
-  /* width: 23rem;
-  height: 50%;*/
   border-radius: 1rem;
   border: 2px solid rgb(155, 255, 237);
-
-  /* margin: 1rem;
-  padding: 1rem; */
 }
+
 .blockprices {
   grid-area: blockprices;
-  /* display: flex;
-  justify-content: space-between;
-  align-items: center;
-  flex-direction: column;
-
-  flex: 0 0 calc(30% - (1rem / 2));
-  box-sizing: border-box; */
 
   background-color: rgb(169, 217, 208, 0.6);
 
-  /* width: 23rem;
-  height: 50%; */
   border-radius: 1rem;
   border: 2px solid rgb(155, 255, 237);
-
-  /* margin: 1rem;
-  padding: 1rem;  */
 }
 
 .blocklowstock {
   grid-area: blocklowstock;
-  /* display: flex;
-  justify-content: space-between;
-  align-items: center;
-  flex-direction: column;
-
-  flex: 0 0 calc(30% - (1rem / 2));
-  box-sizing: border-box; */
 
   background-color: rgb(169, 217, 208, 0.6);
 
-  /* width: 23rem;
-  height: 95%; */
   border-radius: 1rem;
   border: 2px solid rgb(155, 255, 237);
-
-  /* margin: 1rem;
-  padding: 1rem; */
 }
 
 .blockgraph {
   grid-area: blockgraph;
-  /* display: flex;
-  justify-content: center;
-  align-items: center;
-  flex-direction: column;
-
-  flex: 0 0 calc(65% - (1rem / 2));
-  box-sizing: border-box; */
 
   background-color: rgb(169, 217, 208, 0.6);
 
-  /* height: 35%;
-  max-height: 15rem; */
   border-radius: 1rem;
   border: 2px solid rgb(155, 255, 237);
-
-  /* margin: 1rem;
-  padding: 1rem; */
 }
 /* OVERVIEW BLOCKS STYLES END */
