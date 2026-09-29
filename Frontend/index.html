@@ -14,44 +14,57 @@
   </head>
 
   <body>
-    <!-- NAV BAR START -->
+    <!--NAV BAR START-->
     <nav class="navbar">
       <div class="logobox">
-        <div class="logo"><h1 class="noto-sans-display-h1">LOGO</h1></div>
-        <div class="openclose"></div>
+        <div class="logo">
+          <img src="./assets/Stanway-Logo-picture.png" class="logoimg" />
+        </div>
+        <i class="fa-solid fa-grip-lines"></i>
       </div>
-
-      <div class="pagenames">
-        <h1 class="noto-sans-display-h1">Overview</h1>
-      </div>
-      <div class="pagenames">
-        <h1 class="noto-sans-display-h1">Stock</h1>
-      </div>
-      <div class="pagenames">
-        <h1 class="noto-sans-display-h1">Pricelist</h1>
-      </div>
-      <div class="pagenames">
-        <h1 class="noto-sans-display-h1">Suppliers</h1>
-      </div>
+      <ul class="navlist">
+        <li class="pagenames active">
+          <a href="./index.html" class="noto-sans-display-h1 active"
+            ><div>
+              <i class="fa-solid fa-chart-line"></i>
+              Overview
+            </div></a
+          >
+        </li>
+        <li class="pagenames">
+          <a href="./stock.html" class="noto-sans-display-h1"
+            ><div>
+              <i class="fa-solid fa-boxes-packing"></i>
+              Stock
+            </div></a
+          >
+        </li>
+        <li class="pagenames">
+          <a href="./pricelists.html" class="noto-sans-display-h1"
+            ><div>
+              <i class="fa-solid fa-hand-holding-dollar"></i>
+              Pricelist
+            </div></a
+          >
+        </li>
+        <li class="pagenames">
+          <a href="./suppliers.html" class="noto-sans-display-h1"
+            ><div>
+              <i class="fa-solid fa-truck-field"></i>
+              Suppliers
+            </div></a
+          >
+        </li>
+      </ul>
       <div class="accountbox">
-        <h1 class="noto-sans-display-h1">ACCOUNT</h1>
-        <div class="accounticon"></div>
+        <i class="fa-solid fa-circle-user"></i>
+        <h3 class="noto-sans-display-h3">Account</h3>
       </div>
     </nav>
+
     <!-- NAV BAR END -->
 
     <!-- OVERVIEW BLOCKS START -->
-
-    <!-- <div class="overviewblocks">
-      <div class="leftside">
-        <div>
-          <div class="blockprices"></div>
-          <div class="blocksuppliers"></div>
-        </div>
-        <div class="blockgraph"></div>
-      </div>
-      <div class="blocklowstock"></div>
-    </div> -->
 
     <div class="overviewblocks">
       <div class="blockprices"></div>
@@ -61,5 +74,10 @@
     </div>
 
     <!-- OVERVIEW BLOCKS END -->
+
+    <!-- Script for icons-->
+    <script
+      src="https://kit.fontawesome.com/3000704a08.js"
+      crossorigin="anonymous"></script>
   </body>
 </html>
