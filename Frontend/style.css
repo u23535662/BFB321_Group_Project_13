@@ -86,7 +86,6 @@ body {
 .overviewblocks {
   display: flex;
   flex-direction: row;
-  align-items: center;
   justify-content: space-between;
   flex-wrap: wrap;
 
@@ -148,8 +147,8 @@ body {
 
   background-color: rgb(67, 61, 139, 0.6);
 
-  height: 45%;
-  max-height: 20rem;
+  height: 35%;
+  max-height: 15rem;
   border-radius: 1rem;
   border: 2px solid #a30dff;
 
