@@ -62,7 +62,7 @@ body {
 .openclose {
   width: 10%;
   aspect-ratio: 1/1;
-  background-color: #c23939;
+  background-color: #e0d9d9;
 }
 
 .pagenames {
@@ -106,7 +106,9 @@ body {
   margin: 5px;
   gap: 0.5rem;
 }
-
+.leftside {
+  height: 50%;
+}
 .blockprices,
 .blocksuppliers {
   display: flex;
@@ -120,7 +122,7 @@ body {
   background-color: rgb(67, 61, 139, 0.6);
 
   width: 23rem;
-  height: 45%;
+  height: 80%;
   border-radius: 1rem;
   border: 2px solid #a30dff;
 
