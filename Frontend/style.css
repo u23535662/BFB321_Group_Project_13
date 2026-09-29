@@ -1,3 +1,15 @@
+/* FONTS START */
+/* Dashboard font */
+.noto-sans-display-h1 {
+  font-family: "Noto Sans Display", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 700;
+  font-style: normal;
+  font-variation-settings: "wdth" 100;
+  font-size: 1.5rem;
+}
+/* FONTS END  */
+
 /* BODY START */
 body {
   background-color: #17153b;
@@ -50,7 +62,7 @@ body {
 .openclose {
   width: 10%;
   aspect-ratio: 1/1;
-  background-color: #c23939;
+  background-color: #e0d9d9;
 }
 
 .pagenames {
@@ -86,16 +98,17 @@ body {
 .overviewblocks {
   display: flex;
   flex-direction: row;
-  align-items: center;
   justify-content: space-between;
   flex-wrap: wrap;
 
   width: 100%;
   height: 90%;
   margin: 5px;
-  gap: auto;
+  gap: 0.5rem;
 }
-
+.leftside {
+  height: 50%;
+}
 .blockprices,
 .blocksuppliers {
   display: flex;
@@ -109,7 +122,7 @@ body {
   background-color: rgb(67, 61, 139, 0.6);
 
   width: 23rem;
-  height: 45%;
+  height: 80%;
   border-radius: 1rem;
   border: 2px solid #a30dff;
 
@@ -148,8 +161,8 @@ body {
 
   background-color: rgb(67, 61, 139, 0.6);
 
-  height: 45%;
-  max-height: 20rem;
+  height: 35%;
+  max-height: 15rem;
   border-radius: 1rem;
   border: 2px solid #a30dff;
 
