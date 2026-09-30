@@ -166,36 +166,126 @@ li {
 
 .blocksuppliers {
   grid-area: blocksuppliers;
+  align-items: center;
+  justify-content: center;
+  display: flex;
+  flex-direction: column;
 
   background-color: rgb(169, 217, 208, 0.6);
   border-radius: 1rem;
   border: 2px solid rgb(155, 255, 237);
+  gap: 0.5rem;
 }
 
 .blockprices {
+  align-items: center;
+  justify-content: center;
+  display: flex;
+  flex-direction: column;
   grid-area: blockprices;
 
   background-color: rgb(169, 217, 208, 0.6);
 
   border-radius: 1rem;
   border: 2px solid rgb(155, 255, 237);
+  gap: 0.5rem;
 }
 
+.headingblockprice,
+.headingblocksuppliers {
+  display: flex;
+  justify-content: left;
+  align-items: center;
+
+  background-color: rgb(169, 217, 208, 0.6);
+  width: 95%;
+  height: 20%;
+  border-radius: 1rem;
+
+  gap: 0.72rem;
+}
+
+.headingblockstock {
+  display: flex;
+  justify-content: left;
+  align-items: center;
+
+  background-color: rgb(169, 217, 208, 0.6);
+  width: 95%;
+  height: 10%;
+  border-radius: 1rem;
+
+  gap: 0.72rem;
+}
+.headingblockgraph {
+  display: flex;
+  justify-content: left;
+  align-items: center;
+
+  background-color: rgb(169, 217, 208, 0.6);
+  width: 98%;
+  height: 20%;
+  border-radius: 1rem;
+
+  gap: 0.72rem;
+}
+.contentblockprice,
+.contentblocksuppliers {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  background-color: rgb(169, 217, 208, 0.6);
+  width: 95%;
+  height: 70%;
+  border-radius: 1rem;
+}
+
+.contentblockstock {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  background-color: rgb(169, 217, 208, 0.6);
+  width: 95%;
+  height: 85%;
+  border-radius: 1rem;
+}
+.contentblockgraph {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  background-color: rgb(169, 217, 208, 0.6);
+  width: 98%;
+  height: 70%;
+  border-radius: 1rem;
+}
 .blocklowstock {
+  align-items: center;
+  justify-content: center;
+  display: flex;
+  flex-direction: column;
   grid-area: blocklowstock;
 
   background-color: rgb(169, 217, 208, 0.6);
 
   border-radius: 1rem;
   border: 2px solid rgb(155, 255, 237);
+  gap: 0.5rem;
 }
 
 .blockgraph {
+  align-items: center;
+  justify-content: center;
+  display: flex;
+  flex-direction: column;
   grid-area: blockgraph;
 
   background-color: rgb(169, 217, 208, 0.6);
 
   border-radius: 1rem;
   border: 2px solid rgb(155, 255, 237);
+  gap: 0.5rem;
 }
 /* OVERVIEW BLOCKS STYLES END */
