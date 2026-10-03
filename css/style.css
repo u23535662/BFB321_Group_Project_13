@@ -299,14 +299,14 @@ li {
   flex-direction: row;
 
   width: 100%;
-  height: 90%;
+  height: 95%;
   margin: 5px;
   gap: 2rem;
-  margin-top: 3rem;
 
   grid-template-columns: 23rem 23rem 23rem;
-  grid-template-rows: 1fr 20rem;
+  grid-template-rows: 1rem 1fr 20rem;
   grid-template-areas:
+    "blockempty stockbutton1 stockbutton2"
     "blocksuppliersmain  blocksuppliersmain blocklowstock"
     "blocksuppliersmain  blocksuppliersmain  blocklowstock";
 }
@@ -325,6 +325,49 @@ li {
   gap: 0.5rem;
 }
 
+.blockempty {
+  grid-area: blockempty;
+  align-items: center;
+  justify-content: center;
+  display: flex;
+  flex-direction: column;
+
+  background-color: rgb(169, 217, 208, 0.6);
+
+  border-radius: 1rem;
+  border: 2px solid rgb(155, 255, 237);
+  gap: 0.5rem;
+}
+
+.stockbutton1 {
+  grid-area: stockbutton1;
+  align-items: center;
+  justify-content: center;
+  display: flex;
+  flex-direction: column;
+
+  background-color: rgb(169, 217, 208, 0.6);
+  width: 50%;
+  height: 2rem;
+
+  border-radius: 1rem;
+  border: 2px solid rgb(155, 255, 237);
+  gap: 0.5rem;
+}
+
+.stockbutton2 {
+  grid-area: stockbutton2;
+  align-items: center;
+  justify-content: center;
+  display: flex;
+  flex-direction: column;
+
+  background-color: rgb(169, 217, 208, 0.6);
+
+  border-radius: 1rem;
+  border: 2px solid rgb(155, 255, 237);
+  gap: 0.5rem;
+}
 /* .stockbuttons {
   display: flex;
   justify-content: center;
