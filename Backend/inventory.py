@@ -3,21 +3,15 @@
 # Methods of importing data: Excell, CSV
 # %%
 # ===== Imporing packages =====
-import sympy as sy
 import matplotlib.pyplot as plt
 import pandas as pd
-import scipy.stats as stats
 import pathlib
-from datetime import date
-from fitter import Fitter
 import math
 import sys
+import numpy as np
+import scipy.stats as stats
 
-CURRENT_INVENTORY_POSITION_UNITS = None
-SERVICE_LEVEL = 0.95
-ORDER_COVERAGE_DAYS = 30
-
-
+print("Packages imported")
 # %%
 # ===== Importing external files =====
 file_path = r'..\Data\Data.xlsx'
@@ -25,217 +19,338 @@ file_path = r'..\Data\Data.xlsx'
 try:
     # Importing Inventory Sheet
     df_inventory = pd.read_excel(file_path, engine="openpyxl", usecols=[0,1,2,3], sheet_name="Inventory")
+    
     # Cleaning data: Removing spaces before and after data
     df_inventory.columns = df_inventory.columns.str.strip()
+    
     # Convering columns back to correct data type
     df_inventory['Inventory_Order_Date'] = pd.to_datetime(df_inventory['O_Date'].astype(str) + ' ' + df_inventory['O_Time'].astype(str),format='mixed')
     df_inventory['Inventory_Update_Date'] = pd.to_datetime(df_inventory['U_Date'].astype(str) + ' ' + df_inventory['U_Time'].astype(str),format='mixed')
-    df_inventory['lead_time_days'] = (df_inventory['Inventory_Update_Date'] - df_inventory['Inventory_Order_Date']).dt.total_seconds() / 86400
+    df_inventory['lead_time_days'] = abs((df_inventory['Inventory_Update_Date'] - df_inventory['Inventory_Order_Date']).dt.total_seconds())/86400
     # Importing Sales Sheet
     df_sales = pd.read_excel(file_path, engine="openpyxl", usecols=[0,1,2], sheet_name="Sales")
+    
     # Cleaning data: Removing spaces before and after data
     df_sales.columns = df_sales.columns.str.strip()
+    
     # Converting columns back to correct data type
     df_sales['Date'] = pd.to_datetime(df_sales['Date'])
     df_sales['Amount'] = pd.to_numeric(df_sales['Amount'])
-    df_sales['Unit_Price'] = pd.to_numeric(df_sales['Price'])
+    df_sales['Price'] = pd.to_numeric(df_sales['Price'])
+
+    # Removing rows that contain NA data
     df_sales = df_sales.dropna(subset=['Date', 'Amount'])
+
+    # Output if the file was imported sucessfully
     print("Excel file imported successfully!")
         
 except FileNotFoundError:
+
+    # Output if the file was not found
     print(f"Error: The file at '{file_path}' could not be found. Check the path.")
     sys.exit()
 except Exception as e:
+
+    # Output should another error ocurs
     print(f"An error occurred during import: {e}")
     sys.exit()
-# %%
-
 
 # %%
-# ===== Forecasting and plotting lead time data =====
-df_inventory = df_inventory.sort_values(by='Inventory_Order_Date')
-valid_lead_times = df_inventory.loc[df_inventory['lead_time_days'] >= 0, 'lead_time_days']
-invalid_count = len(df_inventory) - len(valid_lead_times)
-valid_inventory = df_inventory.loc[df_inventory['lead_time_days'] >= 0]
+# ===== Creating a function for sectioning the demand based on a selector =====
+def segment_demand(selection: str, df_demand: pd.DataFrame):
+    
+    # Copies data frame to prevent mutation of the origional
+    df = df_demand[['Date', 'Amount']].copy()
 
-if valid_lead_times.empty:
-    print("No valid non-negative lead times are available for a forecast.")
-    sys.exit()
+    # Groups data by selection
+    if selection == 'Daily':
+        df.set_index('Date', inplace=True)
 
-monthly_means = valid_inventory.groupby(
-    valid_inventory['Inventory_Order_Date'].dt.to_period('M')
-)['lead_time_days'].mean()
-monthly_dates = monthly_means.index.to_timestamp()
-trend = stats.linregress(range(len(monthly_means)), monthly_means.to_numpy())
-trend_values = trend.intercept + trend.slope * range(len(monthly_means))
-trend_direction = 'decreasing' if trend.slope < 0 else 'increasing'
+        # Sums the amount columns for same day
+        df = df.resample('D')['Amount'].agg(['sum', 'std']).reset_index()
 
-forecast_start = (
-    df_inventory['Inventory_Order_Date'].max().to_period('M').to_timestamp()
-    + pd.offsets.MonthBegin(1)
-)
-forecast_dates = pd.date_range(start=forecast_start, periods=12, freq='MS')
-forecast_mean = valid_lead_times.mean()
-df_forecast = pd.DataFrame({
-    'Forecast_Date': forecast_dates,
-    'Forecast_Lead_Time_Days': forecast_mean,
-})
+        # Renames the columns to make more sence
+        df = df.rename(columns={'Date':'Day', 'sum':'Demand', 'std':'STD Demand'})
+        return df
+    elif selection == 'Weekly':
+        df.set_index('Date', inplace=True)
 
-if invalid_count:
-    print(f"Excluded {invalid_count} record(s) with update times before order times.")
-print(f"12-month average lead-time forecast: {forecast_mean:.2f} days")
-print(
-    f"Monthly trend: {trend_direction} by {abs(trend.slope):.2f} days/month "
-    f"(R-squared: {trend.rvalue ** 2:.2f}, p-value: {trend.pvalue:.4g})."
-)
-if trend.pvalue < 0.05:
-    print("The linear trend is statistically significant at the 5% level.")
-else:
-    print("No statistically significant linear trend was detected at the 5% level.")
-print(df_forecast.to_string(index=False))
+        # Sums the amount columns for same week
+        df = df.resample('W')['Amount'].agg(['sum', 'std']).reset_index()
+        # Converts the date column to only display the day the week started on
+        df['Date'] = df['Date'].dt.weekday
 
-# ===== Demand forecast and replenishment policy =====
-daily_demand = (
-    df_sales.groupby(df_sales['Date'].dt.normalize())['Amount']
-    .sum()
-    .asfreq('D', fill_value=0)
-)
-average_daily_demand = daily_demand.mean()
-daily_demand_std = daily_demand.std()
-lead_time_std = valid_lead_times.std()
-if pd.isna(daily_demand_std):
-    daily_demand_std = 0
-if pd.isna(lead_time_std):
-    lead_time_std = 0
+        # Renames the columns to make more sence
+        df = df.rename(columns={'Date':'Week starting on', 'sum':'Demand', 'std':'STD Demand'})
+        return df
+    elif selection == 'Monthly':
+        df.set_index('Date', inplace=True)
 
-mean_lead_time = valid_lead_times.mean()
-lead_time_demand = average_daily_demand * mean_lead_time
-lead_time_demand_std = math.sqrt(
-    mean_lead_time * daily_demand_std ** 2
-    + average_daily_demand ** 2 * lead_time_std ** 2
-)
-safety_stock_units = stats.norm.ppf(SERVICE_LEVEL) * lead_time_demand_std
-reorder_point_units = math.ceil(lead_time_demand + safety_stock_units)
-order_quantity_at_trigger = math.ceil(average_daily_demand * ORDER_COVERAGE_DAYS)
-target_stock_units = reorder_point_units + order_quantity_at_trigger
+        # Sums the amount columns for same month
+        df = df.resample('ME')['Amount'].agg(['sum', 'std']).reset_index()
 
-sales_monthly = daily_demand.resample('MS').sum()
-demand_forecast_start = (
-    daily_demand.index.max().to_period('M').to_timestamp()
-    + pd.offsets.MonthBegin(1)
-)
-demand_forecast_dates = pd.date_range(
-    start=demand_forecast_start, periods=12, freq='MS'
-)
-forecast_monthly_units = pd.Series(
-    [average_daily_demand * forecast_date.days_in_month for forecast_date in demand_forecast_dates],
-    index=demand_forecast_dates,
-    name='Forecast_Units',
-)
+        # Converts the date column to only display the month
+        df['Date'] = df['Date'].dt.month
 
-print(f"Average daily demand: {average_daily_demand:.2f} units")
-print(f"Average replenishment lead time: {mean_lead_time:.2f} days")
-print(f"Estimated safety stock ({SERVICE_LEVEL:.0%} service level): {math.ceil(safety_stock_units)} units")
-print(f"Reorder point: {reorder_point_units} units")
-print(f"Order quantity at reorder point ({ORDER_COVERAGE_DAYS} days of demand): {order_quantity_at_trigger} units")
-print(f"Order-up-to level: {target_stock_units} units")
-print("12-month sales-demand forecast:")
-print(forecast_monthly_units.rename_axis('Forecast_Month').to_frame().to_string())
+        # Renames the columns to make more sence
+        df = df.rename(columns={'Date':'Month', 'sum':'Demand', 'std':'STD Demand'})
+        return df
+    elif selection == 'Yearly':
+        df.set_index('Date', inplace=True)
 
-if CURRENT_INVENTORY_POSITION_UNITS is None:
-    print(
-        "Set CURRENT_INVENTORY_POSITION_UNITS to on-hand + on-order - backorders "
-        "to calculate the next order date and immediate order quantity."
-    )
-else:
-    current_inventory_position = float(CURRENT_INVENTORY_POSITION_UNITS)
-    forecast_origin = daily_demand.index.max() + pd.Timedelta(days=1)
-    if current_inventory_position <= reorder_point_units:
-        recommended_order_date = forecast_origin
-        recommended_order_quantity = math.ceil(
-            max(0, target_stock_units - current_inventory_position)
-        )
-        print(
-            f"Reorder now ({recommended_order_date.date()}): "
-            f"order {recommended_order_quantity} units."
-        )
+        # Sums the amount columns for same year
+        df = df.resample('YE')['Amount'].agg(['sum', 'std']).reset_index()
+
+        # Converts the date column to only display the year
+        df['Date'] = df['Date'].dt.year
+
+        # Renames the columns to make more sence
+        df = df.rename(columns={'Date':'Year', 'sum':'Demand', 'std':'STD Demand'})
+        return df
     else:
-        days_until_reorder = math.ceil(
-            (current_inventory_position - reorder_point_units) / average_daily_demand
-        )
-        recommended_order_date = forecast_origin + pd.Timedelta(days=days_until_reorder)
-        print(
-            f"Estimated reorder date: {recommended_order_date.date()}; "
-            f"order {order_quantity_at_trigger} units at the reorder point."
-        )
+        return "Selection should be: 'Daily', 'Weekly', 'Monthly' or 'Yearly'"
 
-plt.figure(3, figsize=(12, 6))
-plt.bar(
-    sales_monthly.index, sales_monthly.values, width=20,
-    label='Observed monthly sales', color='tab:blue',
-)
-plt.bar(
-    forecast_monthly_units.index, forecast_monthly_units.values, width=20,
-    label='12-month demand forecast', color='tab:orange',
-)
-plt.axvline(demand_forecast_start, color='black', linestyle=':', label='Forecast starts')
-plt.title("Monthly Sales and 12-Month Demand Forecast")
-plt.xlabel("Month")
-plt.ylabel("Units")
-plt.legend()
-plt.grid(True, axis='y', alpha=0.3)
+print("Segment_demand function created")
 
-plt.figure(4, figsize=(10, 5))
-policy_labels = [
-    'Lead-time demand',
-    'Safety stock',
-    'Reorder point',
-    f'{ORDER_COVERAGE_DAYS}-day order quantity',
-    'Order-up-to level',
-]
-policy_values = [
-    lead_time_demand,
-    safety_stock_units,
-    reorder_point_units,
-    order_quantity_at_trigger,
-    target_stock_units,
-]
-plt.barh(policy_labels, policy_values, color=[
-    'tab:blue', 'tab:green', 'tab:red', 'tab:orange', 'tab:purple',
-])
-if CURRENT_INVENTORY_POSITION_UNITS is not None:
-    plt.axvline(
-        current_inventory_position, color='black', linestyle='--',
-        label='Current inventory position',
-    )
-    plt.legend()
-plt.title("Replenishment Policy (Units)")
-plt.xlabel("Units")
-plt.grid(True, axis='x', alpha=0.3)
+# %%
+# ===== Creating a function to claculate EOQ =====
+def calculate_eoq(annual_demand: int, setup_cost: float, holding_cost: float):
+    # Uses the EOQ fomula and rounds up the final value 
+    return np.ceil(np.sqrt((2*annual_demand*setup_cost)/holding_cost))
 
+
+# ===== Creating a function to calculate ROP =====
+def calculate_ROP(demand, effective_leadtime, safetystock):
+    return demand*effective_leadtime + safetystock
+
+print("EOQ and ROP functions created")
+
+
+
+# %%
+# ===== Creating a function for sectioning the lead time based on a selector =====
+def segment_LT(selection: str, df_leadTime: pd.DataFrame):
+
+    # Copies data frame to prevent mutation of the origional
+    df = df_inventory[['Inventory_Order_Date', 'lead_time_days']].copy()
+
+    # Groups data by selection
+    if selection == 'Daily':
+        df.set_index('Inventory_Order_Date', inplace=True)
+
+        # Sums the amount columns for same day
+        df = df.resample('D')['lead_time_days'].agg(['mean', 'std']).reset_index()
+
+        # Renames the columns to make more sence
+        df = df.rename(columns={'Inventory_Order_Date':'Day', 'mean':'Lead Time', 'std':'STD Lead Time'})
+        return df
+    elif selection == 'Weekly':
+        df.set_index('Inventory_Order_Date', inplace=True)
+
+        # Sums the amount columns for same week
+        df = df.resample('W')['lead_time_days'].agg(['mean', 'std']).reset_index()
+        # Converts the date column to only display the day the week started on
+        df['Inventory_Order_Date'] = df['Inventory_Order_Date'].dt.weekday
+
+        # Renames the columns to make more sence
+        df = df.rename(columns={'Inventory_Order_Date':'Week starting on', 'mean':'Lead Time', 'std':'STD Lead Time'})
+        return df
+    elif selection == 'Monthly':
+        df.set_index('Inventory_Order_Date', inplace=True)
+
+        # Sums the amount columns for same month
+        df = df.resample('ME')['lead_time_days'].agg(['mean', 'std']).reset_index()
+
+        # Converts the date column to only display the month
+        df['Inventory_Order_Date'] = df['Inventory_Order_Date'].dt.month
+
+        # Renames the columns to make more sence
+        df = df.rename(columns={'Inventory_Order_Date':'Month', 'mean':'Lead Time', 'std':'STD Lead Time'})
+        return df
+    elif selection == 'Yearly':
+        df.set_index('Inventory_Order_Date', inplace=True)
+
+        # Sums the amount columns for same year
+        df = df.resample('YE')['lead_time_days'].agg(['mean', 'std']).reset_index()
+
+        # Converts the date column to only display the year
+        df['Inventory_Order_Date'] = df['Inventory_Order_Date'].dt.year
+
+        # Renames the columns to make more sence
+        df = df.rename(columns={'Inventory_Order_Date':'Year', 'mean':'Lead Time', 'std':'STD Lead Time'})
+        return df
+    else:
+        return "Selection should be: 'Daily', 'Weekly', 'Monthly' or 'Yearly'"
+
+print("Segment_LT function created")
+# %%
+# ===== Input values for EOQ calculation =====
+working_days = 300 # Number of days the company is active in a year
+working_weeks = 51 # Number of weeks the company is active in a year
+
+holding_cost = 500 # R/u/y Cost of holding the product
+setup_cost = 400 # R/u Cost to buy the product
+
+service_level = 0.95
+z = stats.norm.ppf(service_level)
+selection = 'Daily'
+
+# ===== Testing =====
+dates = pd.date_range(start='2026-01-01', end='2026-12-31', freq='D')
+df = pd.DataFrame({'Date':dates})
+
+df['Demand'] = segment_demand(selection, df_sales)['Demand'].values[0:len(df['Date'])]
+df['Demand STD'] = segment_demand(selection, df_sales)['STD Demand'].values[0:len(df['Date'])]
+df['Demand STD'] = df['Demand STD'].fillna(0)
+df['Lead Time STD'] = segment_LT(selection, df_inventory)['STD Lead Time'].values[0:len(df['Date'])]
+df['Lead Time STD'] = df['Lead Time STD'].fillna(0)
+df['STD'] = np.sqrt((df['Lead Time STD']**2) + (df['Demand STD']**2))
+df = df.drop(columns=['Demand STD', 'Lead Time STD'])
+df['EOQ'] = calculate_eoq(df['Demand']*working_days, setup_cost, holding_cost)
+df['Cycle Time(t*)'] = round(df['EOQ']/df['Demand'],0)
+df['Cycle Time(t*)'] = df['Cycle Time(t*)'].fillna(0)
+df['Lead Time'] = segment_LT(selection, df_inventory)['Lead Time'].values[0:len(df['Date'])].round(0)
+df['Safety Stock'] = round(z*df['STD']*np.sqrt(df['Lead Time']), 0)
+df['Effective lead time'] = np.mod(df['Lead Time'], df['Cycle Time(t*)'])
+df['Effective lead time'] = df['Effective lead time'].fillna(0)
+df['ROP'] = round(calculate_ROP(df['Demand'], df['Effective lead time'], df['Safety Stock']))
+
+
+df['replenish'] = 0
+df.loc[0, 'Inventory'] = 20 - df.loc[0, 'Demand'] + df.loc[0, 'replenish']
+
+for i in range(1, len(df['Date'])):
+    # 1. Calculate today's inventory first (runs for every iteration)
+    df.loc[i, 'Inventory'] = df.loc[max(0, i-1), 'Inventory'] - df.loc[i, 'Demand'] + df.loc[i, 'replenish']
+    
+    el_t = int(df.loc[i, 'Effective lead time'])
+    
+    # 2. Check conditions cleanly using the already-calculated inventory
+    if (df.loc[i, 'Inventory'] <= df.loc[i, 'ROP']) and \
+       (sum(df.loc[max(0, i - el_t):i, 'replenish']) == 0) and \
+       (i + el_t <= len(df['Date']) - 1):
+        
+        # Trigger replenishment arriving in the future
+        df.loc[i + el_t, 'replenish'] = df.loc[i, 'EOQ']
+print(df)
+# %%
+D = segment_demand('Yearly', df_sales).loc[0,'Demand']
+D_STD = segment_demand('Yearly', df_sales).loc[0,'STD Demand']
+LT = segment_LT('Yearly', df_inventory).loc[0,'Lead Time']
+LT_STD = segment_LT('Yearly', df_inventory).loc[0,'STD Lead Time']
+Q = calculate_eoq(D, setup_cost, holding_cost)
+CT = Q/D
+Leff = np.mod(LT, CT)
+STD = np.sqrt((D_STD**2) + (LT_STD**2))
+SS = z*STD*np.sqrt(LT)
+ROP = calculate_ROP(D/working_days, Leff, SS)
+
+df_2 = pd.DataFrame({'Date':dates})
+
+df_2['Demand'] = segment_demand(selection, df_sales)['Demand'].values[0:len(df['Date'])]
+
+df_2['replenish'] = 0
+df_2.loc[0, 'Inventory'] = 20 - df_2.loc[0, 'Demand'] + df_2.loc[0, 'replenish']
+
+for i in range(1, len(df_2['Date'])):
+    # 1. Calculate today's inventory first (runs for every iteration)
+    df_2.loc[i, 'Inventory'] = df_2.loc[max(0, i-1), 'Inventory'] - df_2.loc[i, 'Demand'] + df_2.loc[i, 'replenish']
+    
+    el_t = int(Leff)
+    
+    # 2. Check conditions cleanly using the already-calculated inventory
+    if (df.loc[i, 'Inventory'] <= ROP) and \
+       (sum(df_2.loc[max(0, i - el_t):i, 'replenish']) == 0) and \
+       (i + el_t <= len(df_2['Date']) - 1):
+        
+        # Trigger replenishment arriving in the future
+        df_2.loc[i + el_t, 'replenish'] = Q
+# %%
 plt.figure(1)
-plt.scatter(
-    df_inventory['Inventory_Order_Date'], df_inventory['lead_time_days'],
-    label='Observed lead time',
-)
-plt.plot(
-    df_forecast['Forecast_Date'], df_forecast['Forecast_Lead_Time_Days'],
-    marker='o', linestyle='--', color='tab:red', label='12-month average forecast',
-)
-plt.title("Lead Time and 12-Month Forecast")
-plt.xlabel("Order date")
-plt.ylabel("Lead time (days)")
-plt.legend()
-plt.grid(True, alpha=0.3)
+plt.plot(df_2['Date'], df_2['Demand'])
 
 plt.figure(2)
-plt.plot(monthly_dates, monthly_means, marker='o', label='Monthly average lead time')
-plt.plot(monthly_dates, trend_values, linestyle='--', color='tab:orange', label='Linear trend')
-plt.title("Monthly Lead-Time Trend")
-plt.xlabel("Order month")
-plt.ylabel("Average lead time (days)")
-plt.legend()
-plt.grid(True, alpha=0.3)
+plt.plot(df_2['Date'], df_2['Inventory'])
+plt.plot(df['Date'], df['Inventory'])
+plt.show()
+# %%
+import numpy as np
+import pandas as pd
+from sklearn.cluster import KMeans
+from sklearn.preprocessing import StandardScaler
 
+# # ---------------------------------------------------------
+# # 1. SAMPLE DATA SETUP (Replace this with your actual dataframe: df)
+# # ---------------------------------------------------------
+# np.random.seed(42)
+# date_rng = pd.date_range(start="2026-01-01", end="2026-01-10", freq="h")
+# demand_val = np.random.poisson(lam=50, size=len(date_rng))
+
+# # Inject artificial demand shifts for demonstration
+# demand_val[40:80] = np.random.poisson(lam=120, size=40)  # High demand period
+# demand_val[150:200] = np.random.poisson(
+#     lam=15, size=50
+# )  # Low demand period
+
+# df = pd.DataFrame({"Date": date_rng, "Demand": demand_val})
+
+# # ---------------------------------------------------------
+# # 2. FEATURE ENGINEERING (Behavioral Attributes)
+# # ---------------------------------------------------------
+# # Ensure datetime format and sort
+# df["Date"] = pd.to_datetime(df["Date"])
+
+df = df_sales[['Date', 'Amount']].copy()
+df = df.sort_values("Date").reset_index(drop=True)
+df["Date"] = pd.to_datetime(df["Date"])
+df = df.set_index("Date")
+# Use rolling window statistics to capture demand behavior (e.g., 6-hour window)
+window_size = "30D"
+df["Rolling_Mean"] = (
+    df["Amount"].rolling(window=window_size, min_periods=1).mean().round(0)
+)
+df["Rolling_Std"] = (
+    df["Amount"].rolling(window=window_size, min_periods=1).std().fillna(0)
+)
+
+# ---------------------------------------------------------
+# 3. CLUSTERING DEMAND BEHAVIORS
+# ---------------------------------------------------------
+# Scale features for clustering
+features = df[["Rolling_Mean", "Rolling_Std"]]
+scaler = StandardScaler()
+scaled_features = scaler.fit_transform(features)
+
+# Define number of behavioral states (e.g., 3: Low, Medium, High)
+n_clusters = 3
+kmeans = KMeans(n_clusters=n_clusters, random_state=42, n_init=10)
+df["Behavior_Cluster"] = kmeans.fit_predict(scaled_features)
+
+# ---------------------------------------------------------
+# 4. GROUP CONSECUTIVE TIMESTAMPS INTO DATE RANGES
+# ---------------------------------------------------------
+# Identify changes in cluster state to create distinct blocks
+df["Cluster_Change"] = (
+    df["Behavior_Cluster"] != df["Behavior_Cluster"].shift()
+).cumsum()
+
+# Aggregate into date ranges
+date_ranges = (
+    df.groupby("Cluster_Change")
+    .agg(
+        Start_Date=("Date", "min"),
+        End_Date=("Date", "max"),
+        Behavior_Cluster=("Behavior_Cluster", "first"),
+        Average_Demand=("Amount", "mean"),
+    )
+    .reset_index(drop=True)
+)
+
+print(date_ranges.head(10))
+# %%
+plt.figure(3)
+plt.plot(df['Date'], df['Amount'])
+for i in range(0, len(date_ranges['Start_Date'])):
+    plt.axvline(date_ranges.loc[i, 'Start_Date'], color = 'red')
 plt.show()
 # %%
