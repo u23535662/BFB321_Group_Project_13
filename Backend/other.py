@@ -1,4 +1,44 @@
+# ===== Importing external files =====
+file_path = r'..\Data\Data.xlsx'
 
+try:
+    # Importing Inventory Sheet
+    df_inventory = pd.read_excel(file_path, engine="openpyxl", usecols=[0,1,2,3], sheet_name="Inventory")
+    
+    # Cleaning data: Removing spaces before and after data
+    df_inventory.columns = df_inventory.columns.str.strip()
+    
+    # Convering columns back to correct data type
+    df_inventory['Inventory_Order_Date'] = pd.to_datetime(df_inventory['O_Date'].astype(str) + ' ' + df_inventory['O_Time'].astype(str),format='mixed')
+    df_inventory['Inventory_Update_Date'] = pd.to_datetime(df_inventory['U_Date'].astype(str) + ' ' + df_inventory['U_Time'].astype(str),format='mixed')
+    df_inventory['lead_time_days'] = abs((df_inventory['Inventory_Update_Date'] - df_inventory['Inventory_Order_Date']).dt.total_seconds())/86400
+    # Importing Sales Sheet
+    df_sales = pd.read_excel(file_path, engine="openpyxl", usecols=[0,1,2], sheet_name="Sales")
+    
+    # Cleaning data: Removing spaces before and after data
+    df_sales.columns = df_sales.columns.str.strip()
+    
+    # Converting columns back to correct data type
+    df_sales['Date'] = pd.to_datetime(df_sales['Date'])
+    df_sales['Amount'] = pd.to_numeric(df_sales['Amount'])
+    df_sales['Price'] = pd.to_numeric(df_sales['Price'])
+
+    # Removing rows that contain NA data
+    df_sales = df_sales.dropna(subset=['Date', 'Amount'])
+
+    # Output if the file was imported sucessfully
+    print("Excel file imported successfully!")
+        
+except FileNotFoundError:
+
+    # Output if the file was not found
+    print(f"Error: The file at '{file_path}' could not be found. Check the path.")
+    sys.exit()
+except Exception as e:
+
+    # Output should another error ocurs
+    print(f"An error occurred during import: {e}")
+    sys.exit()
 # %%
 # ===== Creating a function for sectioning the demand based on a selector =====
 def segment_demand(selection: str, df_demand: pd.DataFrame):
