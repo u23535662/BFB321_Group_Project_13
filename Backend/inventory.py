@@ -1,59 +1,13 @@
-# This code has everything to do with the inventory side of the project
-# Ideas: EOQ, inventory forecasting, inventory warnings, trends graphs, ABC classification
-# Methods of importing data: Excell, CSV
+
 # %%
 # ===== Imporing packages =====
 import matplotlib.pyplot as plt
 import pandas as pd
-import pathlib
 import math
-import sys
 import numpy as np
 import scipy.stats as stats
 
 print("Packages imported")
-# %%
-# ===== Importing external files =====
-file_path = r'..\Data\Data.xlsx'
-
-try:
-    # Importing Inventory Sheet
-    df_inventory = pd.read_excel(file_path, engine="openpyxl", usecols=[0,1,2,3], sheet_name="Inventory")
-    
-    # Cleaning data: Removing spaces before and after data
-    df_inventory.columns = df_inventory.columns.str.strip()
-    
-    # Convering columns back to correct data type
-    df_inventory['Inventory_Order_Date'] = pd.to_datetime(df_inventory['O_Date'].astype(str) + ' ' + df_inventory['O_Time'].astype(str),format='mixed')
-    df_inventory['Inventory_Update_Date'] = pd.to_datetime(df_inventory['U_Date'].astype(str) + ' ' + df_inventory['U_Time'].astype(str),format='mixed')
-    df_inventory['lead_time_days'] = abs((df_inventory['Inventory_Update_Date'] - df_inventory['Inventory_Order_Date']).dt.total_seconds())/86400
-    # Importing Sales Sheet
-    df_sales = pd.read_excel(file_path, engine="openpyxl", usecols=[0,1,2], sheet_name="Sales")
-    
-    # Cleaning data: Removing spaces before and after data
-    df_sales.columns = df_sales.columns.str.strip()
-    
-    # Converting columns back to correct data type
-    df_sales['Date'] = pd.to_datetime(df_sales['Date'])
-    df_sales['Amount'] = pd.to_numeric(df_sales['Amount'])
-    df_sales['Price'] = pd.to_numeric(df_sales['Price'])
-
-    # Removing rows that contain NA data
-    df_sales = df_sales.dropna(subset=['Date', 'Amount'])
-
-    # Output if the file was imported sucessfully
-    print("Excel file imported successfully!")
-        
-except FileNotFoundError:
-
-    # Output if the file was not found
-    print(f"Error: The file at '{file_path}' could not be found. Check the path.")
-    sys.exit()
-except Exception as e:
-
-    # Output should another error ocurs
-    print(f"An error occurred during import: {e}")
-    sys.exit()
 # %%
 # ===== Creating Data =====
 np.random.seed(42)
@@ -153,17 +107,31 @@ for i in range(1, len(df_sim)):
         df_sim.loc[i+int(round(effective_LT,0)), 'Replenish'] = Q
 
 # %%
-plt.figure(1, figsize=(12, 6))
-plt.plot(df_sim['Date'], df_sim['Inventory'])
-plt.axhline(y=ROP, color='crimson', linestyle='--', label=f'Reorder Point (ROP = {ROP})')
-plt.axhline(y=SS, color='gray', linestyle='--', label=f'Safety Stock (SS = {SS})')
-plt.axhline(y=0, color='black', linestyle='-')
+plt.figure(1, figsize=(12,6))
+plt.plot(df_sales['Date'], df_sales['Demand'])
 
-plt.title('Inventory Simulation Over Time', fontsize=14, fontweight='bold')
+plt.title('Demand for the year', fontsize=14, fontweight='bold')
 plt.xlabel('Date', fontsize=12)
-plt.ylabel('Inventory Units', fontsize=12)
-plt.legend(loc='upper right')
+plt.ylabel('Demand Units', fontsize=12)
 plt.grid(True, linestyle=':', alpha=0.6)
+
+fig = plt.figure(2, figsize=(12, 6), facecolor="#152d2f")
+ax = fig.add_subplot(111)
+ax.set_facecolor("#b4d9c8")
+plt.tick_params(colors='#ffffff')
+plt.plot(df_sim['Date'], df_sim['Inventory'], color='#9bffed')
+plt.axhline(y=ROP, color='#000000', linestyle='--', label=f'Reorder Point (ROP = {ROP})')
+plt.axhline(y=SS, color='red', linestyle='--', label=f'Safety Stock (SS = {SS})')
+plt.axhline(y=0, color='#ffffff', linestyle='-')
+
+for spine in ax.spines.values():  
+    spine.set_color('white')
+
+plt.title('Inventory Simulation Over Time', fontsize=14, fontweight='bold', color= '#ffffff')
+plt.xlabel('Date', fontsize=12, color='#ffffff')
+plt.ylabel('Inventory Units', fontsize=12, color = '#ffffff')
+plt.legend(loc='upper right')
+plt.grid(True, linestyle=':', alpha=0.6, color= '#FAF9F6')
 plt.show()
 
 # %%
