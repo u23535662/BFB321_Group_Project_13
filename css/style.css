@@ -56,6 +56,7 @@ body {
   width: 15rem;
   height: 100%;
   border-radius: 1rem;
+  padding-bottom: 0.5rem;
 }
 .navlist {
   display: flex;
@@ -303,18 +304,20 @@ li {
   margin: 5px;
   gap: 2rem;
 
-  grid-template-columns: 23rem 23rem 23rem;
+  grid-template-columns: 26rem 26rem 23rem;
   grid-template-rows: 1rem 1fr 20rem;
+
   grid-template-areas:
-    "blockempty blockempty stockbuttons"
+    "blockempty blockempty stockBtns"
     "blocksuppliersmain  blocksuppliersmain blocklowstock"
     "blocksuppliersmain  blocksuppliersmain  blocklowstock";
 }
 
 .blocksuppliersmain {
   grid-area: blocksuppliersmain;
+
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   display: flex;
   flex-direction: column;
 
@@ -323,6 +326,205 @@ li {
   border-radius: 1rem;
   border: 2px solid rgb(155, 255, 237);
   gap: 0.5rem;
+  padding: 0.75rem;
+}
+
+.supp_list_item {
+  align-items: center;
+  justify-content: space-between;
+  display: flex;
+  flex-direction: column;
+
+  background-color: rgb(169, 217, 208, 0.6);
+  width: 99%;
+  /* height: 2rem; */
+
+  border-radius: 1rem;
+  padding: 0.5rem;
+}
+
+.supplier_item {
+  align-items: center;
+  justify-content: space-between;
+  display: flex;
+  flex-direction: row;
+
+  width: 100%;
+}
+
+.list_item_left {
+  align-items: center;
+  justify-content: flex-start;
+  display: flex;
+  flex-direction: row;
+
+  gap: 0.5rem;
+}
+
+.list_item_icon {
+  align-items: center;
+  justify-content: center;
+  display: flex;
+  flex-direction: row;
+
+  background-color: rgb(84, 147, 136);
+  width: 2rem;
+  height: 2rem;
+
+  border-radius: 1rem;
+}
+
+.list_item_title {
+  align-items: center;
+  justify-content: center;
+  display: flex;
+  flex-direction: row;
+}
+
+.list_item_button {
+  align-items: center;
+  justify-content: center;
+  display: flex;
+  flex-direction: row;
+
+  background-color: rgb(84, 147, 136);
+  width: 4rem;
+  height: 2rem;
+
+  border-radius: 1rem;
+  border-style: none;
+}
+
+.list_item_button:hover {
+  background-color: rgb(155, 255, 237);
+  color: rgb(84, 147, 136);
+}
+.list_item_button:active {
+  background-color: rgb(84, 147, 136);
+  color: rgb(155, 255, 237);
+}
+
+.supplier_item_expanded_content {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+
+  width: 100%;
+  border-radius: 1rem;
+  gap: 0.5rem;
+}
+
+.expanded_searchbutt {
+  align-items: center;
+  justify-content: space-between;
+  display: flex;
+  flex-direction: row;
+
+  /* background-color: rgb(94, 155, 145); */
+  width: 70%;
+  height: 2rem;
+
+  border-radius: 1rem;
+  border-style: none;
+}
+
+.searchbar {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+
+  background-color: rgb(21, 45, 47, 0.6);
+  height: 2rem;
+  width: 95%;
+
+  border-radius: 1rem;
+  border-style: none;
+}
+
+.searchbar:focus {
+  border-style: none;
+  outline: rgba(131, 221, 229, 0.6) solid 2px;
+}
+
+.others {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+
+  height: 2rem;
+  width: 35%;
+
+  border-radius: 1rem;
+  gap: 0.5rem;
+}
+
+.filterbutt,
+.clearbutt {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+
+  background-color: rgb(21, 45, 47, 0.6);
+  height: 2rem;
+  width: 2rem;
+
+  border-radius: 0.5rem;
+  border-style: none;
+}
+
+.expanded_description {
+  align-items: center;
+  justify-content: space-between;
+  display: flex;
+  flex-direction: row;
+
+  background-color: rgb(94, 155, 145);
+  width: 100%;
+  height: 1.5rem;
+
+  border-radius: 1rem;
+}
+
+.info {
+  align-items: center;
+  justify-content: center;
+  display: flex;
+  flex-direction: row;
+
+  width: 80%;
+  height: 1.5rem;
+
+  border-radius: 1rem;
+}
+
+.editbutt {
+  align-items: center;
+  justify-content: center;
+  display: flex;
+  flex-direction: row;
+
+  background-color: rgb(21, 45, 47, 0.6);
+  width: 3%;
+  height: 1.5rem;
+
+  border-radius: 10rem;
+  border-style: none;
+}
+
+.expanded_values {
+  align-items: center;
+  justify-content: center;
+  display: flex;
+  flex-direction: row;
+
+  background-color: rgb(94, 155, 145);
+  width: 100%;
+  height: 2rem;
+
+  border-radius: 1rem;
 }
 
 .blockempty {
@@ -339,12 +541,35 @@ li {
   gap: 0.5rem;
 }
 
-.stockbuttons {
-  grid-area: stockbuttons;
+.stockBtns {
+  grid-area: stockBtns;
+
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+
+  gap: 1rem;
+}
+
+.stockbutton1:hover,
+.stockbutton2:hover {
+  background-color: rgb(155, 255, 237);
+  color: rgb(84, 147, 136);
+}
+
+.stockbutton1:active,
+.stockbutton2:active {
+  background-color: rgb(84, 147, 136);
+  color: rgb(155, 255, 237);
+}
+
+.stockbutton1,
+.stockbutton2 {
   align-items: normal;
   justify-content: center;
   display: flex;
-  flex-direction: row;
+  /* flex-direction: row; */
   align-content: center;
 
   background-color: rgb(169, 217, 208, 0.6);
@@ -355,31 +580,5 @@ li {
   border: 2px solid rgb(155, 255, 237);
   gap: 0.5rem;
 }
-
-/* .stockbuttons {
-  grid-area: stockbuttons;
-  align-items: left;
-  justify-content: center;
-  display: flex;
-  flex-direction: column;
-
-  background-color: rgb(169, 217, 208, 0.6);
-  width: 50%;
-  height: 2rem;
-
-  border-radius: 1rem;
-  border: 2px solid rgb(155, 255, 237);
-  gap: 0.5rem;
-} */
-/* .stockbuttons {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  flecx-direction: row;
-
-  background-color: rgb(169, 217, 208, 0.6);
-  width: 95%;
-  height: 10%;
-} */
 
 /* STOCK BLOCKS STYLES END */

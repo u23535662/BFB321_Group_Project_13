@@ -66,9 +66,38 @@
 
     <!-- STOCK BLOCKS START -->
     <div class="stockblocks">
-      <div class="stockbuttons"></div>
-      <div class="stockbuttons"></div>
-      <div class="blocksuppliersmain"></div>
+      <div class="stockBtns">
+        <button id="stockButton1" class="stockbutton1">Button 1</button>
+        <button id="stockButton2" class="stockbutton2">Button 2</button>
+      </div>
+
+      <div class="blocksuppliersmain">
+        <div class="supp_list_item">
+          <div class="supplier_item">
+            <div class="list_item_left">
+              <div class="list_item_icon">XX</div>
+              <p class="list_item_title">Supplier name</p>
+            </div>
+            <button class="list_item_button">View</button>
+          </div>
+          <div class="supplier_item_expanded_content">
+            <div class="expanded_searchbutt">
+              <input class="searchbar" type="text" placeholder="Search..." />
+              <div class="others">
+                <button class="filterbutt"></button>
+                <button class="clearbutt"></button>
+              </div>
+            </div>
+            <div class="expanded_description">
+              <div class="info">
+                
+              </div>
+              <button class="editbutt"></button>
+            </div>
+            <div class="expanded_values"></div>
+          </div>
+        </div>
+      </div>
       <div class="blocklowstock">
         <div class="headingblockstock"></div>
         <div class="contentblockstock"></div>
@@ -81,5 +110,6 @@
     <script
       src="https://kit.fontawesome.com/3000704a08.js"
       crossorigin="anonymous"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
   </body>
 </html>
