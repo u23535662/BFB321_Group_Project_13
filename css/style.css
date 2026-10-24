@@ -57,6 +57,7 @@ body {
   height: 100%;
   border-radius: 1rem;
   padding-bottom: 0.5rem;
+  min-width: 15rem;
 }
 .navlist {
   display: flex;
@@ -84,20 +85,23 @@ li {
   align-items: center;
   justify-content: center;
 
-  width: 90%;
-  height: 3.5rem;
+  width: 100%;
+  height: 5rem;
 
-  gap: 0.5rem;
+  gap: 1.25rem;
 
   margin-top: 0.5rem;
+  margin-right: 1rem;
 }
 .logo {
+  display: flex;
+  flex-direction: row;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-end;
   width: 90%;
   height: 100%;
 
-  background-color: #fffefe;
+  /* background-color: rgb(169, 217, 208); */
   border-radius: 1rem;
 }
 
@@ -125,7 +129,7 @@ li {
   gap: 0.5rem;
   padding: 0.5rem;
 
-  background-color: #ffffff;
+  background-color: rgb(169, 217, 208);
   width: 90%;
   height: 40%;
 }
@@ -136,7 +140,7 @@ li {
   align-items: center;
   justify-content: center;
 
-  background-color: #f6f2f2;
+  background-color: rgb(169, 217, 208);
   width: 90%;
   height: 4rem;
   border-radius: 1rem;
@@ -212,7 +216,7 @@ li {
   align-items: center;
 
   background-color: rgb(169, 217, 208, 0.6);
-  width: 95%;
+  width: 100%;
   height: 10%;
   border-radius: 1rem;
 
@@ -223,13 +227,16 @@ li {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  align-self: stretch;
 
-  background-color: rgb(169, 217, 208, 0.6);
-  width: 95%;
-  height: 10%;
+  background-color: rgba(101, 128, 123, 0.6);
+  /* width: 100%; */
+  /* height: 10%; */
   border-radius: 1rem;
 
   gap: 0.72rem;
+  padding-left: 0.75rem;
+  padding-right: 0.75rem;
 }
 .headingblockgraph {
   display: flex;
@@ -257,13 +264,16 @@ li {
 
 .contentblockstock {
   display: flex;
-  justify-content: center;
+  flex-direction: column;
+  justify-content: flex-start;
   align-items: center;
 
   background-color: rgb(169, 217, 208, 0.6);
   width: 95%;
   height: 85%;
   border-radius: 1rem;
+  padding: 0.5rem;
+  gap: 0.5rem;
 }
 .contentblockgraph {
   display: flex;
@@ -287,6 +297,8 @@ li {
   border-radius: 1rem;
   border: 2px solid rgb(155, 255, 237);
   gap: 0.5rem;
+
+  padding: 0.5rem;
 }
 
 .blockgraph {
@@ -317,7 +329,7 @@ li {
   margin: 5px;
   gap: 2rem;
 
-  grid-template-columns: 26rem 26rem 23rem;
+  grid-template-columns: 26rem 23rem 23rem;
   grid-template-rows: 1rem 1fr 20rem;
 
   grid-template-areas:
