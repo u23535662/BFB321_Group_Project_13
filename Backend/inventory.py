@@ -111,8 +111,8 @@ service_level = 0.95
 annual_demand = df_sales['Demand'].sum().round(0) # u/y
 average_daily_demand = df_sales['Demand'].mean().round(0) # u/d
 std_demand = df_sales['Demand'].std()
-average_LT = 4 # df_inventory['Lead_Time'].mean().round(0) # days
-std_LT = 0 # df_inventory['Lead_Time'].std()
+average_LT = df_inventory['Lead_Time'].mean().round(0) # days
+std_LT = df_inventory['Lead_Time'].std()
 
 Q = calculate_eoq(annual_demand, holding_cost, setup_cost) # u
 cycle_time = Q/average_daily_demand # days
@@ -139,7 +139,7 @@ Re-order point: {ROP} units
 Annual cost: R{TC:.2f}""")
 
 # ===== Simulation =====
-starting_inventory = 200 # units
+starting_inventory = 400 # units
 df_sim = df_sales[['Date', 'Demand']].copy()
 df_sim['Replenish'] = 0
 df_sim.loc[0,'Inventory'] = starting_inventory - df_sim.loc[0,'Demand'] + df_sim.loc[0, 'Replenish']
@@ -165,3 +165,5 @@ plt.ylabel('Inventory Units', fontsize=12)
 plt.legend(loc='upper right')
 plt.grid(True, linestyle=':', alpha=0.6)
 plt.show()
+
+# %%
