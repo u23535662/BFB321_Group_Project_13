@@ -70,6 +70,30 @@
         <button id="stockButton1" class="stockbutton1">
           <div class="new_item_icon">
             <i data-lucide="circle-plus"></i>
+
+            <div id="myModal" class="modal">
+              <!-- Modal content -->
+              <div class="modal-content">
+                <span class="close">&times;</span>
+                <div class="popup_name"></div>
+                <p class="block_title">Item Name</p>
+                <input
+                  class="addProd"
+                  type="text"
+                  placeholder="Product name..." />
+                <p class="block_title">Supplier Name</p>
+                <input
+                  class="addSupp"
+                  type="text"
+                  placeholder="Supplier name..." />
+                <p class="block_title">Units in Stock</p>
+                <input
+                  class="addUnits"
+                  type="text"
+                  placeholder="Units in Stock..." />
+                <span class="submit_popup">Submit</span>
+              </div>
+            </div>
           </div>
           <div class="new_item_text">New Item</div>
         </button>
