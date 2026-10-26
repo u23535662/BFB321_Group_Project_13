@@ -38,22 +38,23 @@ The majority of the frontend design (minus the elements that needs to be linked 
 <!-- You can add the links to all of your imagery at the bottom of the file as references -->
 ## Features and Functionality
 
-![image2][image2]
-### Feature 1
+![Overview_Page](images/Overview_page.png)
+### Overview Page
 
-Description of Feature
 
-![image3][image3]
-### Feature 2
 
-Description of Feature
+![Stock_Page](images/Stock_page.png)
+### Stock Page
 
-![image4][image4]
-### Feature 3
 
-Description of Feature
 
-![image5][image5]
+![Pricelist_Page](images/Pricelist_page.png)
+### Pricelist page
+
+
+
+![Supplier_Page](images/Supplier_page.png)
+### Supplier Page
 
 <!-- AUTHORS -->
 ## Authors
