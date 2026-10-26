@@ -21,7 +21,6 @@
 <!--PROJECT DESCRIPTION-->
 ## About the Project
 <!-- header image of project -->
-![image1][image1]
 
 ### Project Description
 
@@ -33,6 +32,36 @@ The majority of the frontend design (minus the elements that needs to be linked 
 * CSS
 * JavaScript
 * Python
+
+## Getting Started
+
+The following instructions will get you a copy of the project up and running on your local machine for development and testing purposes.
+
+### Prerequisites
+
+Ensure that you have the latest version of [Python]([path/to/where/they/can/download/software](https://www.python.org/downloads/)) installed on your machine.
+
+### How to install
+
+### Installation
+Here are a couple of ways to clone this repo:
+
+1. Software </br>
+`Android Studio` -> `File` -> `New` -> `From Version Control` -> `Git`</br>
+Enter `https://github.com/username/projectname.git` into the URL field and press the `Clone` button.
+
+2. Clone Repository </br>
+Run the following in the command-line to clone the project:
+   ```sh
+   git clone https://github.com/username/projectname.git
+   ```
+    Open `Software` and select `File | Open...` from the menu. Select cloned directory and press `Open` button
+
+3. Install Dependencies </br>
+Run the following in the command-line to install all the required dependencies:
+   ```sh
+   python -m pip install packagename
+   ```
 
 <!-- FEATURES AND FUNCTIONALITY-->
 <!-- You can add the links to all of your imagery at the bottom of the file as references -->
