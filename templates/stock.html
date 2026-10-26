@@ -58,7 +58,7 @@
       </ul>
       <div class="accountbox">
         <i class="fa-solid fa-circle-user"></i>
-        <h1 class="noto-sans-display-h1">Account</h1>
+        <h3 class="noto-sans-display-h1">Account</h3>
       </div>
     </nav>
 
@@ -70,33 +70,34 @@
         <button id="stockButton1" class="stockbutton1">
           <div class="new_item_icon">
             <i data-lucide="circle-plus"></i>
-
-            <div id="myModal" class="modal">
-              <!-- Modal content -->
-              <div class="modal-content">
-                <span class="close">&times;</span>
-                <div class="popup_name"></div>
-                <p class="block_title">Item Name</p>
-                <input
-                  class="addProd"
-                  type="text"
-                  placeholder="Product name..." />
-                <p class="block_title">Supplier Name</p>
-                <input
-                  class="addSupp"
-                  type="text"
-                  placeholder="Supplier name..." />
-                <p class="block_title">Units in Stock</p>
-                <input
-                  class="addUnits"
-                  type="text"
-                  placeholder="Units in Stock..." />
-                <span class="submit_popup">Submit</span>
-              </div>
-            </div>
           </div>
           <div class="new_item_text">New Item</div>
         </button>
+
+        <!-- Modal start -->
+        <div id="myModal" class="modal">
+          <!-- Modal content -->
+          <div class="modal-content">
+            <span class="close" id="close_stock_popup">
+              <i data-lucide="circle-x"></i>
+            </span>
+            <div class="popup_name">
+              <p class="popup_title">Add New Product</p>
+            </div>
+            <p class="block_title">Item Name</p>
+            <input class="addProd" type="text" placeholder="Product name..." />
+            <h3 class="block_title">Supplier Name</h3>
+            <input class="addSupp" type="text" placeholder="Supplier name..." />
+            <p class="block_title">Units in Stock</p>
+            <input
+              class="addUnits"
+              type="text"
+              placeholder="Units in Stock..." />
+            <span class="submit_popup">Submit</span>
+          </div>
+        </div>
+        <!-- Modal end -->
+
         <button id="stockButton2" class="stockbutton2">
           <div class="delete_item_icon">
             <i data-lucide="circle-x"></i>
@@ -590,6 +591,6 @@
     <script>
       lucide.createIcons();
     </script>
-    <script src="./script.js"></script>
+    <script src="../templates/script.js"></script>
   </body>
 </html>

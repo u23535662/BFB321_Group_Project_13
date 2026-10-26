@@ -58,39 +58,96 @@
       </ul>
       <div class="accountbox">
         <i class="fa-solid fa-circle-user"></i>
-        <h1 class="noto-sans-display-h1">Account</h1>
+        <h3 class="noto-sans-display-h1">Account</h3>
       </div>
     </nav>
 
-    <!-- NAV BAR END -->
-
+    <!-- NAV BAR END -->>
     <!-- OVERVIEW BLOCKS START -->
 
     <div class="overviewblocks">
       <div class="blockprices">
-        <div class="headingblockprice"></div>
+        <div class="headingblockprice">
+          <h2 class="noto-sans-display-h1">Frequently used prices</h2>
+        </div>
         <div class="contentblockprice"></div>
       </div>
       <div class="blocksuppliers">
-        <div class="headingblocksuppliers"></div>
-        <div class="contentblocksuppliers"></div>
+        <div class="headingblocksuppliers">
+          <h2>Frequently used suppliers</h2>
+        </div>
+        <div class="contentblocksuppliers">
+          <div class="sup_block">
+            <div class="sup_Block_left">
+              <div class="sup_icon">
+                <i data-lucide="circle-dollar-sign"></i>
+              </div>
+              <h3 class="sup_title">Supplier Name</h3>
+            </div>
+          </div>
+
+          <!-- FILLER START -->
+
+          <div class="sup_block">
+            <div class="sup_Block_left">
+              <div class="sup_icon">
+                <i data-lucide="circle-dollar-sign"></i>
+              </div>
+              <h3 class="sup_title">Supplier Name</h3>
+            </div>
+          </div>
+
+          <!-- FILLER END -->
+        </div>
+
+        <!-- FREQUENT SUPPS END -->
       </div>
       <div class="blocklowstock">
-        <div class="headingblockstock"></div>
-        <div class="contentblockstock"></div>
+        <div class="headingblockstock">
+          <h2>Low Stock Items</h2>
+        </div>
+        <div class="contentblockstock">
+          <div class="lowstockitem">
+            <p class="text">Product name</p>
+            <p class="text">###</p>
+          </div>
+          <div class="lowstockitem">
+            <p class="text">Product name</p>
+            <p class="text">###</p>
+          </div>
+          <div class="lowstockitem">
+            <p class="text">Product name</p>
+            <p class="text">###</p>
+          </div>
+          <div class="lowstockitem">
+            <p class="text">Product name</p>
+            <p class="text">###</p>
+          </div>
+        </div>
       </div>
       <div class="blockgraph">
-        <div class="headingblockgraph"></div>
-        <div class="contentblockgraph"></div>
+        <div class="headingblockgraph">
+          <h2>Graph</h2>
+        </div>
+        <div class="contentblockgraph">
+          <!-- FILLER GRAPH IMG - WILL BE AN ACTUAL GRAPH IN FINAL -->
+          <img class="graph_img" src="../images/graph.jpg" />
+        </div>
       </div>
     </div>
 
     <!-- OVERVIEW BLOCKS END -->
 
+    <!-- LOW STOCK START -->
+
+    <!-- LOW STOCK END -->
     <!-- Script for icons-->
     <script
       src="https://kit.fontawesome.com/3000704a08.js"
       crossorigin="anonymous"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
+    <script>
+      lucide.createIcons();
+    </script>
   </body>
 </html>
