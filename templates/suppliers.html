@@ -24,7 +24,7 @@
       </div>
       <ul class="navlist">
         <li class="pagenames">
-          <a href="index.html" class="noto-sans-display-page active"
+          <a href="index.html" class="noto-sans-display-page"
             ><div>
               <i class="fa-solid fa-chart-line"></i>
               Overview
@@ -48,7 +48,7 @@
           >
         </li>
         <li class="pagenames active">
-          <a href="suppliers.html" class="noto-sans-display-page"
+          <a href="suppliers.html" class="noto-sans-display-page page_active"
             ><div>
               <i class="fa-solid fa-truck-field"></i>
               Suppliers
@@ -91,13 +91,37 @@
       <div id="supp_popup_Hold" class="supp_popup_hold">
         <div class="supp_popup_content">
           <!-- CLOSE BUTTON -->
-          <button id="close_supp" class="close_supp_popup">
-            <i data-lucide="circle-x"></i>
-          </button>
+          <div class="pl_popup_top_bar">
+            <div class="pl_popup_title">
+              <h3>Supplier Name</h3>
+            </div>
+            <button id="close_supp" class="close_supp_popup">
+              <i data-lucide="circle-x"></i>
+            </button>
+          </div>
 
           <!-- POPUP CONTENT -->
-          <h2>Product Name</h2>
-          <p>EK WIL HET HE DIE KAK MOET WERK</p>
+          <div class="pl_product_info">
+            <div class="pl_info_left">
+              <h3>Supplier Contact Details</h3>
+            </div>
+            <div class="pl_info_right">
+              <div class="pl_info_display sup_prod_list">
+                <div class="sup_prod_item">
+                  <h3>Product Name</h3>
+                </div>
+                <div class="sup_prod_item">
+                  <h3>Product Name</h3>
+                </div>
+                <div class="sup_prod_item">
+                  <h3>Product Name</h3>
+                </div>
+                <div class="sup_prod_item">
+                  <h3>Product Name</h3>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>

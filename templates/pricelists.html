@@ -24,7 +24,7 @@
       </div>
       <ul class="navlist">
         <li class="pagenames">
-          <a href="index.html" class="noto-sans-display-page active"
+          <a href="index.html" class="noto-sans-display-page"
             ><div>
               <i class="fa-solid fa-chart-line"></i>
               Overview
@@ -40,7 +40,7 @@
           >
         </li>
         <li class="pagenames active">
-          <a href="pricelists.html" class="noto-sans-display-page"
+          <a href="pricelists.html" class="noto-sans-display-page page_active"
             ><div>
               <i class="fa-solid fa-hand-holding-dollar"></i>
               Pricelist
@@ -88,13 +88,26 @@
         <div id="pl_popup_Hold" class="pl_popup_hold">
           <div class="pl_popup_content">
             <!-- CLOSE BUTTON -->
-            <button id="close_pl" class="close_pl_popup">
-              <i data-lucide="circle-x"></i>
-            </button>
-
-            <!-- POPUP CONTENT -->
-            <h2>Product Name</h2>
-            <p>EK WIL HET HE DIE KAK MOET WERK</p>
+            <div class="pl_popup_top_bar">
+              <div class="pl_popup_title">
+                <h3>Product Name</h3>
+              </div>
+              <button id="close_pl" class="close_pl_popup">
+                <i data-lucide="circle-x"></i>
+              </button>
+            </div>
+            <div class="pl_product_info">
+              <div class="pl_info_left"><h3>Product Information</h3></div>
+              <div class="pl_info_right">
+                <div class="pl_info_display"><h3>Cost Price</h3></div>
+                <div class="pl_info_display"><h3>Selling Price</h3></div>
+                <div class="pl_info_display"><h3>Profit</h3></div>
+                <div class="pl_info_display">
+                  <h3>Profit Split 1</h3>
+                  <h3>Profit Split 1</h3>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
 
