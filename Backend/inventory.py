@@ -23,7 +23,6 @@ df_sales = pd.DataFrame({"Date": data_date, "Demand": data_demand})
 df_inventory = pd.DataFrame({"Date": data_date, "Lead_Time": data_LT})
 
 print("Data generated")
-
 # %%
 # ===== Calculating values =====
 
@@ -75,7 +74,10 @@ SS = calculate_ss(service_level, std_LT, std_demand, average_LT) # u
 ROP = calculate_rop(average_daily_demand, effective_LT, SS) # u
 TC = calculate_tc(annual_demand, setup_cost, Q, holding_cost) # R
 
-print(f"""Input values:
+print(f"""
+=======================================================
+Input values:
+=======================================================
 Holding cost: R{holding_cost}
 Setup cost: R{setup_cost}
 Service level: {service_level*100}%
@@ -84,7 +86,9 @@ Daily demand: {average_daily_demand} units
 Standard deviation for demand: {std_demand:.4f}
 Lead time: {average_LT} days
 Standard deviation for lead time: {std_LT:.4f}
-
+=======================================================
+Output Values:
+=======================================================
 Economic order quantity: {Q} units
 Cycle time: {cycle_time:.2f} days
 Effective lead time: {effective_LT:.2f} days
@@ -105,8 +109,8 @@ for i in range(1, len(df_sim)):
        (df_sim.loc[i:min(i+int(round(effective_LT,0)), len(df_sim)-1), 'Replenish'].sum()==0) and \
        (i + int(round(effective_LT,0)) < len(df_sim)-1):
         df_sim.loc[i+int(round(effective_LT,0)), 'Replenish'] = Q
-
 # %%
+# ===== Plotting data =====
 plt.figure(1, figsize=(12,6))
 plt.plot(df_sales['Date'], df_sales['Demand'])
 
