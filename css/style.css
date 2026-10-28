@@ -1,25 +1,57 @@
 /* FONTS START */
 /* Dashboard font */
-.noto-sans-display-h1 {
-  font-family: "Noto Sans Display", sans-serif;
-  font-optical-sizing: auto;
+
+h3 {
+  font-family: "Poppins", sans-serif;
   font-weight: 400;
   font-style: normal;
+  text-decoration: none;
+  list-style: none;
+}
+
+h2 {
+  font-family: "Poppins", sans-serif;
+  font-weight: 500;
+  font-style: normal;
+  text-decoration: none;
+  list-style: none;
+}
+
+h1 {
+  font-family: "Poppins", sans-serif;
+  font-weight: 700;
+  font-style: normal;
+  text-decoration: none;
+  list-style: none;
+}
+
+p {
+  font-family: "Roboto", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 300;
+  font-style: normal;
   font-variation-settings: "wdth" 100;
-  font-size: 1rem;
+  text-decoration: none;
+  list-style: none;
+}
+
+.noto-sans-display-h1 {
+  font-family: "Poppins", sans-serif;
+  font-weight: 400;
+  font-style: normal;
+  text-decoration: none;
+  list-style: none;
 }
 /* NAV BAR PAGES FONT */
 .noto-sans-display-page {
-  font-family: "Noto Sans Display", sans-serif;
-  font-optical-sizing: auto;
+  font-family: "Poppins", sans-serif;
   font-weight: 400;
   font-style: normal;
-  font-variation-settings: "wdth" 100;
-  font-size: 1.2rem;
-  color: #152d2f;
 
   text-decoration: none;
   list-style: none;
+
+  color: #152d2f;
 }
 
 /* FONTS END  */
@@ -57,6 +89,7 @@ body {
   height: 100%;
   border-radius: 1rem;
   padding-bottom: 0.5rem;
+  min-width: 15rem;
 }
 .navlist {
   display: flex;
@@ -84,20 +117,23 @@ li {
   align-items: center;
   justify-content: center;
 
-  width: 90%;
-  height: 3.5rem;
+  width: 100%;
+  height: 5rem;
 
-  gap: 0.5rem;
+  gap: 1.25rem;
 
   margin-top: 0.5rem;
+  margin-right: 1rem;
 }
 .logo {
+  display: flex;
+  flex-direction: row;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-end;
   width: 90%;
   height: 100%;
 
-  background-color: #fffefe;
+  /* background-color: rgb(169, 217, 208); */
   border-radius: 1rem;
 }
 
@@ -125,7 +161,7 @@ li {
   gap: 0.5rem;
   padding: 0.5rem;
 
-  background-color: #ffffff;
+  background-color: rgb(169, 217, 208);
   width: 90%;
   height: 40%;
 }
@@ -136,13 +172,22 @@ li {
   align-items: center;
   justify-content: center;
 
-  background-color: #f6f2f2;
+  background-color: rgb(169, 217, 208);
   width: 90%;
   height: 4rem;
   border-radius: 1rem;
   gap: 0.5rem;
 
   margin-top: 0.5rem;
+}
+
+.active {
+  background-color: #152d2f;
+  
+}
+
+.page_active {
+  color: #e0e0e0;
 }
 /* NAV BAR STYLES END */
 
@@ -172,7 +217,7 @@ li {
   display: flex;
   flex-direction: column;
 
-  background-color: rgb(169, 217, 208, 0.6);
+  background-color: rgb(84, 147, 136);
   border-radius: 1rem;
   border: 2px solid rgb(155, 255, 237);
   gap: 0.5rem;
@@ -185,7 +230,7 @@ li {
   flex-direction: column;
   grid-area: blockprices;
 
-  background-color: rgb(169, 217, 208, 0.6);
+  background-color: rgb(84, 147, 136);
 
   border-radius: 1rem;
   border: 2px solid rgb(155, 255, 237);
@@ -195,10 +240,10 @@ li {
 .headingblockprice,
 .headingblocksuppliers {
   display: flex;
-  justify-content: left;
+  justify-content: center;
   align-items: center;
 
-  background-color: rgb(169, 217, 208, 0.6);
+  background-color: rgb(169, 217, 208, 0.8);
   width: 95%;
   height: 20%;
   border-radius: 1rem;
@@ -211,8 +256,8 @@ li {
   justify-content: center;
   align-items: center;
 
-  background-color: rgb(169, 217, 208, 0.6);
-  width: 95%;
+  background-color: rgb(169, 217, 208, 0.8);
+  width: 100%;
   height: 10%;
   border-radius: 1rem;
 
@@ -223,20 +268,23 @@ li {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  align-self: stretch;
 
-  background-color: rgb(169, 217, 208, 0.6);
-  width: 95%;
-  height: 10%;
+  background-color: rgb(84, 147, 136);
+  /* width: 100%; */
+  /* height: 10%; */
   border-radius: 1rem;
 
   gap: 0.72rem;
+  padding-left: 0.75rem;
+  padding-right: 0.75rem;
 }
 .headingblockgraph {
   display: flex;
-  justify-content: left;
+  justify-content: center;
   align-items: center;
 
-  background-color: rgb(169, 217, 208, 0.6);
+  background-color: rgb(169, 217, 208, 0.8);
   width: 98%;
   height: 20%;
   border-radius: 1rem;
@@ -248,32 +296,42 @@ li {
   display: flex;
   justify-content: center;
   align-items: center;
+  flex-direction: column;
 
-  background-color: rgb(169, 217, 208, 0.6);
-  width: 95%;
+  /* background-color: rgb(169, 217, 208, 0.8); */
+  width: 90%;
   height: 70%;
   border-radius: 1rem;
+  gap: 0.5rem;
+  margin-left: 0.5rem;
+  margin-right: 0.5rem;
 }
 
 .contentblockstock {
   display: flex;
-  justify-content: center;
+  flex-direction: column;
+  justify-content: flex-start;
   align-items: center;
 
-  background-color: rgb(169, 217, 208, 0.6);
+  background-color: rgb(169, 217, 208, 0.8);
   width: 95%;
   height: 85%;
   border-radius: 1rem;
+  padding: 0.5rem;
+  gap: 0.5rem;
 }
 .contentblockgraph {
   display: flex;
   justify-content: center;
   align-items: center;
 
-  background-color: rgb(169, 217, 208, 0.6);
+  /* background-color: rgb(169, 217, 208, 0.8); */
   width: 98%;
   height: 70%;
   border-radius: 1rem;
+}
+.graph_img {
+  height: 100%;
 }
 .blocklowstock {
   align-items: center;
@@ -282,11 +340,13 @@ li {
   flex-direction: column;
   grid-area: blocklowstock;
 
-  background-color: rgb(169, 217, 208, 0.6);
+  background-color: rgb(84, 147, 136);
 
   border-radius: 1rem;
   border: 2px solid rgb(155, 255, 237);
   gap: 0.5rem;
+
+  padding: 0.5rem;
 }
 
 .blockgraph {
@@ -296,7 +356,7 @@ li {
   flex-direction: column;
   grid-area: blockgraph;
 
-  background-color: rgb(169, 217, 208, 0.6);
+  background-color: rgb(84, 147, 136);
 
   border-radius: 1rem;
   border: 2px solid rgb(155, 255, 237);
@@ -317,7 +377,7 @@ li {
   margin: 5px;
   gap: 2rem;
 
-  grid-template-columns: 26rem 26rem 23rem;
+  grid-template-columns: 26rem 23rem 23rem;
   grid-template-rows: 1rem 1fr 20rem;
 
   grid-template-areas:
@@ -334,7 +394,7 @@ li {
   display: flex;
   flex-direction: column;
 
-  background-color: rgb(169, 217, 208, 0.6);
+  background-color: rgb(84, 147, 136);
 
   border-radius: 1rem;
   border: 2px solid rgb(155, 255, 237);
@@ -416,6 +476,7 @@ li {
 .list_item_button:hover {
   background-color: rgb(155, 255, 237);
   color: rgb(84, 147, 136);
+  cursor: pointer;
 }
 .list_item_button:active {
   background-color: rgb(84, 147, 136);
@@ -654,4 +715,457 @@ li {
   border-radius: 1rem;
 }
 
+/* POPUP FOR ADD AND DELETE */
+
+/* The Modal (background) */
+.modal {
+  display: none;
+  flex-direction: column;
+  position: fixed;
+  z-index: 1;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  background-color: rgb(0, 0, 0);
+  background-color: rgba(0, 0, 0, 0.4);
+}
+
+/* Modal Content/Box */
+.modal-content {
+  background-color: rgb(84, 147, 136);
+  margin: 6% auto;
+  padding: 20px;
+  border: 2px solid rgb(155, 255, 237);
+  border-radius: 1rem;
+  width: 35%;
+  height: 65%;
+  gap: 1rem;
+}
+
+/* The Close Button */
+.close {
+  color: #e7dbdb;
+  float: right;
+  /* font-size: 25px;
+  font-weight: bold; */
+}
+
+.close:hover,
+.close:focus {
+  color: black;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.popup_name {
+  display: flex;
+  justify-content: center;
+  width: 95%;
+  height: 10%;
+  background-color: #152d2f;
+  border-radius: 1rem;
+}
+
+.popup_title {
+  color: #e7dbdb;
+}
+
+.block_title {
+  color: #e7dbdb;
+}
+
+.addProd,
+.addSupp,
+.addUnits {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+
+  background-color: rgb(64, 67, 67);
+  width: 70%;
+  height: 10%;
+
+  border-radius: 1rem;
+  border-style: none;
+  margin-top: 0.5rem;
+  margin-left: 0.5rem;
+}
+
+.addUnits {
+  margin-bottom: 5rem;
+}
+
+.submit_popup {
+  color: #e7dbdb;
+  float: center;
+  background-color: #152d2f;
+  border-radius: 1rem;
+  padding: 0.5rem;
+}
+
+.submit_popup:hover,
+.submit_popup:focus {
+  color: black;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+/* POPUP END */
 /* STOCK BLOCKS STYLES END */
+
+/* PRICELIST PAGE STYLES START */
+.pricelist_body {
+  display: grid;
+  flex-direction: row;
+  justify-content: space-between;
+  flex-wrap: wrap;
+
+  width: 100%;
+  height: 90%;
+  margin: 5px;
+  gap: 2rem;
+
+  grid-template-columns: 1fr;
+  grid-template-rows: 4rem 1fr;
+  grid-template-areas:
+    "pl_searchbar"
+    "pl_list";
+}
+
+.pl_topblock {
+  grid-area: pl_searchbar;
+
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  align-items: center;
+
+  width: 100%;
+  height: 100%;
+
+  background-color: rgb(84, 147, 136);
+  border-radius: 1rem;
+  gap: 1rem;
+}
+
+.pl_searchbar {
+  grid-area: pl_searchbar;
+
+  width: 88%;
+  height: 50%;
+
+  background-color: rgb(84, 147, 136);
+  outline: rgba(19, 22, 22, 0.6) solid 2px;
+  border-radius: 1rem;
+  margin-left: 1.5rem;
+  border-style: none;
+}
+
+.pl_searchbar:focus {
+  outline: rgba(19, 22, 22, 0.6) solid 2px;
+}
+
+.pl_bodyblock {
+  grid-area: pl_list;
+
+  align-items: center;
+  justify-content: flex-start;
+  display: flex;
+  flex-direction: column;
+
+  background-color: rgb(169, 217, 208, 0.6);
+
+  border-radius: 1rem;
+  border: 2px solid rgb(155, 255, 237);
+  gap: 0.5rem;
+  padding: 0.75rem;
+
+  overflow-y: auto;
+  scrollbar-width: none;
+
+  overflow-x: hidden;
+}
+
+.pl_block,
+.sup_block {
+  align-items: center;
+  justify-content: space-between;
+  display: flex;
+  flex-direction: row;
+
+  width: 100%;
+  background-color: rgb(169, 217, 208, 0.6);
+  padding: 0.5rem;
+  border-radius: 1rem;
+  border-style: none;
+
+  cursor: pointer;
+}
+
+.pl_block:hover,
+.sup_block:hover {
+  background-color: #e0e0e0;
+}
+
+.pl_Block_left,
+.sup_Block_left {
+  align-items: center;
+  justify-content: flex-start;
+  display: flex;
+  flex-direction: row;
+
+  gap: 0.5rem;
+}
+
+.pl_icon,
+.sup_icon {
+  align-items: center;
+  justify-content: center;
+  display: flex;
+  flex-direction: row;
+
+  background-color: rgb(84, 147, 136);
+  width: 2rem;
+  height: 2rem;
+
+  border-radius: 1rem;
+}
+
+.pl_title,
+.sup_title {
+  align-items: center;
+  justify-content: center;
+  display: flex;
+  flex-direction: row;
+}
+
+.pl_popup_hold,
+.supp_popup_hold {
+  display: none;
+  flex-direction: column;
+  position: fixed;
+  z-index: 1;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  background-color: rgb(0, 0, 0);
+  background-color: rgba(0, 0, 0, 0.4);
+}
+
+.pl_popup_content,
+.supp_popup_content {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+  align-self: stretch;
+
+  gap: 2rem;
+
+  overflow: hidden;
+
+  position: relative;
+  box-sizing: border-box;
+  background-color: rgb(84, 147, 136);
+  margin: auto;
+  /* padding: 40px 20px 20px; */
+  border: 2px solid rgb(155, 255, 237);
+  border-radius: 1rem;
+  width: 35%;
+  /* height: 65%; */
+}
+
+.close_pl_popup,
+.close_supp_popup {
+  cursor: pointer;
+
+  background: none;
+  border-style: none;
+}
+
+.pl_popup_top_bar {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+
+  width: 100%;
+  padding: 0.25rem;
+
+  background-color: rgb(169, 217, 208, 0.6);
+}
+
+.pl_product_info {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+
+  align-self: stretch;
+
+  /* width: 100%; */
+
+  padding: 1.75rem;
+  gap: 1rem;
+
+  /* border: 1px solid blue; */
+}
+
+.pl_info_left {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: flex-start;
+  align-self: stretch;
+
+  width: 100%;
+
+  background-color: rgb(169, 217, 208, 0.6);
+
+  padding: 0.5rem;
+
+  border-radius: 1rem;
+
+  /* border: 1px solid red; */
+}
+
+.pl_info_right {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  align-self: stretch;
+
+  width: 100%;
+
+  /* padding: 1rem; */
+  gap: 0.75rem;
+
+  /* border: 1px solid red; */
+}
+
+.pl_info_display {
+  display: flex;
+  flex-direction: column;
+  align-self: stretch;
+
+  background-color: rgb(169, 217, 208, 0.6);
+
+  padding: 0.5rem;
+
+  border-radius: 1rem;
+
+  /* border: 1px solid purple; */
+}
+
+.sup_prod_list {
+  display: flex;
+  flex-direction: column;
+}
+
+.sup_prod_item {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  align-items: center;
+  align-self: stretch;
+
+  padding: 0.5rem;
+
+  border-bottom: 1px solid rgb(155, 255, 237);
+}
+
+/* PRICELIST PAGE STYLES END */
+
+/* SUPPLIER PAGE STYLES START */
+.supplier_body {
+  display: grid;
+  flex-direction: row;
+  justify-content: space-between;
+  flex-wrap: wrap;
+
+  width: 100%;
+  height: 90%;
+  margin: 5px;
+  gap: 2rem;
+
+  grid-template-columns: 1fr;
+  grid-template-rows: 4rem 1fr;
+  grid-template-areas:
+    "pl_searchbar"
+    "pl_list";
+}
+
+.sup_topblock {
+  grid-area: pl_searchbar;
+
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  align-items: center;
+
+  width: 100%;
+  height: 100%;
+
+  background-color: rgb(84, 147, 136);
+  border-radius: 1rem;
+  gap: 1rem;
+}
+
+.sup_searchbar {
+  grid-area: pl_searchbar;
+
+  width: 88%;
+  height: 50%;
+
+  background-color: rgb(84, 147, 136);
+  outline: rgba(19, 22, 22, 0.6) solid 2px;
+  border-radius: 1rem;
+  margin-left: 1.5rem;
+  border-style: none;
+}
+
+.sup_searchbar:focus {
+  outline: rgba(19, 22, 22, 0.6) solid 2px;
+}
+
+.sup_bodyblock {
+  grid-area: pl_list;
+
+  align-items: center;
+  justify-content: flex-start;
+  display: flex;
+  flex-direction: column;
+
+  background-color: rgb(169, 217, 208, 0.6);
+
+  border-radius: 1rem;
+  border: 2px solid rgb(155, 255, 237);
+  gap: 0.5rem;
+  padding: 0.75rem;
+
+  overflow-y: auto;
+  scrollbar-width: none;
+
+  overflow-x: hidden;
+}
+
+.sup_Block_left {
+  align-items: center;
+  justify-content: flex-start;
+  display: flex;
+  flex-direction: row;
+
+  gap: 0.5rem;
+}
+
+.close_sup_popup {
+  cursor: pointer;
+
+  background: none;
+}
+/* SUPPLIER PAGE STYLES END */

@@ -24,7 +24,7 @@
       </div>
       <ul class="navlist">
         <li class="pagenames">
-          <a href="index.html" class="noto-sans-display-page active"
+          <a href="index.html" class="noto-sans-display-page"
             ><div>
               <i class="fa-solid fa-chart-line"></i>
               Overview
@@ -32,7 +32,7 @@
           >
         </li>
         <li class="pagenames active">
-          <a href="stock.html" class="noto-sans-display-page"
+          <a href="stock.html" class="noto-sans-display-page page_active"
             ><div>
               <i class="fa-solid fa-boxes-packing"></i>
               Stock
@@ -58,7 +58,7 @@
       </ul>
       <div class="accountbox">
         <i class="fa-solid fa-circle-user"></i>
-        <h1 class="noto-sans-display-h1">Account</h1>
+        <h3 class="noto-sans-display-h1">Account</h3>
       </div>
     </nav>
 
@@ -73,6 +73,31 @@
           </div>
           <div class="new_item_text">New Item</div>
         </button>
+
+        <!-- Modal start -->
+        <div id="myModal" class="modal">
+          <!-- Modal content -->
+          <div class="modal-content">
+            <span class="close" id="close_stock_popup">
+              <i data-lucide="circle-x"></i>
+            </span>
+            <div class="popup_name">
+              <p class="popup_title">Add New Product</p>
+            </div>
+            <p class="block_title">Item Name</p>
+            <input class="addProd" type="text" placeholder="Product name..." />
+            <h3 class="block_title">Supplier Name</h3>
+            <input class="addSupp" type="text" placeholder="Supplier name..." />
+            <p class="block_title">Units in Stock</p>
+            <input
+              class="addUnits"
+              type="text"
+              placeholder="Units in Stock..." />
+            <span class="submit_popup">Submit</span>
+          </div>
+        </div>
+        <!-- Modal end -->
+
         <button id="stockButton2" class="stockbutton2">
           <div class="delete_item_icon">
             <i data-lucide="circle-x"></i>
@@ -539,6 +564,19 @@
           <div class="lowstockitem">
             <p class="text">Product name</p>
             <p class="text">###</p>
+          </div>
+          <div class="lowstockitem">
+            <p class="text">Product name</p>
+            <p class="text">###</p>
+          </div>
+          <div class="lowstockitem">
+            <p class="text">Product name</p>
+            <p class="text">###</p>
+          </div>
+          <div class="lowstockitem">
+            <p class="text">Product name</p>
+            <p class="text">###</p>
+          </div>
         </div>
       </div>
     </div>
@@ -553,6 +591,6 @@
     <script>
       lucide.createIcons();
     </script>
-    <script src="./script.js"></script>
+    <script src="../templates/script.js"></script>
   </body>
 </html>
