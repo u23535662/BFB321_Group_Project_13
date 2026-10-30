@@ -60,7 +60,16 @@ Run the following in the command-line to clone the project:
 3. Install Dependencies </br>
 Run the following in the command-line to install all the required dependencies:
    ```sh
-   python -m pip install packagename
+   python -m pip install matplotlib
+   ```
+    ```sh
+   python -m pip install pandas
+   ```
+     ```sh
+   python -m pip install numpy
+   ```
+      ```sh
+   python -m pip install scipy
    ```
 
 <!-- FEATURES AND FUNCTIONALITY-->
