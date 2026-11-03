@@ -2,3 +2,7 @@ flask
 pymysql
 python-dotenv
 cryptography
+matplotlib
+pandas
+numpy
+scipy
