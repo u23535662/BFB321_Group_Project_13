@@ -13,9 +13,10 @@ SET FOREIGN_KEY_CHECKS = 1;
 
 -- 1. Product Table
 CREATE TABLE Product (
-    product_id      INT AUTO_INCREMENT  PRIMARY KEY,
-    product_name    VARCHAR(255)        NOT NULL,
-    product_price   DECIMAL(10, 2)      NOT NULL
+    product_id           INT AUTO_INCREMENT  PRIMARY KEY,
+    product_name         VARCHAR(255)        NOT NULL,
+    product_price        DECIMAL(10, 2)      NOT NULL DEFAULT 0,
+    product_holding_cost DECIMAL(10, 2)      NOT NULL DEFAULT 0
 );
 
 -- 2. Supplier Table
@@ -23,7 +24,8 @@ CREATE TABLE Supplier (
     supplier_id                     INT AUTO_INCREMENT PRIMARY KEY,
     supplier_name                   VARCHAR(255)       NOT NULL,
     supplier_from_date              DATE               NOT NULL    DEFAULT (CURRENT_DATE),
-    reason_for_changing_supplier    TEXT
+    reason_for_changing_supplier    TEXT,
+    supplier_price                  DECIMAL(10,2)      NOT NULL    DEFAULT 0
 );
 
 -- 3. Product-Supplier Junction Table (Many-to-Many)

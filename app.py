@@ -14,12 +14,11 @@ db.init_app(app)
 
 @app.route('/')
 def index():
-    # This runs inside an active request/application context
-    product = "1"
+    product = "2"
     df_products = pd.DataFrame(models.select_product(product))
-    std_lt = float(db.query_all("SELECT std(i.inventory_update_date - i.inventory_order_date) AS std_d FROM Inventory_Order i WHERE i.product_id = %s", product))
-    std_demand = float(db.query_all("SELECT std(s.sold_quantity) AS std_s FROM Sale s WHERE s.product_id = %s", product))
-    avg_Lt = float(db.query_all("SELECT avg(i.inventory_update_date - i.inventory_order_date) AS avg_d FROM Inventory_Order i WHERE i.product_id = %s", product))
+    std_lt = float(db.query_all("SELECT std(i.inventory_update_date - i.inventory_order_date) AS std_d FROM Inventory_Order i WHERE i.product_id = %s", product)[0]['std_d'])
+    std_demand = float(db.query_all("SELECT std(s.sold_quantity) AS std_s FROM Sale s WHERE s.product_id = %s", product)[0]['std_s'])
+    avg_Lt = float(db.query_all("SELECT avg(i.inventory_update_date - i.inventory_order_date) AS avg_d FROM Inventory_Order i WHERE i.product_id = %s", product)[0]['avg_d'])
     ss = models.calculate_ss(0.95,std_lt, std_demand, avg_Lt)
     eoq = models.calculate_eoq(int(df_products['Demand'].sum()), 20, 300)
     ct = eoq/df_products['Demand'].mean().round(0)
@@ -53,7 +52,7 @@ def index():
         <title>Inventory Simulation</title>
       </head>
       <body style="font-family: Arial, sans-serif; text-align: center; background-color: #f9f9f9; margin: 30px;">
-        <h1 style="color: #333;">Inventory Simulation for Product 1</h1>
+        <h1 style="color: #333;">Inventory Simulation for Product {product}</h1>
         
         <!-- Displaying the plot image -->
         <div style="background: white; padding: 20px; display: inline-block; box-shadow: 0px 0px 10px rgba(0,0,0,0.1); border-radius: 8px;">
@@ -65,6 +64,19 @@ def index():
     </html>
     """
     return html_page
+
+@app.route('/b')
+def b():
+
+sql = """
+    SELECT s.products_sold_date, s.sold_quantity
+    FROM Sale s
+    WHERE s.product_id = %s and s.sold_quantity>%s
+    order by s.products_sold_date
+"""
+
+d = db.query_all(sql, "1", "12")
+return d.html
 
 if __name__ == '__main__':
     app.run(debug=True)
