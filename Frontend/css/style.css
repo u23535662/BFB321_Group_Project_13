@@ -191,6 +191,16 @@ li {
 }
 /* NAV BAR STYLES END */
 
+
+
+
+
+
+
+
+
+
+
 /* OVERVIEW BLOCKS STYLES START */
 .overviewblocks {
   display: grid;
@@ -209,6 +219,35 @@ li {
     "blockprices blocksuppliers blocklowstock"
     "blockgraph blockgraph blocklowstock";
 }
+
+
+
+
+
+
+
+
+.blocktodo {
+}
+
+.blockproducts {
+}
+
+.blockbuttons {
+}
+
+.blockbarchart{
+}
+
+.blockeoqgraph{
+}
+
+
+
+
+
+
+
 
 .blocksuppliers {
   grid-area: blocksuppliers;
@@ -363,6 +402,18 @@ li {
   gap: 0.5rem;
 }
 /* OVERVIEW BLOCKS STYLES END */
+
+
+
+
+
+
+
+
+
+
+
+
 
 /* STOCK BLOCKS STYLES START */
 .stockblocks {
