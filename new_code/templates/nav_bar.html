@@ -1,0 +1,84 @@
+<!--
+=============================================================================
+Course: BFB321 - Supply Chain Web Application
+Component: new_code/templates/nav_bar.html
+Description:
+    Reusable navigation component extracted from index.html.
+    Implements the Jinja2 component/include design pattern taught in
+    Class 2 (Slide 18 & 21) and Class 5 (Slide 50).
+    
+    Features:
+    - Stanway brand logo with grip-lines icon
+    - Active navigation highlighting based on active_page / request.endpoint
+    - Links for Overview, Stock, Pricelist, and Suppliers
+    - Account identity indicator
+=============================================================================
+-->
+
+<!-- NAV BAR COMPONENT START -->
+<nav class="navbar" id="main_navbar">
+  <div class="logobox">
+    <div class="logo">
+      <img
+        src="{{ url_for('static', filename='images/Stanway-Logo-picture.png') if url_for is defined else 'static/images/Stanway-Logo-picture.png' }}"
+        alt="Stanway Logo"
+        class="logoimg"
+        onerror="this.onerror=null; this.src='../Backup/images/Stanway-Logo-picture.png';"
+      />
+    </div>
+    <i class="fa-solid fa-grip-lines brand-grip" title="Stanway Navigation"></i>
+  </div>
+
+  <ul class="navlist">
+    <!-- Overview Link (Active by default on Overview Dashboard) -->
+    <li class="pagenames {{ 'active' if active_page == 'overview' or (request is defined and request.endpoint == 'overview') or active_page is not defined else '' }}">
+      <a
+        href="{{ url_for('overview') if url_for is defined else 'overview.html' }}"
+        class="noto-sans-display-page {{ 'page_active' if active_page == 'overview' or (request is defined and request.endpoint == 'overview') or active_page is not defined else '' }}"
+      >
+        <div>
+          <i class="fa-solid fa-chart-line"></i>
+          Overview
+        </div>
+      </a>
+    </li>
+
+    <!-- Stock Management Link -->
+    <li class="pagenames {{ 'active' if active_page == 'stock' else '' }}">
+      <a href="#stock" class="noto-sans-display-page {{ 'page_active' if active_page == 'stock' else '' }}">
+        <div>
+          <i class="fa-solid fa-boxes-packing"></i>
+          Stock
+        </div>
+      </a>
+    </li>
+
+    <!-- Pricelist Link -->
+    <li class="pagenames {{ 'active' if active_page == 'pricelists' else '' }}">
+      <a href="#pricelists" class="noto-sans-display-page {{ 'page_active' if active_page == 'pricelists' else '' }}">
+        <div>
+          <i class="fa-solid fa-hand-holding-dollar"></i>
+          Pricelist
+        </div>
+      </a>
+    </li>
+
+    <!-- Suppliers Link -->
+    <li class="pagenames {{ 'active' if active_page == 'suppliers' else '' }}">
+      <a href="#suppliers" class="noto-sans-display-page {{ 'page_active' if active_page == 'suppliers' else '' }}">
+        <div>
+          <i class="fa-solid fa-truck-field"></i>
+          Suppliers
+        </div>
+      </a>
+    </li>
+  </ul>
+
+  <!-- User Account Box -->
+  <div class="accountbox">
+    <i class="fa-solid fa-circle-user account-icon"></i>
+    <h3 class="noto-sans-display-h1">Account</h3>
+  </div>
+</nav>
+<!-- NAV BAR COMPONENT END -->
+

@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Overview Dashboard - Stanway Supply Chain</title>
+
+  <!-- Google Fonts: Gelasio & Noto Sans Display (Consistent with index.html) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Gelasio:ital,wght@0,400..700;1,400..700&family=Noto+Sans+Display:ital,wght@0,300..800;1,300..800&display=swap"
+    rel="stylesheet"
+  />
+
+  <!-- Font Awesome Icons -->
+  <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+    crossorigin="anonymous"
+    referrerpolicy="no-referrer"
+  />
+
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <!-- Chart.js for Minimal Client-Side Visualization Rendering -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+
+  <!-- Project Stylesheet -->
+  <link
+    rel="stylesheet"
+    href="{{ url_for('static', filename='css/style.css') if url_for is defined else 'static/css/style.css' }}"
+    onerror="this.onerror=null; this.href='../css/style.css';"
+  />
+</head>
+<body>
+
+  <!-- ===================================================================== -->
+  <!-- 1. REUSABLE NAVIGATION BAR (Jinja2 Include as per Lecture Slides)      -->
+  <!-- ===================================================================== -->
+  {% include 'nav_bar.html' %}
+
+  <!-- ===================================================================== -->
+  <!-- 2. MAIN DASHBOARD CONTENT AREA                                        -->
+  <!-- ===================================================================== -->
+  <main class="dashboard-wrapper">
+
+    <!-- =================================================================== -->
+    <!-- SIDEBAR: SUPPLY CHAIN PRODUCT LIST & STOCK STATUS INDICATORS         -->
+    <!-- =================================================================== -->
+    <aside class="product-sidebar">
+      <div class="sidebar-header">
+        <h2 class="sidebar-title">
+          <i class="fa-solid fa-boxes-stacked"></i>
+          Product Portfolio
+        </h2>
+        <p class="sidebar-subtitle">Select an item to isolate charts and view EOQ</p>
+      </div>
+
+      <div class="product-list-container">
+        <!-- ALL PRODUCTS RESET OPTION (State A Default) -->
+        <div
+          class="product-item-card {{ 'selected' if not overview_data.selected_id else '' }}"
+          data-product-id=""
+          title="Click to view total portfolio and all product simulations"
+        >
+          <div class="card-top-row">
+            <span class="product-name">All Products (Portfolio)</span>
+            <span class="product-price-tag">{{ overview_data.portfolio.grand_total_val_formatted }}</span>
+          </div>
+          <div class="card-bottom-row">
+            <div class="stock-count-box">
+              <i class="fa-solid fa-layer-group"></i>
+              <span class="stock-count-num">{{ overview_data.portfolio.total_items_count }} Items</span>
+            </div>
+            <span class="status-indicator-badge badge-success">
+              <i class="fa-solid fa-chart-pie"></i> State A: Overview
+            </span>
+          </div>
+        </div>
+
+        <!-- DYNAMIC PRODUCT LIST WITH STOCK STATUS INDICATORS -->
+        {% for p in overview_data.products %}
+        <div
+          class="product-item-card {{ 'selected' if overview_data.selected_id == p.product_id else '' }}"
+          data-product-id="{{ p.product_id }}"
+          title="{{ p.description }}"
+        >
+          <div class="card-top-row">
+            <span class="product-name">{{ p.name }}</span>
+            <span class="product-price-tag">{{ p.price_formatted }}</span>
+          </div>
+          <div class="card-bottom-row">
+            <div class="stock-count-box">
+              <i class="fa-solid fa-warehouse"></i>
+              <span class="stock-count-num">{{ p.available_qty }} in stock</span>
+            </div>
+            <!-- Visual Stock Status Indicator (Red, Yellow-Orange, Orange, Green) -->
+            <span class="status-indicator-badge {{ p.badge_class }}">
+              <i class="{{ p.icon }}"></i> {{ p.status }}
+            </span>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+
+      <!-- VISUAL STOCK STATUS INDICATOR LEGEND -->
+      <div class="status-legend-panel">
+        <div class="status-legend-title">
+          <i class="fa-solid fa-info-circle"></i> Stock Status Legend
+        </div>
+        <div class="legend-items-grid">
+          <div class="legend-item"><span style="color: #ef4444;">🔴</span> Out of Stock</div>
+          <div class="legend-item"><span style="color: #eab308;">⚠️</span> Safety Stock</div>
+          <div class="legend-item"><span style="color: #f97316;">🟧</span> Low Stock</div>
+          <div class="legend-item"><span style="color: #10b981;">🟢</span> Healthy Stock</div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- =================================================================== -->
+    <!-- MAIN INTERACTIVE CHARTS & ACTION SECTION                             -->
+    <!-- =================================================================== -->
+    <section class="main-dashboard-content">
+
+      <!-- TOP RIGHT BAR: TITLE & DISTINCT ACTION BUTTONS -->
+      <div class="top-actions-bar">
+        <div class="header-text-group">
+          <h1 class="page-main-heading">
+            <i class="fa-solid fa-chart-pie"></i>
+            Inventory & EOQ Operations
+          </h1>
+          <p class="page-subheading">
+            Real-time supply chain analytics, economic order simulation, and financial breakdown
+          </p>
+        </div>
+
+        <!-- TWO DISTINCT ACTION BUTTONS (Analysis & Month End) -->
+        <div class="action-buttons-group">
+          <button id="btnAnalysis" class="action-btn btn-analysis" title="View EOQ and Cost Analysis">
+            <i class="fa-solid fa-magnifying-glass-chart"></i>
+            Analysis
+          </button>
+          <button id="btnMonthEnd" class="action-btn btn-month-end" title="Execute Month-End Inventory Review">
+            <i class="fa-solid fa-calendar-check"></i>
+            Month End
+          </button>
+        </div>
+      </div>
+
+      <!-- CHARTS CONTAINER -->
+      <div class="charts-grid-container">
+
+        <!-- =============================================================== -->
+        <!-- CHART 1: STACKED BAR CHART (Center Right)                       -->
+        <!-- State A: Total stock across all products in Money format ($)   -->
+        <!-- State B: Single product selected in Stock Units                -->
+        <!-- =============================================================== -->
+        <div class="chart-card">
+          <div class="chart-header">
+            <div class="chart-title-group">
+              <h2 class="chart-title">
+                <i class="fa-solid fa-chart-column"></i>
+                Inventory Valuation & Allocation (Stacked Bar)
+              </h2>
+              <span class="chart-subtitle">
+                Available vs. Reserved vs. Sold Breakdown
+              </span>
+            </div>
+            <!-- Dynamic State Badge -->
+            <div id="chart1ModePill" class="chart-mode-pill">
+              <i class="fa-solid fa-dollar-sign"></i> State A: Financial Valuation ($)
+            </div>
+          </div>
+
+          <!-- Canvas for Chart 1 -->
+          <div class="chart-canvas-wrapper">
+            <canvas id="stackedBarCanvas"></canvas>
+          </div>
+
+          <!-- Financial / Unit Readout Footer -->
+          <div class="chart-footer-metrics">
+            <div class="metric-item">
+              <span class="metric-dot green"></span>
+              <span class="metric-label">Available:</span>
+              <span id="c1MetricAvailable" class="metric-value">{{ overview_data.portfolio.total_available_val_formatted }}</span>
+            </div>
+            <div class="metric-item">
+              <span class="metric-dot orange"></span>
+              <span class="metric-label">Reserved (Jobs):</span>
+              <span id="c1MetricReserved" class="metric-value">{{ overview_data.portfolio.total_reserved_val_formatted }}</span>
+            </div>
+            <div class="metric-item">
+              <span class="metric-dot red"></span>
+              <span class="metric-label">Sold (Sales):</span>
+              <span id="c1MetricSold" class="metric-value">{{ overview_data.portfolio.total_sold_val_formatted }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- =============================================================== -->
+        <!-- CHART 2: REAL-TIME EOQ SIMULATION LINE CHART (Bottom Right)      -->
+        <!-- State A: Real-time simulation curves for ALL products           -->
+        <!-- State B: Single product selected (Forecast overlapping Actual)  -->
+        <!-- =============================================================== -->
+        <div class="chart-card">
+          <div class="chart-header">
+            <div class="chart-title-group">
+              <h2 class="chart-title">
+                <i class="fa-solid fa-wave-square"></i>
+                Real-Time EOQ Simulation & Replenishment
+              </h2>
+              <span class="chart-subtitle">
+                Continuous dynamic inventory trajectory driven by simulation_eoq()
+              </span>
+            </div>
+            <!-- Dynamic State Badge -->
+            <div id="chart2ModePill" class="chart-mode-pill">
+              <i class="fa-solid fa-chart-line"></i> State A: All Products Trajectory
+            </div>
+          </div>
+
+          <!-- Canvas for Chart 2 -->
+          <div class="chart-canvas-wrapper">
+            <canvas id="eoqSimulationCanvas"></canvas>
+          </div>
+
+          <!-- Supply Chain Parameters Readout Footer -->
+          <div class="chart-footer-metrics">
+            <div class="metric-item">
+              <span class="metric-dot cyan"></span>
+              <span class="metric-label">EOQ Batch:</span>
+              <span id="c2StatEoq" class="metric-value">Multi-Item</span>
+            </div>
+            <div class="metric-item">
+              <span class="metric-dot blue"></span>
+              <span class="metric-label">Reorder Point (ROP):</span>
+              <span id="c2StatRop" class="metric-value">Dynamic</span>
+            </div>
+            <div class="metric-item">
+              <span class="metric-dot red"></span>
+              <span class="metric-label">Safety Stock (SS):</span>
+              <span id="c2StatSs" class="metric-value">Active</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+  </main>
+
+  <!-- ===================================================================== -->
+  <!-- 3. ACTION BUTTON MODALS                                               -->
+  <!-- ===================================================================== -->
+
+  <!-- ANALYSIS MODAL -->
+  <div id="modalAnalysis" class="modal-overlay">
+    <div class="modal-content-card">
+      <div class="modal-header">
+        <h3 class="modal-title">
+          <i class="fa-solid fa-magnifying-glass-chart"></i>
+          Supply Chain EOQ & Cost Optimization Analysis
+        </h3>
+        <button id="closeAnalysis" class="modal-close-btn" aria-label="Close Analysis">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p>
+          This analytical report evaluates the economic order parameters and total cost tradeoffs
+          governed by the course EOQ model:
+          <code>Q = &radic;(2 &times; D &times; S / H)</code> and <code>TC = (S &times; D / Q) + (Q &times; H / 2)</code>.
+        </p>
+        <table class="modal-table">
+          <thead>
+            <tr>
+              <th>Product</th>
+              <th>Unit Price</th>
+              <th>Annual Demand</th>
+              <th>EOQ (Batch)</th>
+              <th>Safety Stock</th>
+              <th>Reorder Point</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for p in overview_data.products %}
+            <tr>
+              <td><strong>{{ p.name }}</strong></td>
+              <td>{{ p.price_formatted }}</td>
+              <td>{{ p.sold_qty }} units</td>
+              <td>{{ p.eoq }} units</td>
+              <td>{{ p.ss }} units</td>
+              <td>{{ p.rop }} units</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+        <div style="background: rgba(21, 45, 47, 0.15); padding: 0.85rem; border-radius: 0.75rem; font-size: 0.85rem;">
+          <i class="fa-solid fa-lightbulb"></i>
+          <strong>Key Insight:</strong> Operating at optimal EOQ minimizes the combined holding and setup costs,
+          preventing excess capital tie-up while insulating clinical protocols with calculated safety stock buffers.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MONTH END MODAL -->
+  <div id="modalMonthEnd" class="modal-overlay">
+    <div class="modal-content-card">
+      <div class="modal-header">
+        <h3 class="modal-title">
+          <i class="fa-solid fa-calendar-check"></i>
+          Month-End Inventory Reconciliation & Audit
+        </h3>
+        <button id="closeMonthEnd" class="modal-close-btn" aria-label="Close Month End">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p>
+          Summary of current financial valuation, physical counts, and reservation allocations across all cosmetic practice lines:
+        </p>
+        <table class="modal-table">
+          <thead>
+            <tr>
+              <th>Metric Description</th>
+              <th>Unit Quantity</th>
+              <th>Financial Valuation ($)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Available On-Hand Stock</strong></td>
+              <td>{{ overview_data.portfolio.total_available_qty }} units</td>
+              <td>{{ overview_data.portfolio.total_available_val_formatted }}</td>
+            </tr>
+            <tr>
+              <td><strong>Reserved for Jobs & Protocols</strong></td>
+              <td>{{ overview_data.portfolio.total_reserved_qty }} units</td>
+              <td>{{ overview_data.portfolio.total_reserved_val_formatted }}</td>
+            </tr>
+            <tr>
+              <td><strong>Total Sold Units (Demand Satisfied)</strong></td>
+              <td>{{ overview_data.portfolio.total_sold_qty }} units</td>
+              <td>{{ overview_data.portfolio.total_sold_val_formatted }}</td>
+            </tr>
+            <tr style="font-weight: 700; background: rgba(21, 45, 47, 0.15);">
+              <td>Grand Portfolio Turnover Valuation</td>
+              <td>{{ overview_data.portfolio.total_available_qty + overview_data.portfolio.total_reserved_qty + overview_data.portfolio.total_sold_qty }} units</td>
+              <td>{{ overview_data.portfolio.grand_total_val_formatted }}</td>
+            </tr>
+          </tbody>
+        </table>
+        <div style="background: rgba(21, 45, 47, 0.15); padding: 0.85rem; border-radius: 0.75rem; font-size: 0.85rem;">
+          <i class="fa-solid fa-shield-halved"></i>
+          <strong>Audit Status:</strong> All active product lines conform to 95% cycle service level constraints.
+          Zero critical stockouts recorded at month-end close.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================================================================== -->
+  <!-- 4. SERVER DATA INJECTION & SCRIPT EXECUTION                            -->
+  <!-- ===================================================================== -->
+  <script>
+    // Server-side data safely passed via Jinja2 tojson filter (Lecture Slide Class 5, Slide 52)
+    window.OVERVIEW_SERVER_DATA = {{ overview_data|tojson }};
+  </script>
+
+  <!-- Client-side Interactive Controller -->
+  <script
+    src="{{ url_for('static', filename='js/overview.js') if url_for is defined else 'static/js/overview.js' }}"
+    onerror="this.onerror=null; this.src='../Backup/templates/script.js';"
+  ></script>
+
+  <script>
+    // Initialize Lucide icons if available
+    if (window.lucide && typeof window.lucide.createIcons === 'function') {
+      window.lucide.createIcons();
+    }
+  </script>
+</body>
+</html>

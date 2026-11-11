@@ -123,20 +123,60 @@ def select_product(search: str = ""):
                    .rename(columns={'index':'Date'}))
     return df_products
 
+def forecast(product:str = '1', 
+             service_level:float = 0.95, 
+             holding_cost:float = 0, 
+             setup_cost:float = 0,
+             starting_inventory:int =0,
+             initial_replenish:int = 0):
+    
+    df_products = pd.DataFrame(select_product(product))
+    avg_daily_demand = int(df_products['Demand'].mean.round(0))
+    annual_demand = int(df_products['Demand'].sum())
 
-def select_LT(search:str = ""):
     sql = """
-        SELECT i.inventory_order_date, i.inventory_update_date
+        SELECT std(i.inventory_update_date - i.inventory_order_date) AS std_LT
+        FROM Inventory_Order i 
+        WHERE i.product_id = %s
+    """
+    std_LT = float(db.query_all(sql, product)[0]['std_LT'])
+
+    sql = """
+        SELECT std(s.sold_quantity) AS std_d
+        FROM Sale s
+        WHERE s.product_id = %s
+    """
+    std_d = float(db.query_all(sql, product)[0]['std_d'])
+
+    sql = """
+        SELECT avg(i.inventory_update_date - i.inventory_order_date) AS avg_LT
         FROM Inventory_Order i
         WHERE i.product_id = %s
-        ORDER BY i.inventory_order_date
     """
-    df_LT = pd.DataFrame(db.query_all(sql, search))
-    df_LT.columns = ['Date', 'end_d']
-    
-    df_LT['Date'] = pd.to_datetime(df_LT['Date'])
-    df_LT['end_d'] = pd.to_datetime(df_LT['end_d'])
+    avg_LT = int(round(db.query_all(sql, product)[0]['avg_LT']))
 
-    df_LT['LT'] = df_LT['end_d'] - df_LT['Date']
-    df_LT.drop('end_d')
+    ss = calculate_ss(service_level, 
+                      std_LT, 
+                      std_d, 
+                      avg_LT)
+
+    eoq = calculate_eoq(annual_demand, 
+                        holding_cost,
+                        setup_cost)
+
+    ct = eoq/avg_daily_demand
+
+    effective_LT = np.mod(avg_LT, ct)
+
+    rop = calculate_rop(avg_daily_demand, 
+                        effective_LT,
+                        ss)
+
+    df_result = simulation_eoq(starting_inventory,
+                               initial_replenish,
+                               df_products['Date'],
+                               df_products['Demand'],
+                               rop,
+                               eoq,
+                               effective_LT)
 
