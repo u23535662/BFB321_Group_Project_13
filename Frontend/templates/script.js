@@ -1,6 +1,52 @@
 //
 //
-// STOCK PAGE
+// INDEX PAGE START
+//
+//
+
+// Get the modal
+const indexModal = document.getElementById("myModal");
+
+// Get the button that opens the modal
+const indexOpenBtn = document.getElementById("indexButton1");
+
+// Get the <span> element that closes the modal
+const indexCloseBtn = document.getElementById("close_index_popup");
+
+if (indexModal && indexOpenBtn && indexCloseBtn) {
+  // Open Popup
+  indexOpenBtn.addEventListener("click", function () {
+    indexModal.style.display = "block";
+  });
+
+  // Close Popup
+  indexCloseBtn.addEventListener("click", function (event) {
+    event.preventDefault();
+    event.stopPropagation();
+    indexModal.style.display = "none";
+  });
+
+  // Close Popup (click outside)
+  indexModal.addEventListener("click", function (event) {
+    if (event.target === indexModal) {
+      indexModal.style.display = "none";
+    }
+  });
+}
+
+//
+// POPUP END
+//
+
+//
+//
+// INDEX PAGE END
+//
+//
+
+//
+//
+// STOCK PAGE START
 //
 //
 

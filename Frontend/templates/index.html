@@ -10,7 +10,7 @@
       href="https://fonts.googleapis.com/css2?family=Gelasio:ital,wght@0,400..700;1,400..700&display=swap"
       rel="stylesheet" />
     <!-- insert here -->
-    <link rel="stylesheet" href="../css/style.css" />
+    <link rel="stylesheet" href="../css/index_style.css" />
   </head>
 
   <body>
@@ -67,8 +67,62 @@
 
     <div class="overviewblocks">
       <div class="blocktodo">
-        <div class="headingblocktodo">
-          <h2>To do</h2>
+
+        <div class="contentblockheadings">
+          <div class="headingblocktodo">
+            <h2>To do</h2>
+          </div>
+          <div class="indexBtns">
+            <button id="indexButton1" class="indexbutton1">
+              <div class="index_icon">
+                <i data-lucide="circle-plus"></i>
+              </div>
+              <div>Order</div>
+            </button>
+
+            <!-- Modal start -->
+            <div id="myModal" class="modal">
+              <!-- Modal content -->
+              <div class="modal-content">
+                <span class="close" id="close_index_popup">
+                  <i data-lucide="circle-x"></i>
+                </span>
+              
+                <div class="popup_name">
+                  <p class="popup_title">Add to Order</p>
+                </div>
+                <div class="popup_subtitle_block">
+                  <h3 class="block_title">Checkbox</h3>
+                  <h3 class="block_title">Product Name</h3>
+                  <h3 class="block_title">Amount in stock</h3>
+                </div>
+
+                <div class="todo_list_item">
+                    <div class="list_item">
+                        <div class="list_item_left">
+                            <div class="list_item_icon">
+                                <i data-lucide="users-round"></i>
+                            </div>
+                            <p class="list_item_title">Product</p>
+                        </div>
+                        <button
+                            class="list_item_button"
+                            id="toggle_list_view_btn"
+                            onclick="toggleListView()">
+                            <i data-lucide="chevron-up" class="open_list"></i>
+                            <i data-lucide="chevron-down" class="close_list"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <span class="submit_popup">Submit</span>
+              </div>
+            </div>
+            <!-- Modal end -->
+
+
+          </div>
+
         </div>
         <div class="contentblocktodo">
           <div class="task_block">
@@ -79,6 +133,7 @@
               <h3 class="task_title">Task</h3>
             </div>
           </div>
+
           <!-- FILLER START -->
           <div class="task_block">
             <div class="task_block_left">
@@ -89,6 +144,7 @@
             </div>
           </div>
           <!-- FILLER END -->
+
         </div>
       </div>
       <div class="blockproducts">
@@ -104,6 +160,7 @@
               <h3 class="productname_title">Product Name</h3>
             </div>
           </div>
+
           <!-- FILLER START -->
           <div class="productname_block">
             <div class="productname_block_left">
@@ -114,31 +171,45 @@
             </div>
           </div>
           <!-- FILLER END -->
-        </div>
-      </div>
-      <!-- FREQUENT SUPPS END -->
 
-      <div class="blockbuttons">
-        <div class="buttons_block">
-          <div class="buttons_block_right">
-            <h3 class="buttons_title">Buttons?</h3>
-          </div>
         </div>
       </div>
+
+      <div class="indexBtns">
+        <button id="indexbutton2" class="indexbutton2">
+          <div class="new_item_icon">
+            <i data-lucide="sticker"></i>
+          </div>
+          <div>Buttons?</div>
+        </button>
+      </div>
+
       <div class="blockgraphs">
-        <div class="headingblockgraphs">
+        <div class="headingblockbarchart">
           <h2>Bar Chart</h2>
         </div>
-        <div class="contentgraphs">
+        <div class="contentblockgraphs">
           <!-- FILLER GRAPH IMG - WILL BE AN ACTUAL GRAPH IN FINAL -->
-          <img class="graph_img" src="../images/graph.jpg" />
+          <p>Graph aaaaaaaaaaaaaaaa</p>
         </div>
-        <div class="headingblockgraphs">
-          <h2>EOQ Graph</h2>
+
+        <div class="contentblockheadings"></div>
+          <div class="headingblockeoqgraph">
+            <h2>EOQ Graph</h2>
+          </div>
+          <div class="indexBtns">
+            <button id="indexbutton3" class="indexbutton3">
+              <div class="index_icon">
+                <i data-lucide="circle-plus"></i>
+              </div>
+              <div>Filter</div>
+            </button>
+          </div>
         </div>
-        <div class="contentgraphs">
+
+        <div class="contentblockgraphs">
           <!-- FILLER GRAPH IMG - WILL BE AN ACTUAL GRAPH IN FINAL -->
-          <img class="graph_img" src="../images/graph.jpg" />
+        
         </div>        
       </div>      
     </div>
@@ -152,5 +223,6 @@
     <script>
       lucide.createIcons();
     </script>
+    <script src="../templates/script.js"></script>
   </body>
 </html>
