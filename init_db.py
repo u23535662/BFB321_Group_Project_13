@@ -4,13 +4,18 @@ from db import BASE_DIR, connect
 
 # Children tables before parent tables to respect foreign key constraints
 TABLES_IN_DROP_ORDER = [
-    "Sale", 
-    "Job_Product", 
-    "Inventory_Order", 
-    "Product_Supplier", 
-    "Job", 
-    "Supplier", 
-    "Product"
+    "inventory_update_item", 
+    "inventory_update", 
+    "purchase_order_item", 
+    "job_consumables", 
+    "job_instance", 
+    "product_supplier", 
+    "purchase_order",
+    "sale",
+    "job",
+    "product",
+    "supplier",
+    "user"
 ]
 
 def read_statements(filename):
@@ -28,8 +33,8 @@ def main(reset=False):
                 for table in TABLES_IN_DROP_ORDER:
                     cur.execute(f"DROP TABLE IF EXISTS {table}")
 
-            print("Creating tables from inventory_schema.sql ...")
-            for stmt in read_statements("inventory_schema.sql"):
+            print("Creating tables from schema.sql ...")
+            for stmt in read_statements("schema.sql"):
                 cur.execute(stmt)
 
             cur.execute("SELECT COUNT(*) AS n FROM Product")
