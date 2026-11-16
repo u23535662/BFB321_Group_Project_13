@@ -244,8 +244,7 @@ li {
   overflow-x: hidden;
 }
 
-.pl_block,
-.sup_block {
+.pl_block {
   align-items: center;
   justify-content: space-between;
   display: flex;
@@ -275,8 +274,7 @@ li {
   gap: 0.5rem;
 }
 
-.pl_icon,
-.sup_icon {
+.pl_icon {
   align-items: center;
   justify-content: center;
   display: flex;
@@ -289,16 +287,14 @@ li {
   border-radius: 1rem;
 }
 
-.pl_title,
-.sup_title {
+.pl_title {
   align-items: center;
   justify-content: center;
   display: flex;
   flex-direction: row;
 }
 
-.pl_popup_hold,
-.supp_popup_hold {
+.pl_popup_hold {
   display: none;
   flex-direction: column;
   position: fixed;
@@ -312,8 +308,7 @@ li {
   background-color: rgba(0, 0, 0, 0.4);
 }
 
-.pl_popup_content,
-.supp_popup_content {
+.pl_popup_content {
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
@@ -335,8 +330,7 @@ li {
   /* height: 65%; */
 }
 
-.close_pl_popup,
-.close_supp_popup {
+.close_pl_popup {
   cursor: pointer;
 
   background: none;
@@ -417,20 +411,18 @@ li {
   /* border: 1px solid purple; */
 }
 
-.sup_prod_list {
-  display: flex;
-  flex-direction: column;
-}
-
-.sup_prod_item {
+.filterbutt,
+.clearbutt {
   display: flex;
   flex-direction: row;
-  justify-content: flex-start;
   align-items: center;
-  align-self: stretch;
+  justify-content: center;
 
-  padding: 0.5rem;
+  background-color: rgb(21, 45, 47, 0.6);
+  height: 2rem;
+  width: 2rem;
 
-  border-bottom: 1px solid rgb(155, 255, 237);
+  border-radius: 0.5rem;
+  border-style: none;
 }
 /* PRICELIST PAGE STYLES END */

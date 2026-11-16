@@ -244,101 +244,6 @@ li {
   overflow-x: hidden;
 }
 
-.sup_Block_left {
-  align-items: center;
-  justify-content: flex-start;
-  display: flex;
-  flex-direction: row;
-
-  gap: 0.5rem;
-}
-
-.close_sup_popup {
-  cursor: pointer;
-
-  background: none;
-}
-/* SUPPLIER PAGE STYLES END */
-
-
-
-
-
-
-
-.pricelist_body {
-  display: grid;
-  flex-direction: row;
-  justify-content: space-between;
-  flex-wrap: wrap;
-
-  width: 100%;
-  height: 90%;
-  margin: 5px;
-  gap: 2rem;
-
-  grid-template-columns: 1fr;
-  grid-template-rows: 4rem 1fr;
-  grid-template-areas:
-    "pl_searchbar"
-    "pl_list";
-}
-
-.pl_topblock {
-  grid-area: pl_searchbar;
-
-  display: flex;
-  flex-direction: row;
-  justify-content: flex-start;
-  align-items: center;
-
-  width: 100%;
-  height: 100%;
-
-  background-color: rgb(84, 147, 136);
-  border-radius: 1rem;
-  gap: 1rem;
-}
-
-.pl_searchbar {
-  grid-area: pl_searchbar;
-
-  width: 88%;
-  height: 50%;
-
-  background-color: rgb(84, 147, 136);
-  outline: rgba(19, 22, 22, 0.6) solid 2px;
-  border-radius: 1rem;
-  margin-left: 1.5rem;
-  border-style: none;
-}
-
-.pl_searchbar:focus {
-  outline: rgba(19, 22, 22, 0.6) solid 2px;
-}
-
-.pl_bodyblock {
-  grid-area: pl_list;
-
-  align-items: center;
-  justify-content: flex-start;
-  display: flex;
-  flex-direction: column;
-
-  background-color: rgb(169, 217, 208, 0.6);
-
-  border-radius: 1rem;
-  border: 2px solid rgb(155, 255, 237);
-  gap: 0.5rem;
-  padding: 0.75rem;
-
-  overflow-y: auto;
-  scrollbar-width: none;
-
-  overflow-x: hidden;
-}
-
-.pl_block,
 .sup_block {
   align-items: center;
   justify-content: space-between;
@@ -359,7 +264,7 @@ li {
   background-color: #e0e0e0;
 }
 
-.pl_Block_left,
+/* NORMAL SUPPLIER BLOCK START */
 .sup_Block_left {
   align-items: center;
   justify-content: flex-start;
@@ -369,7 +274,6 @@ li {
   gap: 0.5rem;
 }
 
-.pl_icon,
 .sup_icon {
   align-items: center;
   justify-content: center;
@@ -383,16 +287,17 @@ li {
   border-radius: 1rem;
 }
 
-.pl_title,
 .sup_title {
   align-items: center;
   justify-content: center;
   display: flex;
   flex-direction: row;
 }
+/* NORMAL SUPPLIER BLOCK END */
 
-.pl_popup_hold,
-.supp_popup_hold {
+/* POPUP SUPPLIER BLOCK START */
+/* Modal stuff start */
+.sup_popup_hold {
   display: none;
   flex-direction: column;
   position: fixed;
@@ -405,9 +310,7 @@ li {
   background-color: rgb(0, 0, 0);
   background-color: rgba(0, 0, 0, 0.4);
 }
-
-.pl_popup_content,
-.supp_popup_content {
+.sup_popup_content {
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
@@ -428,16 +331,7 @@ li {
   width: 35%;
   /* height: 65%; */
 }
-
-.close_pl_popup,
-.close_supp_popup {
-  cursor: pointer;
-
-  background: none;
-  border-style: none;
-}
-
-.pl_popup_top_bar {
+.sup_popup_top_bar {
   display: flex;
   flex-direction: row;
   justify-content: space-between;
@@ -447,8 +341,16 @@ li {
 
   background-color: rgb(169, 217, 208, 0.6);
 }
+.close_sup_popup {
+  cursor: pointer;
 
-.pl_product_info {
+  background: none;
+  border-style: none;
+}
+/* Modal stuff end */
+
+/* Popup content start */
+.sup_product_info {
   display: flex;
   flex-direction: row;
   justify-content: center;
@@ -464,7 +366,7 @@ li {
   /* border: 1px solid blue; */
 }
 
-.pl_info_left {
+.sup_info_left {
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
@@ -482,7 +384,7 @@ li {
   /* border: 1px solid red; */
 }
 
-.pl_info_right {
+.sup_info_right {
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -497,7 +399,7 @@ li {
   /* border: 1px solid red; */
 }
 
-.pl_info_display {
+.sup_info_display {
   display: flex;
   flex-direction: column;
   align-self: stretch;
@@ -527,3 +429,23 @@ li {
 
   border-bottom: 1px solid rgb(155, 255, 237);
 }
+/* Popup content end */
+
+/* Searchbar content start */
+.filterbutt,
+.clearbutt {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+
+  background-color: rgb(21, 45, 47, 0.6);
+  height: 2rem;
+  width: 2rem;
+
+  border-radius: 0.5rem;
+  border-style: none;
+}
+/* Searchbar content end */
+
+/* SUPPLIER PAGE STYLES END */

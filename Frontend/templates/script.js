@@ -166,32 +166,32 @@ if (plOpenBtn && plPopup && plCloseBtn) {
 //
 //
 
-const suppOpenBtn = document.getElementById("sup_Block");
-const suppPopup = document.getElementById("supp_popup_Hold");
-const suppCloseBtn = document.getElementById("close_supp");
+const supOpenBtn = document.getElementById("sup_Block");
+const supPopup = document.getElementById("sup_popup_Hold");
+const supCloseBtn = document.getElementById("close_sup");
 
-if (suppOpenBtn && suppPopup && suppCloseBtn) {
+if (supOpenBtn && supPopup && supCloseBtn) {
   // Open Popup
-  suppOpenBtn.addEventListener("click", function () {
-    suppPopup.style.display = "flex";
+  supOpenBtn.addEventListener("click", function () {
+    supPopup.style.display = "flex";
   });
 
   // Close Popup
-  suppCloseBtn.addEventListener("click", function () {
-    suppPopup.style.display = "none";
+  supCloseBtn.addEventListener("click", function () {
+    supPopup.style.display = "none";
   });
 
   // Close Popup (click outside)
-  suppPopup.addEventListener("click", function (event) {
-    if (event.target === suppPopup) {
-      suppPopup.style.display = "none";
+  supPopup.addEventListener("click", function (event) {
+    if (event.target === supPopup) {
+      supPopup.style.display = "none";
     }
   });
-} else if (!suppOpenBtn) {
+} else if (!supOpenBtn) {
   console.log("No open Button");
-} else if (!suppPopup) {
+} else if (!supPopup) {
   console.log("No popup hold...");
-} else if (!suppCloseBtn) {
+} else if (!supCloseBtn) {
   console.log("No popup close");
 }
 
