@@ -15,9 +15,10 @@ db.init_app(app)
 
 # OVERVIEW DASHBOARD
 
-# @app.route("/", metods=["GET"])
-# @app.route("/overview", methods=["GET"])
-# def overview():
+@app.route("/")
+@app.route("/overview")
+def overview():
+    return render_template('index.html')
 
 
 # JSON STUFF
@@ -77,7 +78,7 @@ def api_create_product():
 # Update product
 @app.route("/api/products/<int:product_id>", methods=["PUT"])
 def api_update_product(product_id):
-    product = models.get_products(product_id)
+    product = models.get_products_raw(product_id)
     
     if not product:
         return jsonify({'success':False, 'error':'Product not found'}), 404
@@ -109,7 +110,7 @@ def api_update_product(product_id):
 # Delete product
 @app.route("/api/products/<int:product_id>", methods=["DELETE"])
 def api_delete_product(product_id):
-    product = models.get_products(product_id)
+    product = models.get_products_raw(product_id)
     if not product:
         return jsonify({'success':False, 'error':'Product not found'}), 404
     try:

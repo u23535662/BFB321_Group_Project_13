@@ -319,6 +319,8 @@ li {
   justify-content: center;
   align-items: center;
   flex-direction: column;
+  overflow-y: scroll;
+  scrollbar-width: thin;
 
   width: 90%; /* background-color: rgb(169, 217, 208, 0.8); */
   height: 76%;
@@ -408,10 +410,10 @@ li {
 }
 
 .productname_block {
-  align-items: center;
   justify-content: space-between;
   display: flex;
-  flex-direction: row;
+  flex-direction: column;
+
 
   width: 100%;
   background-color: rgb(169, 217, 208, 0.6);
