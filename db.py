@@ -12,13 +12,17 @@ def connect():
         port=int(os.getenv("DB_PORT", "3307")),
         user=os.getenv("DB_USER", "avnadmin"),
         password=os.getenv("DB_PASSWORD", ""),
-        database=os.getenv("DB_NAME", "inventory"),
         charset="utf8mb4",
         cursorclass=pymysql.cursors.DictCursor,
         autocommit=False,
         connect_timeout=15,
     )
-    return pymysql.connect(**options)
+
+    conn= pymysql.connect(**options)
+    with conn.cursor() as cursor:
+        cursor.execute("CREATE DATABASE IF NOT EXISTS stock_db;")
+        cursor.execute("USE stock_db;")
+    return conn
 
 def get_db():
     if "db" not in g:
