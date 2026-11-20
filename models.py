@@ -276,7 +276,7 @@ def get_products(product_id=None):
     products_to_process = [r_product] if product_id is not None else r_product
     output_product = []
 
-    sql = """
+    eoq_sql = """
     WITH yearly_sales AS (
         SELECT 
             product_id, 
@@ -315,10 +315,12 @@ def get_products(product_id=None):
     LEFT JOIN current_setup cs ON p.product_id = cs.product_id AND cs.rn = 1
     WHERE p.product_id = %s;
     """
-
+    ss_sql = """
+    
+    """
     for p in products_to_process:
         p_id = p['id']
-        data_eoq = db.query_one(sql, (p_id,))
+        data_eoq = db.query_one(eoq_sql, (p_id,))
 
         if data_eoq:
             annual_demand = int(round(float(data_eoq['annual_demand'] or 0)))

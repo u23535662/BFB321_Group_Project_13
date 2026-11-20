@@ -20,8 +20,11 @@ db.init_app(app)
 def overview():
     return render_template('index.html')
 
-
+# =====================================================================
 # JSON STUFF
+# =====================================================================
+
+# PRODUCTS
 # Get all products
 @app.route("/api/products", methods=["GET"])
 def api_get_products():
