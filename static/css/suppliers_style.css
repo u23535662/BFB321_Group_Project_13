@@ -183,11 +183,26 @@ li {
   margin: 5px;
   gap: 2rem;
 
-  grid-template-columns: 1fr;
-  grid-template-rows: 4rem 1fr;
+  grid-template-columns: 1fr 23rem;
+  grid-template-rows: 1rem 4rem 1fr;
   grid-template-areas:
-    "pl_searchbar"
-    "pl_list";
+    "blockempty supplierBtns"
+    "pl_searchbar pl_searchbar"
+    "pl_list pl_list";
+}
+
+.blockempty {
+  grid-area: blockempty;
+  align-items: center;
+  justify-content: center;
+  display: flex;
+  flex-direction: column;
+
+  background-color: rgb(169, 217, 208, 0.6);
+
+  border-radius: 1rem;
+  border: 2px solid rgb(155, 255, 237);
+  gap: 0.5rem;
 }
 
 .sup_topblock {
@@ -447,5 +462,48 @@ li {
   border-style: none;
 }
 /* Searchbar content end */
+
+/* Supplier buttons start */
+.supplierBtns {
+  grid-area: supplierBtns;
+
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+
+  gap: 1rem;
+}
+
+.supplierbutton1:hover,
+.supplierbutton2:hover {
+  background-color: rgb(155, 255, 237);
+  color: rgb(84, 147, 136);
+}
+
+.supplierbutton1:active,
+.supplierbutton2:active {
+  background-color: rgb(84, 147, 136);
+  color: rgb(155, 255, 237);
+}
+
+.supplierbutton1,
+.supplierbutton2 {
+  align-items: center;
+  justify-content: left;
+  display: flex;
+  /* flex-direction: row; */
+  align-content: center;
+
+  background-color: rgb(169, 217, 208, 0.6);
+  width: 45%;
+  height: 2rem;
+
+  border-radius: 1rem;
+  border: 2px solid rgb(155, 255, 237);
+  gap: 1.5rem;
+}
+/* Supplier buttons end */
+
 
 /* SUPPLIER PAGE STYLES END */
