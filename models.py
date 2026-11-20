@@ -333,12 +333,65 @@ def get_products(product_id=None):
     WHERE product_id = %s
     GROUP BY product_id;
     """
-    
+
+    current_inv_sql = """
+    WITH sales_agg AS (
+        SELECT
+            s.product_id AS id,
+            SUM(s.sold_qty) AS sales
+        FROM sale s
+        WHERE s.sold_date >= MAKEDATE(YEAR(CURDATE()), 1)
+        GROUP BY s.product_id
+    ),
+    matching_jobs AS (
+        SELECT DISTINCT
+            ji.job_id
+        FROM job_instance ji
+        WHERE ji.status != 'Cancelled'
+        AND ji.operation_date >= MAKEDATE(YEAR(CURDATE()), 1)
+    ),
+    consumables_agg AS (
+        SELECT
+            jc.product_id AS id,
+            SUM(jc.qty_of_product_used) AS used
+        FROM job_consumables jc
+        JOIN matching_jobs mj
+            ON mj.job_id = jc.job_id
+        GROUP BY jc.product_id
+    ),
+    updates_agg AS (
+        SELECT
+            iui.product_id AS id,
+            SUM(iui.update_amount) AS update_total
+        FROM inventory_update_item iui
+        JOIN inventory_update iu
+            ON iu.update_id = iui.update_id
+        WHERE iu.update_date >= MAKEDATE(YEAR(CURDATE()), 1)
+        GROUP BY iui.product_id
+    )
+    SELECT
+        p.product_id AS id,
+        (
+            p.stock_quantity
+            - COALESCE(sa.sales, 0)
+            - COALESCE(ca.used, 0)
+            + COALESCE(ua.update_total, 0)
+        ) AS current_inventory
+    FROM product p
+    LEFT JOIN sales_agg sa
+        ON sa.id = p.product_id
+    LEFT JOIN consumables_agg ca
+        ON ca.id = p.product_id
+    LEFT JOIN updates_agg ua
+        ON ua.id = p.product_id
+    WHERE p.product_id = %s;
+    """
     for p in products_to_process:
         p_id = p['id']
         data_eoq = db.query_one(eoq_sql, (p_id,))
         data_ss = db.query_one(ss_sql, (p_id, p_id, p_id))
         data_rop = db.query_one(rop_sql, (p_id,))
+        data_cur_inv = db.query_one(current_inv_sql, (p_id))
 
         if data_eoq:
             annual_demand = float(data_eoq['annual_demand'] or 0)
@@ -371,6 +424,11 @@ def get_products(product_id=None):
 
         p_class = abc_lookup.get(p_id, "C")
 
+        if data_cur_inv:
+            current_inv = int(data_cur_inv['current_inventory'])
+        else:
+            current_inv = 0
+
         output_product.append({ 
             'id': int(p['id']),
             'name': str(p['name']),
@@ -379,7 +437,8 @@ def get_products(product_id=None):
             'eoq': int(eoq),
             'ss': int(ss),
             'rop': int(rop),
-            'class': str(p_class)
+            'class': str(p_class),
+            'current_inventory':int(current_inv)
         })
 
     db.close_db()
