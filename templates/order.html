@@ -69,45 +69,69 @@
     <div class="order_body">
       <div class="order_topblock"></div>
       <div class="order_bodyblock">
-        <!-- BUTTON FOR ORDER - MAIN START -->
-        <button id="pl_Block" class="pl_block">
-          <div class="pl_Block_left">
-            <div class="pl_icon">
-              <i data-lucide="circle-dollar-sign"></i>
-            </div>
-            <h3 class="pl_title">Product Name</h3>
-          </div>
-        </button>
+        <!-- START OF ORDER LIST -->
 
-        <div id="pl_popup_Hold" class="pl_popup_hold">
-          <div class="pl_popup_content">
-            <!-- CLOSE BUTTON -->
-            <div class="pl_popup_top_bar">
-              <div class="pl_popup_title">
-                <h3>Product Name</h3>
+        <!-- NOT EXPANDED START -->
+        <div class="ordernumber_block">
+          <div class="ordernumber_top">
+            <div class="ordernumber_block_left">
+              <div class="pl_icon">
+                <i data-lucide="circle-dollar-sign"></i>
               </div>
-              <button id="close_pl" class="close_pl_popup">
-                <i data-lucide="circle-x"></i>
-              </button>
+              <h3 class="pl_title">Unique Order Number</h3>
             </div>
-            <div class="pl_product_info">
-              <div class="pl_info_left"><h3>Product Information</h3></div>
-              <div class="pl_info_right">
-                <div class="pl_info_display"><h3>Cost Price</h3></div>
-                <div class="pl_info_display"><h3>Selling Price</h3></div>
-                <div class="pl_info_display"><h3>Profit</h3></div>
-                <div class="pl_info_display">
-                  <h3>Profit Split 1</h3>
-                  <h3>Profit Split 1</h3>
+            <button
+              class="chevron_button"
+              id="toggle_list_view_btn"
+              onclick="toggleListView()">
+              <i data-lucide="chevron-up" class="open_list"></i>
+              <i data-lucide="chevron-down" class="close_list"></i>
+            </button>
+          </div>
+
+          <!-- NOT EXPANDED END -->
+
+          <!-- EXPANDED START -->
+          <div class="order_expanded_content">
+            <div class="supplier_for_order">
+              <div class="supplier_left">
+                <div class="supplier_icon">
+                  <i data-lucide="users-round"></i>
+                </div>
+                <p class="list_item_title">Supplier name</p>
+              </div>
+            </div>
+            <div class="expanded_headings">
+              <div class="info">
+                <div class="units">
+                  <p>Units</p>
+                </div>
+                <div class="products">
+                  <p>Products</p>
+                </div>
+                <div class="del_date">
+                  <p>Estimated Delivery Date</p>
+                </div>
+              </div>
+            </div>
+            <div class="expanded_values">
+              <div class="info">
+                <div class="units">
+                  <p>###</p>
+                </div>
+                <div class="products">
+                  <p>Product</p>
+                </div>
+                <div class="del_date">
+                  <p>###</p>
                 </div>
               </div>
             </div>
           </div>
         </div>
+        <!-- EXPANDED END -->
 
-        <!-- BUTTON END -->
-
-        <!-- END OF FILLER BLOCKS -->
+        <!-- END OF ORDER LIST-->
       </div>
     </div>
     <!-- PRICELIST BODY END -->
