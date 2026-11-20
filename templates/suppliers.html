@@ -76,10 +76,6 @@
           <div class="new_item_text">Add Supplier</div>
         </button>
 
-        <!-- Modal start -->
-
-        <!-- Modal end -->
-
         <button id="supplierButton2" class="supplierbutton2">
           <div class="delete_item_icon">
             <i data-lucide="circle-x"></i>
@@ -149,7 +145,40 @@
       </div>
     </div>
 
-    <!-- SUPPLIER BODY END -->
+    <script>
+      // SUPPLIERS PRICE LIST PAGE START
+      const supOpenBtn = document.getElementById("sup_Block");
+      const supPopup = document.getElementById("sup_popup_Hold");
+      const supCloseBtn = document.getElementById("close_sup");
+
+      if (supOpenBtn && supPopup && supCloseBtn) {
+        // Open Popup
+        supOpenBtn.addEventListener("click", function () {
+          supPopup.style.display = "flex";
+        });
+
+        // Close Popup
+        supCloseBtn.addEventListener("click", function () {
+          supPopup.style.display = "none";
+        });
+
+        // Close Popup (click outside)
+        supPopup.addEventListener("click", function (event) {
+          if (event.target === supPopup) {
+            supPopup.style.display = "none";
+          }
+        });
+      } else if (!supOpenBtn) {
+        console.log("No open Button");
+      } else if (!supPopup) {
+        console.log("No popup hold...");
+      } else if (!supCloseBtn) {
+        console.log("No popup close");
+      }
+      // SUPPLIERS PRICE LIST END
+
+    </script>
+
     <!-- Script for icons-->
     <script
       src="https://kit.fontawesome.com/3000704a08.js"
