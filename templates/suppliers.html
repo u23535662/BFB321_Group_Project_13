@@ -77,9 +77,38 @@
             <div class="new_item_text">Add Supplier</div>
         </button>
           
-        <!-- Modal start -->
 
+
+
+        <!-- Modal start -->
+        <div id="addSupplier" class="modal">
+          <!-- Modal content -->
+          <div class="modal-content">
+            
+            <span class="close" id="close_addSupplier_popup">
+              <i data-lucide="circle-x"></i>
+            </span>
+
+            <div class="popup_name">
+              <p class="popup_title">Add New Product</p>
+            </div>
+
+            <div class="modal_details_block">
+              <h3 class="block_title">General Details</h3>
+              <input class="addSupplierName" type="text" placeholder="Supplier name..." />
+              <h3 class="block_title">Contact Details</h3>
+                <div class="modal_contact_details_block">
+                  <input class="addSupplierEmail" type="text" placeholder="Supplier email adress..." />
+                  <input class="addSupplierTelephoneNumber" type="text" placeholder="Supplier telephone number (optional)..." />
+                </div>
+            </div>
+            <span class="submit_popup">Submit</span>
+          </div>
+        </div>
         <!-- Modal end -->
+
+
+
 
         <button id="supplierButton2" class="supplierbutton2">
             <div class="delete_item_icon">
@@ -151,6 +180,34 @@
     </div>
 
     <!-- SUPPLIER BODY END -->
+    <!-- Script for Popups-->
+    <script>
+      const addSupplierModal = document.getElementById("addSupplier");
+      const addSupplierOpenBtn = document.getElementById("supplierButton1");
+      const addSupplierCloseBtn = document.getElementById("close_addSupplier_popup");
+
+      if (addSupplierModal && addSupplierOpenBtn && addSupplierCloseBtn) {
+        // Open Popup
+        addSupplierOpenBtn.addEventListener("click", function () {
+          addSupplierModal.style.display = "block";
+        });
+
+        // Close Popup
+        addSupplierCloseBtn.addEventListener("click", function (event) {
+          event.preventDefault();
+          event.stopPropagation();
+          addSupplierModal.style.display = "none";
+        });
+
+        // Close Popup (click outside)
+        addSupplierModal.addEventListener("click", function (event) {
+          if (event.target === stockModal) {
+            addSupplierModal.style.display = "none";
+          }
+        });
+      }
+    </script>
+    
     <!-- Script for icons-->
     <script
       src="https://kit.fontawesome.com/3000704a08.js"
