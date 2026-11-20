@@ -121,7 +121,7 @@ if (stockModal && stockOpenBtn && stockCloseBtn) {
 
 //
 //
-// PRICE LIST PAGE START
+// ORDER PAGE START
 //
 //
 
@@ -155,7 +155,86 @@ if (plOpenBtn && plPopup && plCloseBtn) {
 }
 
 //
+// List View Expanding start
 //
-// PRICE LIST END
+
+const toggleViewListBtn = document.getElementById("toggle_list_view_btn");
+
+if (toggleViewListBtn) {
+  const orderExpandedContent = document.querySelector(
+    ".order_expanded_content",
+  );
+  const openListIcon = document.querySelector(".open_list");
+  const closeListIcon = document.querySelector(".close_list");
+
+  // Toggle list view between open and close
+  toggleViewListBtn.addEventListener("click", () => {
+    orderExpandedContent.classList.toggle("hidden");
+    openListIcon.classList.toggle("hidden");
+    closeListIcon.classList.toggle("unhide");
+  });
+}
+
+//
+// List View expanding end
+//
+
+//
+//
+// ORDER PAGE END
+//
+//
+
+//
+//
+// SUPPLIERS PRICE LIST PAGE START
+//
+//
+
+const supOpenBtn = document.getElementById("sup_Block");
+const supPopup = document.getElementById("sup_popup_Hold");
+const supCloseBtn = document.getElementById("close_sup");
+
+if (supOpenBtn && supPopup && supCloseBtn) {
+  // Open Popup
+  supOpenBtn.addEventListener("click", function () {
+    supPopup.style.display = "flex";
+  });
+
+  // Close Popup
+  supCloseBtn.addEventListener("click", function () {
+    supPopup.style.display = "none";
+  });
+
+  // Close Popup (click outside)
+  supPopup.addEventListener("click", function (event) {
+    if (event.target === supPopup) {
+      supPopup.style.display = "none";
+    }
+  });
+} else if (!supOpenBtn) {
+  console.log("No open Button");
+} else if (!supPopup) {
+  console.log("No popup hold...");
+} else if (!supCloseBtn) {
+  console.log("No popup close");
+}
+
+//
+//
+// SUPPLIERS PRICE LIST END
+//
+//
+
+//
+//
+// SUPPLIERS ADD MODAL START
+//
+//
+// Get the modal
+
+//
+//
+// SUPPLIERS ADD MODAL END
 //
 //
