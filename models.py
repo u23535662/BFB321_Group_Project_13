@@ -367,3 +367,77 @@ def delete_product(product_id: str):
     id = db.execute(sql, product_id)
     db.close_db()
     return id
+
+## Getting raw supplier data
+def get_suppliers(supplier_id=None):
+    if supplier_id == '' or supplier_id is None:
+        sql = """
+        SELECT 
+            s.supplier_id AS id,
+            s.supplier_name AS name,
+            s.supplier_from_date AS from_date,   
+            s.reason_for_changing_supplier AS change_reason
+        FROM supplier s
+        """
+        suppliers = db.query_all(sql)
+        db.close_db()
+        formatted_suppliers = []
+        for s in suppliers:
+            formatted_suppliers.append({
+                'id': int(s['id']),
+                'name': str(s['name']),
+                'from_date': str(s['from_date']) if s['from_date'] else '',
+                'change_reason': str(s['change_reason'] or '')
+            })
+        return formatted_suppliers
+    else:
+        sql = """
+        SELECT 
+                s.supplier_id AS id,
+                s.supplier_name AS name,
+                s.supplier_from_date AS from_date,   
+                s.reason_for_changing_supplier AS change_reason
+            FROM supplier s
+        WHERE s.supplier_id = %s
+        """
+        s = db.query_one(sql, supplier_id)
+        db.close_db()
+        if not s:
+            return None
+        return {
+            'id': int(s['id']),
+            'name': str(s['name']),
+            'from_date': str(s['from_date']),
+            'change_reason': str(s['change_reason'])
+        }
+
+    ## Create a supplier
+def insert_supplier(name:str = '', from_date: str = '', change_reason: str =''):
+    sql = """
+    INSERT INTO supplier (supplier_name, supplier_from_date, reason_for_changing_supplier)
+    VALUES (%s, %s, %s)
+    """
+    id = db.execute(sql, (name, from_date, change_reason))
+    db.close_db
+    return id
+
+## Editing supplier
+def update_supplier(name: str, from_date: str, change_reason: str, supplier_id: str):
+    sql = """
+    UPDATE supplier
+    SET supplier_name = %s, supplier_from_date= %s, reason_for_changing_supplier= %s
+    WHERE supplier_id = %s
+    """
+    id = db.execute(sql, (name, from_date, change_reason, supplier_id))
+    db.close_db()
+    return id
+
+## Deleting supplier
+def delete_supplier(supplier_id: str):
+    sql = """
+    DELETE FROM supplier WHERE supplier_id=%s
+    """
+    id = db.execute(sql, supplier_id)
+    db.close_db()
+    return id
+
