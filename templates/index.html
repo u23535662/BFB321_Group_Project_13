@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="en">
   <head>
-    <meta charset="UTF-8" />
+    <meta charset="UTF-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -10,7 +10,7 @@
       href="https://fonts.googleapis.com/css2?family=Gelasio:ital,wght@0,400..700;1,400..700&display=swap"
       rel="stylesheet" />
     <!-- insert here -->
-    <link rel="stylesheet" href="../static/css/index_style.css" />
+    <link rel="stylesheet" href="../static/css/index_style.css"/>
   </head>
 
   <body>
@@ -53,7 +53,7 @@
               <i class="fa-solid fa-truck-field"></i>
               Suppliers
             </div></a
-          >
+            >
         </li>
       </ul>
       <div class="accountbox">
@@ -66,6 +66,22 @@
     <!-- OVERVIEW BLOCKS START -->
 
     <div class="overviewblocks">
+
+      <div class="blockfacts">
+        <div class="topfacts">
+          <div class="jobtracker"></div>
+          <div class="producttracker"></div>
+          <div class="suppliertracker"></div>
+        </div>
+        <div class="bottomfacts">
+          <div class="openordertracker"></div>
+          <div class="revenuetracker"></div>
+          <div class="lowstocktracker"></div>
+        </div>
+        
+        
+
+      </div>
       <div class="blocktodo">
 
         <div class="contentblockheadings">
@@ -147,7 +163,7 @@
 
         </div>
       </div>
-      <div class="blockproducts">
+      <!-- <div class="blockproducts">
         <div class="headingblockproducts">
           <h2>Products</h2>
         </div>
@@ -157,30 +173,34 @@
           </div>
 
         </div>
-      </div>
+      </div> -->
 
-      <div class="indexBtns">
+      <!-- <div class="indexBtns">
         <button id="indexbutton2" class="indexbutton2">
           <div class="new_item_icon">
             <i data-lucide="sticker"></i>
           </div>
           <div>Buttons?</div>
         </button>
-      </div>
+      </div> -->
+
+      <!-- TWO GRAPH BLOCKS -->
 
       <div class="blockgraphs">
-        <div class="headingblockbarchart">
+        
+        <!-- bar chart -->
+        <div class="contentblockgraphsBar">
+          <div class="headingblockbarchart">
           <h2>Bar Chart</h2>
-        </div>
-        <div class="contentblockgraphs">
-          <!-- FILLER GRAPH IMG - WILL BE AN ACTUAL GRAPH IN FINAL -->
-          <p>Graph aaaaaaaaaaaaaaaa</p>
-        </div>
-
-        <div class="contentblockheadings"></div>
-          <div class="headingblockeoqgraph">
-            <h2>EOQ Graph</h2>
+          
           </div>
+          <div class="barchart"></div>
+        </div> 
+
+        <!-- eoq graph -->
+        <div class="contentblockgraphsEOQ">
+          <div class="headingblockeoqgraph">
+          <h2>EOQ Graph</h2>
           <div class="indexBtns">
             <button id="indexbutton3" class="indexbutton3">
               <div class="index_icon">
@@ -189,12 +209,15 @@
               <div>Filter</div>
             </button>
           </div>
+          </div>
+          <div class="eoqchart"></div>
+        </div> 
+        
+        
+          
         </div>
 
-        <div class="contentblockgraphs">
-          <!-- FILLER GRAPH IMG - WILL BE AN ACTUAL GRAPH IN FINAL -->
-        
-        </div>        
+               
       </div>      
     </div>
     <!-- OVERVIEW BLOCKS END -->
