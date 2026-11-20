@@ -170,9 +170,8 @@ li {
 }
 /* NAV BAR STYLES END */
 
-
-/* PRICELIST PAGE STYLES START */
-.pricelist_body {
+/* ORDER PAGE STYLES START */
+.order_body {
   display: grid;
   flex-direction: row;
   justify-content: space-between;
@@ -186,12 +185,12 @@ li {
   grid-template-columns: 1fr;
   grid-template-rows: 4rem 1fr;
   grid-template-areas:
-    "pl_searchbar"
-    "pl_list";
+    "order_buttons"
+    "order_list";
 }
 
-.pl_topblock {
-  grid-area: pl_searchbar;
+.order_topblock {
+  grid-area: order_buttons;
 
   display: flex;
   flex-direction: row;
@@ -206,25 +205,8 @@ li {
   gap: 1rem;
 }
 
-.pl_searchbar {
-  grid-area: pl_searchbar;
-
-  width: 88%;
-  height: 50%;
-
-  background-color: rgb(84, 147, 136);
-  outline: rgba(19, 22, 22, 0.6) solid 2px;
-  border-radius: 1rem;
-  margin-left: 1.5rem;
-  border-style: none;
-}
-
-.pl_searchbar:focus {
-  outline: rgba(19, 22, 22, 0.6) solid 2px;
-}
-
-.pl_bodyblock {
-  grid-area: pl_list;
+.order_bodyblock {
+  grid-area: order_list;
 
   align-items: center;
   justify-content: flex-start;

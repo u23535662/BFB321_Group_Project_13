@@ -178,12 +178,13 @@ li {
   flex-wrap: wrap;
 
   width: 100%;
-  height: 90%;
+  height: 95%;
   margin: 5px;
-  gap: 3rem;
+  column-gap: 2rem;
+  row-gap: 1rem;
 
-  grid-template-columns: 23rem 1fr;
-  grid-template-rows: 6rem 10rem 1fr;
+  grid-template-columns: 30rem 1fr;
+  grid-template-rows: 8rem 10rem 1fr;
   grid-template-areas:
     "blockfacts blockgraphs"
     "blocktodo blockgraphs"
@@ -201,8 +202,9 @@ li {
 
   height: 100%;
   width: 100%;
-  gap: 0.2rem;
   padding: 0.5rem;
+
+  /* gap: 0.2rem; */
 }
 /* FACTS STYLING START */
 
@@ -210,16 +212,13 @@ li {
 .bottomfacts {
   display: flex;
   flex-direction: row;
-  justify-content: center;
+  justify-content: space-between;
 
-  border-radius: 1rem;
-  gap: 0.5rem;
+  gap: 0.3rem;
 
-  background-color: rgb(169, 217, 208);
-  width: 90%;
+  width: 100%;
   height: 100%;
   margin: 0.5rem;
-  padding: 1rem;
 }
 
 .jobtracker,
@@ -229,17 +228,15 @@ li {
 .revenuetracker,
 .lowstocktracker {
   display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-  align-items: center;
+  flex-direction: center;
+  justify-content: center;
 
   border-radius: 1rem;
   gap: 0.5rem;
-  padding: 0.5rem;
 
-  background-color: rgb(169, 217, 208);
-  width: 90%;
-  height: 40%;
+  background-color: rgb(169, 217, 208, 0.8);
+  width: 30%;
+  height: 100%;
 }
 /* FACTS STYLING END */
 
