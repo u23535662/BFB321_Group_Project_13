@@ -20,8 +20,11 @@ db.init_app(app)
 def overview():
     return render_template('index.html')
 
-
+# =====================================================================
 # JSON STUFF
+# =====================================================================
+
+# PRODUCTS
 # Get all products
 @app.route("/api/products", methods=["GET"])
 def api_get_products():
@@ -90,7 +93,7 @@ def api_update_product(product_id):
         n_name = data.get('name', product['name'])
         n_price = float(data.get('price', product['price']))
         n_hc = float(data.get('holding_cost', product['holding_cost']))
-        n_si = float(data.get('year_starting_inventory', product['year_starting_inventory']))
+        n_si = int(data.get('year_starting_inventory', product['year_starting_inventory']))
 
         models.update_product(n_name, n_price, n_hc, n_si, product_id)
         updated_data = {
