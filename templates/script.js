@@ -200,3 +200,18 @@ if (supOpenBtn && supPopup && supCloseBtn) {
 // SUPPLIERS PRICE LIST END
 //
 //
+
+//
+//
+// SUPPLIERS ADD MODAL START
+//
+//
+// Get the modal
+
+
+
+//
+//
+// SUPPLIERS ADD MODAL END
+//
+//

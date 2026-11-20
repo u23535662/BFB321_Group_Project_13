@@ -310,6 +310,79 @@ li {
 }
 /* NORMAL SUPPLIER BLOCK END */
 
+/* Searchbar content start */
+.filterbutt,
+.clearbutt {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+
+  background-color: rgb(21, 45, 47, 0.6);
+  height: 2rem;
+  width: 2rem;
+
+  border-radius: 0.5rem;
+  border-style: none;
+}
+/* Searchbar content end */
+
+/* Supplier buttons start */
+.supplierBtns {
+  grid-area: supplierBtns;
+
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+
+  gap: 1rem;
+}
+
+.supplierbutton1:hover,
+.supplierbutton2:hover {
+  background-color: rgb(155, 255, 237);
+  color: rgb(84, 147, 136);
+}
+
+.supplierbutton1:active,
+.supplierbutton2:active {
+  background-color: rgb(84, 147, 136);
+  color: rgb(155, 255, 237);
+}
+
+.supplierbutton1,
+.supplierbutton2 {
+  align-items: center;
+  justify-content: left;
+  display: flex;
+  /* flex-direction: row; */
+  align-content: center;
+
+  background-color: rgb(169, 217, 208, 0.6);
+  width: 45%;
+  height: 2rem;
+
+  border-radius: 1rem;
+  border: 2px solid rgb(155, 255, 237);
+  gap: 1.5rem;
+}
+/* Supplier buttons end */
+
+
+/* SUPPLIER PAGE STYLES END */
+
+
+
+
+
+
+
+
+
+
+
+
 /* POPUP SUPPLIER BLOCK START */
 /* Modal stuff start */
 .sup_popup_hold {
@@ -446,64 +519,132 @@ li {
 }
 /* Popup content end */
 
-/* Searchbar content start */
-.filterbutt,
-.clearbutt {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: center;
 
-  background-color: rgb(21, 45, 47, 0.6);
-  height: 2rem;
-  width: 2rem;
 
-  border-radius: 0.5rem;
-  border-style: none;
+
+
+
+
+
+
+/* POPUP FOR ADD AND DELETE */
+
+/* The Modal (background) */
+.modal {
+  display: none;
+  flex-direction: column;
+  position: fixed;
+  z-index: 1;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  background-color: rgb(0, 0, 0);
+  background-color: rgba(0, 0, 0, 0.4);
 }
-/* Searchbar content end */
 
-/* Supplier buttons start */
-.supplierBtns {
-  grid-area: supplierBtns;
-
-  display: flex;
-  flex-direction: row;
-  justify-content: center;
-  align-items: center;
-
+/* Modal Content/Box */
+.modal-content {
+  background-color: rgb(84, 147, 136);
+  margin: 6% auto;
+  padding: 20px;
+  border: 2px solid rgb(155, 255, 237);
+  border-radius: 1rem;
+  width: 35%;
+  height: 65%;
   gap: 1rem;
 }
 
-.supplierbutton1:hover,
-.supplierbutton2:hover {
-  background-color: rgb(155, 255, 237);
-  color: rgb(84, 147, 136);
-}
-
-.supplierbutton1:active,
-.supplierbutton2:active {
-  background-color: rgb(84, 147, 136);
-  color: rgb(155, 255, 237);
-}
-
-.supplierbutton1,
-.supplierbutton2 {
-  align-items: center;
-  justify-content: left;
+.modal_details_block{
   display: flex;
-  /* flex-direction: row; */
-  align-content: center;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: flex-start;
+  align-self: stretch;
 
+  width: 100%;
   background-color: rgb(169, 217, 208, 0.6);
-  width: 45%;
-  height: 2rem;
+  padding: 0.5rem;
+  border-radius: 1rem;
+  margin-bottom: 1rem;
+  /* border: 1px solid red; */
+}
+
+.modal_contact_details_block{
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  align-items: flex-start;
+  align-self: stretch;
+
+  width: 100%;
+  /* border: 1px solid red; */
+}
+
+
+/* The Close Button */
+.close {
+  color: #e7dbdb;
+  float: right;
+  /* font-size: 25px;
+  font-weight: bold; */
+}
+.close:hover,
+.close:focus {
+  color: black;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.popup_name {
+  display: flex;
+  justify-content: center;
+  width: 95%;
+  height: 10%;
+  background-color: #152d2f;
+  border-radius: 1rem;
+}
+.popup_title {
+  color: #e7dbdb;
+}
+
+.block_title {
+  color: #e7dbdb;
+}
+
+
+.addSupplierName,
+.addSupplierEmail,
+.addSupplierTelephoneNumber {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+
+  background-color: rgb(84, 147, 136);
+  width: 70%;
+  height: 100%;
 
   border-radius: 1rem;
-  border: 2px solid rgb(155, 255, 237);
-  gap: 1.5rem;
+  border-style: none;
+  margin-top: 0.2rem;
+  margin-left: 0.2rem;
+  margin-right: 0.2rem;
 }
-/* Supplier buttons end */
 
 
-/* SUPPLIER PAGE STYLES END */
+.submit_popup {
+  color: #e7dbdb;
+  float: center;
+  background-color: #152d2f;
+  border-radius: 1rem;
+  padding: 0.5rem;
+}
+.submit_popup:hover,
+.submit_popup:focus {
+  color: black;
+  text-decoration: none;
+  cursor: pointer;
+}
+/* POPUP END */
