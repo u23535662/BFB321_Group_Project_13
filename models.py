@@ -112,6 +112,20 @@ def calculate_rop(daily_demand: float, effective_lt: float, safety_stock: int) -
 
 ## ABC Classification
 def calculate_abc(products_list: list) -> list:
+    """
+    Calculate the Classification for each product.
+
+    Inputs:
+        products_list (list): List of product dictionary objects, each containing:
+            - 'product_id' (int): Primary product identifier
+            - 'price' (float): Clinical unit selling price
+            - 'demand' (int): Cumulative historical 5-year consumption
+
+    Returns:
+        dict: Detailed classification dictionary containing:
+            - 'counts': dict mapping 'A', 'B', 'C' to product counts
+
+    """
     # Function for assigning tiers
     def assign_tier(cum_pct: float) -> str:
         if cum_pct <= 80.0:
