@@ -7,7 +7,7 @@ import statistics
 # =============================================================================
 
 ## Economic Order Quantity
-def calculate_eoq(annual_demand: int, holding_cost: float, setup_cost: float, conversion:int) -> int:
+def calculate_eoq(annual_demand: float, holding_cost: float, setup_cost: float, conversion: int) -> int:
     """
     Calculates the Economic Order Quantity (EOQ) using the classical Wilson lot-size formula.
     
@@ -19,13 +19,13 @@ def calculate_eoq(annual_demand: int, holding_cost: float, setup_cost: float, co
             H = Annual inventory holding cost per unit per year
 
     Inputs:
-        annual_demand (int): Total expected or historical units consumed per year (D).
+        annual_demand (float): Total expected or historical units consumed per year (D).
         holding_cost (float): Holding / carrying cost per unit per annum (H).
         setup_cost (float): Order placement, logistics, and processing cost per order (S).
-        conversion (int): Amount of units are in an ordered box
+        conversion (int): Amount of units in an ordered box.
 
     Returns:
-        int: The cost-minimizing order batch quantity (Q), rounded to nearest box quantity.
+        int: The cost-minimizing order batch quantity (Q), rounded up to the nearest box quantity.
 
     Assumptions / Edge Cases:
         - If holding_cost <= 0, annual_demand <= 0, or setup_cost <= 0, returns 0 to
@@ -34,9 +34,11 @@ def calculate_eoq(annual_demand: int, holding_cost: float, setup_cost: float, co
     """
     if holding_cost <= 0 or annual_demand <= 0 or setup_cost <= 0:
         return 0
+    conversion = max(int(conversion), 1)
     raw_eoq = math.sqrt((2.0 * float(annual_demand) * float(setup_cost)) / float(holding_cost))
-    box_eoq = math.ceil(raw_eoq/conversion)*conversion
+    box_eoq = math.ceil(raw_eoq / conversion) * conversion
     return int(round(box_eoq))
+
 
 ## Safety Stock
 def calculate_ss(service_level: float, std_lt: float, std_demand: float, lt: int) -> int:
@@ -79,8 +81,9 @@ def calculate_ss(service_level: float, std_lt: float, std_demand: float, lt: int
     ss_value = z * combined_std * math.sqrt(effective_lt)
     return int(round(ss_value))
 
+
 ## Re-order Point
-def calculate_rop(daily_demand: float, effective_lt: int, safety_stock: int) -> int:
+def calculate_rop(daily_demand: float, effective_lt: float, safety_stock: int) -> int:
     """
     Calculates the Reorder Point (ROP) inventory threshold that triggers replenishment.
     
@@ -93,7 +96,7 @@ def calculate_rop(daily_demand: float, effective_lt: int, safety_stock: int) -> 
 
     Inputs:
         daily_demand (float): Mean units consumed/sold per calendar day (d_bar).
-        effective_lt (int): Lead time modulo cycle time (L_eff).
+        effective_lt (float): Lead time modulo cycle time (L_eff).
         safety_stock (int): Buffer stock units (SS).
 
     Returns:
@@ -106,115 +109,43 @@ def calculate_rop(daily_demand: float, effective_lt: int, safety_stock: int) -> 
     raw_rop = (float(daily_demand) * float(effective_lt)) + float(safety_stock)
     return int(round(raw_rop))
 
+
 ## ABC Classification
-def calculate_abc_classification(products_list: list) -> dict:
-    """
-    Computes Pareto ABC Inventory Classification based on annual consumption value.
-    
-    Formula:
-        Annual Consumption Value = Annual Demand * Unit Price
-        where Annual Demand = (Historical Sold Units / 3.0 years)
-        Cumulative Value % = (Cumulative Consumption Value / Total Consumption Value) * 100
-        
-        Pareto Classification Thresholds:
-            - Class A (High Priority / Strict Control):
-                Top ~70% of total annual consumption value. Typically represents ~20-25%
-                of SKU count. Demands tight monitoring, accurate records, and frequent reviews.
-            - Class B (Moderate Priority / Normal Control):
-                Next ~20% of total consumption value (cumulative ~70% to 90%).
-                Managed via standard automated EOQ/ROP replenishment rules.
-            - Class C (Low Priority / Simplified Control):
-                Final ~10% of total consumption value (cumulative > 90%).
-                Higher safety buffers and bulk packaging to minimize administrative overhead.
-
-    Inputs:
-        products_list (list): List of product dictionary objects, each containing:
-            - 'product_id' (int): Primary product identifier
-            - 'name' (str): Product description / brand
-            - 'price' (float): Clinical unit selling price
-            - 'sold_qty' (int): Cumulative historical 3-year consumption
-
-    Returns:
-        dict: Detailed classification dictionary containing:
-            - 'class_a': list of products assigned to Class A
-            - 'class_b': list of products assigned to Class B
-            - 'class_c': list of products assigned to Class C
-            - 'counts': dict mapping 'A', 'B', 'C' to SKU counts
-            - 'percentages': dict mapping 'A', 'B', 'C' to financial value percentage shares
-            - 'total_annual_value': float representing total annual consumption value
-            - 'total_annual_value_formatted': str formatted in South African Rand (ZAR)
-
-    Assumptions / Edge Cases:
-        - If products_list is empty or total_annual_value <= 0, returns empty structures
-          with 0 counts to prevent ZeroDivisionError.
-        - Each product object in products_list is updated in place with 'abc_class',
-          'abc_badge_class', 'abc_annual_val', and 'abc_annual_val_formatted'.
-    """
-    if not products_list:
-        return {
-            "class_a": [], "class_b": [], "class_c": [],
-            "counts": {"A": 0, "B": 0, "C": 0},
-            "percentages": {"A": 0.0, "B": 0.0, "C": 0.0},
-            "total_annual_value": 0.0,
-            "total_annual_value_formatted": "R 0.00"
-        }
-
-    # Sort products in descending order by annual consumption value: (sold_qty / 3.0) * price
-    sorted_prods = sorted(
-        products_list,
-        key=lambda p: (float(p.get("sold_qty", 0)) / 3.0) * float(p.get("price", 0.0)),
-        reverse=True
-    )
-
-    total_annual_val = sum((float(p.get("sold_qty", 0)) / 3.0) * float(p.get("price", 0.0)) for p in sorted_prods)
-    if total_annual_val <= 0:
-        total_annual_val = 1.0
-
-    class_a, class_b, class_c = [], [], []
-    val_a, val_b, val_c = 0.0, 0.0, 0.0
-    cum_val = 0.0
-
-    for i, p in enumerate(sorted_prods):
-        ann_val = (float(p.get("sold_qty", 0)) / 3.0) * float(p.get("price", 0.0))
-        cum_val += ann_val
-        cum_pct = (cum_val / total_annual_val) * 100.0
-
-        # Classify based on Pareto cumulative cutoff (A: ~70%, B: ~90%, C: >90%)
-        # Enforcing at least top 2 items in A and bottom 2 in C
-        if (cum_pct <= 70.0 and i < 4) or i < 2:
-            cls = "A"
-            badge = "badge-abc-a"
-            class_a.append(p)
-            val_a += ann_val
-        elif cum_pct <= 90.0 or i < 7:
-            cls = "B"
-            badge = "badge-abc-b"
-            class_b.append(p)
-            val_b += ann_val
+def calculate_abc(products_list: list) -> list:
+    # Function for assigning tiers
+    def assign_tier(cum_pct: float) -> str:
+        if cum_pct <= 80.0:
+            return "A"
+        elif cum_pct <= 95.0:
+            return "B"
         else:
-            cls = "C"
-            badge = "badge-abc-c"
-            class_c.append(p)
-            val_c += ann_val
+            return "C"
 
-        p["abc_class"] = cls
-        p["abc_badge_class"] = badge
-        p["abc_annual_val"] = ann_val
-        p["abc_annual_val_formatted"] = f"R {ann_val:,.2f}"
+    if not products_list:
+        return []
 
-    pct_a = round((val_a / total_annual_val) * 100.0, 1)
-    pct_b = round((val_b / total_annual_val) * 100.0, 1)
-    pct_c = round((val_c / total_annual_val) * 100.0, 1)
+    # Calculate value for each SKU
+    for p in products_list:
+        p['value'] = float(p['demand']) * float(p['price'])
 
-    return {
-        "class_a": class_a,
-        "class_b": class_b,
-        "class_c": class_c,
-        "counts": {"A": len(class_a), "B": len(class_b), "C": len(class_c)},
-        "percentages": {"A": pct_a, "B": pct_b, "C": pct_c},
-        "total_annual_value": total_annual_val,
-        "total_annual_value_formatted": f"R {total_annual_val:,.2f}"
-    }
+    # Sort SKUs descending by value
+    skus_sorted = sorted(products_list, key=lambda item: item['value'], reverse=True)
+
+    # Calculate cumulative percentage and assign tiers
+    total_value = sum(item['value'] for item in skus_sorted)
+    running_total = 0.0
+    for item in skus_sorted:
+        if total_value > 0:
+            running_total += item['value']
+            item['cum_pct'] = (running_total / total_value) * 100.0
+            item['tier'] = assign_tier(item['cum_pct'])
+        else:
+            item['cum_pct'] = 0.0
+            item['tier'] = "C"
+
+    return skus_sorted
+
+
 # =============================================================================
 # JSON FUNCTIONS
 # =============================================================================
@@ -254,7 +185,7 @@ def get_products_raw(product_id=None):
         FROM product p
         WHERE p.product_id = %s
         """
-        p = db.query_one(sql, product_id)
+        p = db.query_one(sql, (product_id,))
         db.close_db()
         if not p:
             return None
@@ -266,6 +197,7 @@ def get_products_raw(product_id=None):
             'holding_cost': float(p['hc'])
         }
 
+
 ## Getting relevant product data
 def get_products(product_id=None):
     r_product = get_products_raw(product_id)
@@ -276,6 +208,24 @@ def get_products(product_id=None):
     products_to_process = [r_product] if product_id is not None else r_product
     output_product = []
 
+    # Past 1 full calendar year, excluding the current year
+    abc_sql = """
+    SELECT 
+        s.product_id AS id, 
+        p.product_price AS price, 
+        SUM(s.sold_qty) AS demand 
+    FROM sale s
+    JOIN product p
+        ON s.product_id = p.product_id
+    WHERE s.sold_date >= MAKEDATE(YEAR(CURDATE()) - 1, 1)
+      AND s.sold_date < MAKEDATE(YEAR(CURDATE()), 1)
+    GROUP BY s.product_id, p.product_price
+    """
+    product_list = db.query_all(abc_sql)
+    abc_data = calculate_abc(product_list)
+    abc_lookup = {int(item['id']): item['tier'] for item in abc_data}
+
+    # Past 5 full calendar years, excluding the current year
     eoq_sql = """
     WITH yearly_sales AS (
         SELECT 
@@ -284,6 +234,7 @@ def get_products(product_id=None):
             SUM(sold_qty) AS yearly_qty
         FROM sale
         WHERE sold_date >= MAKEDATE(YEAR(CURDATE()) - 5, 1)
+          AND sold_date < MAKEDATE(YEAR(CURDATE()), 1)
         GROUP BY 
             product_id, 
             YEAR(sold_date)
@@ -291,7 +242,7 @@ def get_products(product_id=None):
     avg_yearly_sales AS (
         SELECT 
             product_id, 
-            AVG(yearly_qty) AS avg_annual_sold_qty
+            SUM(yearly_qty) / 5.0 AS avg_annual_sold_qty
         FROM yearly_sales
         GROUP BY product_id
     ),
@@ -315,57 +266,214 @@ def get_products(product_id=None):
     LEFT JOIN current_setup cs ON p.product_id = cs.product_id AND cs.rn = 1
     WHERE p.product_id = %s;
     """
+
+    # Past 5 full calendar years, excluding the current year
     ss_sql = """
-    
+    WITH filtered_po AS (
+        SELECT
+            po.order_id,
+            po.order_date
+        FROM purchase_order po
+        JOIN purchase_order_item poi
+            ON po.order_id = poi.order_id
+        WHERE po.order_status = 'Received'
+          AND poi.product_id = %s
+          AND po.order_date >= MAKEDATE(YEAR(CURDATE()) - 5, 1)
+          AND po.order_date < MAKEDATE(YEAR(CURDATE()), 1)
+        GROUP BY po.order_id, po.order_date
+    ),
+    lead_time_metrics AS (
+        SELECT
+            AVG(DATEDIFF(iu_agg.receipt_date, fpo.order_date)) AS avg_lt,
+            STD(DATEDIFF(iu_agg.receipt_date, fpo.order_date)) AS std_lt
+        FROM filtered_po fpo
+        JOIN (
+            SELECT
+                order_id,
+                MAX(update_date) AS receipt_date
+            FROM inventory_update
+            GROUP BY order_id
+        ) iu_agg
+            ON fpo.order_id = iu_agg.order_id
+        WHERE iu_agg.receipt_date >= fpo.order_date
+    ),
+    demand_metrics AS (
+        SELECT
+            STD(s.sold_qty) AS std_d
+        FROM sale s
+        WHERE s.product_id = %s
+          AND s.sold_date >= MAKEDATE(YEAR(CURDATE()) - 5, 1)
+          AND s.sold_date < MAKEDATE(YEAR(CURDATE()), 1)
+    )
+    SELECT
+        %s AS id,
+        lt.avg_lt,
+        lt.std_lt,
+        dm.std_d
+    FROM lead_time_metrics lt
+    CROSS JOIN demand_metrics dm;
+    """
+
+    # Past 5 full calendar years, excluding the current year
+    rop_sql = """
+    WITH daily_sales AS (
+        SELECT
+            product_id,
+            DATE(sold_date) AS sale_day,
+            SUM(sold_qty) AS daily_qty
+        FROM sale
+        WHERE sold_date >= MAKEDATE(YEAR(CURDATE()) - 5, 1)
+          AND sold_date < MAKEDATE(YEAR(CURDATE()), 1)
+        GROUP BY product_id, DATE(sold_date)
+    )
+    SELECT
+        product_id,
+        AVG(daily_qty) AS avg_daily_demand
+    FROM daily_sales
+    WHERE product_id = %s
+    GROUP BY product_id;
+    """
+
+    current_inv_sql = """
+    WITH sales_agg AS (
+        SELECT
+            s.product_id AS id,
+            SUM(s.sold_qty) AS sales
+        FROM sale s
+        WHERE s.sold_date >= MAKEDATE(YEAR(CURDATE()), 1)
+        GROUP BY s.product_id
+    ),
+    matching_jobs AS (
+        SELECT DISTINCT
+            ji.job_id
+        FROM job_instance ji
+        WHERE ji.status != 'Cancelled'
+        AND ji.operation_date >= MAKEDATE(YEAR(CURDATE()), 1)
+    ),
+    consumables_agg AS (
+        SELECT
+            jc.product_id AS id,
+            SUM(jc.qty_of_product_used) AS used
+        FROM job_consumables jc
+        JOIN matching_jobs mj
+            ON mj.job_id = jc.job_id
+        GROUP BY jc.product_id
+    ),
+    updates_agg AS (
+        SELECT
+            iui.product_id AS id,
+            SUM(iui.update_amount) AS update_total
+        FROM inventory_update_item iui
+        JOIN inventory_update iu
+            ON iu.update_id = iui.update_id
+        WHERE iu.update_date >= MAKEDATE(YEAR(CURDATE()), 1)
+        GROUP BY iui.product_id
+    )
+    SELECT
+        p.product_id AS id,
+        (
+            p.stock_quantity
+            - COALESCE(sa.sales, 0)
+            - COALESCE(ca.used, 0)
+            + COALESCE(ua.update_total, 0)
+        ) AS current_inventory
+    FROM product p
+    LEFT JOIN sales_agg sa
+        ON sa.id = p.product_id
+    LEFT JOIN consumables_agg ca
+        ON ca.id = p.product_id
+    LEFT JOIN updates_agg ua
+        ON ua.id = p.product_id
+    WHERE p.product_id = %s;
     """
     for p in products_to_process:
         p_id = p['id']
         data_eoq = db.query_one(eoq_sql, (p_id,))
+        data_ss = db.query_one(ss_sql, (p_id, p_id, p_id))
+        data_rop = db.query_one(rop_sql, (p_id,))
+        data_cur_inv = db.query_one(current_inv_sql, (p_id))
 
         if data_eoq:
-            annual_demand = int(round(float(data_eoq['annual_demand'] or 0)))
+            annual_demand = float(data_eoq['annual_demand'] or 0)
             setup_cost = float(data_eoq['setup_cost'] or 0)
             box_conversion = max(int(data_eoq['box_conversion'] or 1), 1)
             eoq = calculate_eoq(annual_demand, p['holding_cost'], setup_cost, box_conversion)
         else:
             eoq = 0
 
+        if data_ss:
+            service_level = 0.95
+            std_lt = float(data_ss['std_lt'] or 0)
+            std_d = float(data_ss['std_d'] or 0)
+            lt = int(round(float(data_ss['avg_lt'] or 0)))
+            ss = calculate_ss(service_level, std_lt, std_d, lt)
+        else:
+            lt = 0
+            ss = 0
+
+        if data_rop and data_rop['avg_daily_demand'] is not None:
+            daily_demand = float(data_rop['avg_daily_demand'])
+            if daily_demand > 0 and eoq > 0:
+                t = eoq / daily_demand
+                effective_lt = lt % t
+                rop = calculate_rop(daily_demand, effective_lt, ss)
+            else:
+                rop = ss
+        else:
+            rop = ss
+
+        p_class = abc_lookup.get(p_id, "C")
+
+        if data_cur_inv:
+            current_inv = int(data_cur_inv['current_inventory'])
+        else:
+            current_inv = 0
+
         output_product.append({ 
             'id': int(p['id']),
             'name': str(p['name']),
             'price': float(p['price']),
             'holding_cost': float(p['holding_cost']),
-            'eoq': int(eoq)
+            'eoq': int(eoq),
+            'ss': int(ss),
+            'rop': int(rop),
+            'class': str(p_class),
+            'current_inventory':int(current_inv)
         })
 
+    db.close_db()
     return output_product[0] if product_id is not None else output_product
 
+
 ## Creating a product
-def insert_product(name:str = '', price:str = '', holding_cost:str ='', starting_inventory: str = ''):
+def insert_product(name: str = '', price: float = 0.0, holding_cost: float = 0.0, starting_inventory: int = 0):
     sql = """
     INSERT INTO product (product_name, product_price, product_holding_cost, stock_quantity)
     VALUES (%s, %s, %s, %s)
     """
-    id = db.execute(sql, (name, price, holding_cost, starting_inventory))
-    db.close_db
-    return id
+    product_id = db.execute(sql, (name, price, holding_cost, starting_inventory))
+    db.close_db()
+    return product_id
+
 
 ## Editing product
-def update_product(name:str, price:float, holding_cost:float, starting_inventory:int, product_id: str):
+def update_product(name: str, price: float, holding_cost: float, starting_inventory: int, product_id: int):
     sql = """
     UPDATE product
-    SET product_name = %s, product_price= %s, product_holding_cost= %s, stock_quantity=%s
+    SET product_name = %s, product_price = %s, product_holding_cost = %s, stock_quantity = %s
     WHERE product_id = %s
     """
-    id = db.execute(sql, (name, price, holding_cost, starting_inventory, product_id))
+    rows_affected = db.execute(sql, (name, price, holding_cost, starting_inventory, product_id))
     db.close_db()
-    return id
+    return rows_affected
+
 
 ## Deleting product
-def delete_product(product_id: str):
+def delete_product(product_id: int):
     sql = """
-    DELETE FROM product WHERE product_id=%s
+    DELETE FROM product WHERE product_id = %s
     """
-    id = db.execute(sql, product_id)
+    rows_affected = db.execute(sql, (product_id,))
     db.close_db()
-    return id
+    return rows_affected
+    
