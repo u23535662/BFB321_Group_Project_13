@@ -257,16 +257,6 @@ li {
 
 /* BODY SUB-BLOCKS START */
 /* supplierBtns BLOCK START */
-.supplierbutton1:hover,
-.supplierbutton2:hover {
-  background-color: rgb(155, 255, 237);
-  color: rgb(84, 147, 136);
-}
-.supplierbutton1:active,
-.supplierbutton2:active {
-  background-color: rgb(84, 147, 136);
-  color: rgb(155, 255, 237);
-}
 .supplierbutton1,
 .supplierbutton2 {
   align-items: center;
@@ -282,6 +272,16 @@ li {
   border-radius: 1rem;
   border: 2px solid rgb(155, 255, 237);
   gap: 1.5rem;
+}
+.supplierbutton1:hover,
+.supplierbutton2:hover {
+  background-color: rgb(155, 255, 237);
+  color: rgb(84, 147, 136);
+}
+.supplierbutton1:active,
+.supplierbutton2:active {
+  background-color: rgb(84, 147, 136);
+  color: rgb(155, 255, 237);
 }
 /* supplierBtns BLOCK END */
 
@@ -495,6 +495,16 @@ li {
 /* SUPPLIER INFO POPUP END */
 
 
+
+
+
+
+
+
+
+
+
+
 /* ADD SUPPLIER POPUP START */
 /* Add supplier title start */
 .popup_name {
@@ -533,7 +543,6 @@ li {
   background-color: rgb(84, 147, 136);
   margin: 6% auto;
   padding: 20px;
-  border: 2px solid rgb(155, 255, 237);
   border-radius: 1rem;
   width: 35%;
   max-height: 70%;
@@ -541,19 +550,31 @@ li {
   justify-content: center;
   align-items: center;
 }
-.modal_details_block {
+.supplier_details_block {
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
   align-items: flex-start;
   align-self: stretch;
 
-  background-color: rgb(169, 217, 208, 0.6);
   padding: 0.5rem;
   border-radius: 1rem;
   margin-top: 1rem;
   margin-bottom: 1rem;
   /* border: 1px solid red; */
+}
+.product_details_block {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: flex-start;
+  align-self: stretch;
+
+  border: 2px solid #a9d9d0;
+  padding: 0.5rem;
+  border-radius: 1rem;
+  margin-top: 1rem;
+  margin-bottom: 1rem;
 }
 .ul_block{
   display: flex;
@@ -574,8 +595,7 @@ li {
 /* Add supplier main blocks end */
 
 /* Add supplier main content start */
-.modal_product_details_sub_block,
-.modal_details_sub_block {
+.supplier_details_sub_block {
   display: flex;
   flex-direction: row;
   justify-content: flex-start;
@@ -584,10 +604,39 @@ li {
   width: 100%;
   /* border: 1px solid red; */
 }
-.modal_details_sub_block {
-  margin-bottom: 1rem;
+
+.product_details_sub_block {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  align-items: flex-start;
+  align-self: stretch;
+  width: 100%;
+  /* border: 1px solid red; */
 }
-.modal_submit_block {
+
+.addProductButton {
+  color: #e7dbdb;
+  float: center;
+  background-color: #152d2f;
+  border-color: #152d2f;
+  border-radius: 1rem;
+  padding: 0.5rem;
+}
+.addProductButton {
+  color: #e7dbdb;
+  float: center;
+  background-color: #152d2f;
+  border-radius: 1rem;
+  padding: 0.5rem;
+}
+.addProductButton:hover {
+  color: black;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.cancel_and_submit_block {
   display: flex;
   flex-direction: row-reverse;
   justify-content: flex-start;
@@ -595,6 +644,28 @@ li {
   align-self: stretch;
 
   width: 100%;
+}
+
+.delete_block {
+  display: flex;
+  flex-direction: row-reverse;
+  justify-content: flex-start;
+  align-items: flex-start;
+  align-self: stretch;
+
+  width: 100%;
+}
+.deletebutton {
+  color: #e7dbdb;
+  float: center;
+  background-color: #152d2f;
+  border-color: #152d2f;
+  border-radius: 1rem;
+  padding: 0.5rem;
+}
+.deletebutton:hover\ {
+  background-color: rgb(155, 255, 237);
+  color: rgb(84, 147, 136);
 }
 /* Add supplier main content end */
 
@@ -607,7 +678,7 @@ li {
   justify-content: center;
   align-items: center;
 
-  background-color: rgb(84, 147, 136);
+  background-color: #9acec5;
   width: 70%;
   height: 2rem;
 
@@ -616,20 +687,22 @@ li {
   margin-left: 0.2rem;
   margin-right: 0.2rem;
 }
-.addProductButton {
-  align-items: center;
-  justify-content: left;
+.addProductName,
+.addProductPrice,
+.addProductUnits {
   display: flex;
-  /* flex-direction: row; */
-  align-content: center;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
 
-  background-color: rgb(21, 45, 47, 0.6);
-  width: 45%;
+  background-color: #9acec5;
+  width: 70%;
   height: 2rem;
 
   border-radius: 1rem;
-  border: 2px solid rgb(155, 255, 237);
-  gap: 1.5rem;
+  border-style: none;
+  margin-left: 0.2rem;
+  margin-right: 0.2rem;
 }
 
 
@@ -637,8 +710,16 @@ li {
 
 
 
-
 /* Add supplier data fields end */
+
+
+
+
+
+
+
+
+
 
 /* The close and submit button start */
 .close {
@@ -653,7 +734,6 @@ li {
   text-decoration: none;
   cursor: pointer;
 }
-.add_product,
 .submit_popup {
   color: #e7dbdb;
   float: center;
@@ -661,8 +741,6 @@ li {
   border-radius: 1rem;
   padding: 0.5rem;
 }
-.add_product:hover,
-.add_product:focus,
 .submit_popup:hover,
 .submit_popup:focus {
   color: black;
