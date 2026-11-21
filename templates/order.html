@@ -70,7 +70,7 @@
     <div class="order_body">
       <div class="order_topblock">
         <!-- NEW ORDER BUTTON START -->
-        <button class="new_order_button">
+        <button class="new_order_button" id="new_order_button">
           <i data-lucide="circle-plus"></i>
           <p class="new_order_text">New Order</p>
         </button>
@@ -147,7 +147,7 @@
     <!-- ORDER BODY END -->
 
     <!-- NEW ORDER POPUP START -->
-    <div class="new_order_popup">
+    <div class="new_order_popup" id="new_order_popup">
       <div class="new_order_popup_content">
         <div class="add_new_order_heading">
           <h1>Add New Order</h1>
@@ -184,13 +184,20 @@
                   placeholder="Units" />
               </div>
             </div>
-            <div class="est_del_date_select"></div>
+            <div class="est_del_date_select">
+              <p class="est_del_date_text">Estimated Delivery Date</p>
+              <input
+                type="date"
+                class="est_del_date_input"
+                name="est_del_date"
+                id="est_del_date" />
+            </div>
           </div>
           <div class="confirm_or_cancel_order">
-            <div class="cancel">
+            <div class="cancel" id="cancel">
               <p>Cancel</p>
             </div>
-            <div class="confirm">
+            <div class="confirm" id="confirm">
               <p>Confirm</p>
             </div>
           </div>
@@ -198,6 +205,18 @@
       </div>
     </div>
     <!-- NEW ORDER POPUP END -->
+
+    <!-- ORDER CONFIRMED POPUP START -->
+    <div class="confirm_background" id="confirm_background">
+      <div class="confirm_message">
+        <div class="top_x">
+          <i class="x_confirm" id="x_confirm" data-lucide="circle-x"></i>
+        </div>
+        <h3>A new order has been confirmed</h3>
+      </div>
+    </div>
+
+    <!-- ORDER CONFIRMED POPUP END -->
 
     <!-- SCRIPTS START -->
 
@@ -230,8 +249,68 @@
       }
     </script>
 
-    <!-- Script for new order popup -->
-    <script></script>
+    <script>
+      // Script for new order popup
+      const orderOpenBtn = document.getElementById("new_order_button");
+      const orderPopup = document.getElementById("new_order_popup");
+      const orderCloseBtn = document.getElementById("cancel");
+
+      if (orderOpenBtn && orderPopup && orderCloseBtn) {
+        // Open Popup
+        orderOpenBtn.addEventListener("click", function () {
+          orderPopup.style.display = "flex";
+        });
+
+        // Close Popup
+        orderCloseBtn.addEventListener("click", function () {
+          orderPopup.style.display = "none";
+        });
+
+        // Close Popup (click outside)
+        orderPopup.addEventListener("click", function (event) {
+          if (event.target === orderPopup) {
+            orderPopup.style.display = "none";
+          }
+        });
+      } else if (!orderOpenBtn) {
+        console.log("No open Button");
+      } else if (!orderPopup) {
+        console.log("No popup hold...");
+      } else if (!orderCloseBtn) {
+        console.log("No popup close");
+      }
+
+      // Script for confirm order popup
+      const confirmOpenBtn = document.getElementById("confirm");
+      const confirmPopup = document.getElementById("confirm_background");
+      const confirmCloseBtn = document.getElementById("x_confirm");
+
+      if (confirmOpenBtn && confirmPopup && confirmCloseBtn) {
+        // Open Popup
+        confirmOpenBtn.addEventListener("click", function () {
+          orderPopup.style.display = "none";
+          confirmPopup.style.display = "flex";
+        });
+
+        // Close Popup
+        confirmCloseBtn.addEventListener("click", function () {
+          confirmPopup.style.display = "none";
+        });
+
+        // Close Popup (click outside)
+        confirmPopup.addEventListener("click", function (event) {
+          if (event.target === confirmPopup) {
+            confirmPopup.style.display = "none";
+          }
+        });
+      } else if (!confirmOpenBtn) {
+        console.log("No open Button");
+      } else if (!confirmPopup) {
+        console.log("No popup hold...");
+      } else if (!confirmCloseBtn) {
+        console.log("No popup close");
+      }
+    </script>
 
     <!-- SCRIPTS END -->
   </body>
