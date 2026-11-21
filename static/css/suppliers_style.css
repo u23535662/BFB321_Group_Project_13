@@ -170,7 +170,6 @@ li {
 }
 /* NAV BAR STYLES END */
 
-
 /* SUPPLIER PAGE STYLES START */
 .supplier_body {
   display: grid;
@@ -369,19 +368,7 @@ li {
 }
 /* Supplier buttons end */
 
-
 /* SUPPLIER PAGE STYLES END */
-
-
-
-
-
-
-
-
-
-
-
 
 /* POPUP SUPPLIER BLOCK START */
 /* Modal stuff start */
@@ -519,14 +506,6 @@ li {
 }
 /* Popup content end */
 
-
-
-
-
-
-
-
-
 /* POPUP FOR ADD AND DELETE */
 
 /* The Modal (background) */
@@ -560,14 +539,13 @@ li {
   align-items: center;
 }
 
-.modal_details_block{
+.modal_details_block {
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
   align-items: flex-start;
   align-self: stretch;
 
-  width: 100%;
   background-color: rgb(169, 217, 208, 0.6);
   padding: 0.5rem;
   border-radius: 1rem;
@@ -575,7 +553,7 @@ li {
   margin-bottom: 1rem;
   /* border: 1px solid red; */
 }
-.modal_contact_details_block{
+.modal_contact_details_block {
   display: flex;
   flex-direction: row;
   justify-content: flex-start;
@@ -585,11 +563,11 @@ li {
   width: 100%;
   /* border: 1px solid red; */
 }
-.modal_contact_details_block{
+.modal_contact_details_block {
   margin-bottom: 1rem;
 }
 
-.modal_submit_block{
+.modal_submit_block {
   display: flex;
   flex-direction: row-reverse;
   justify-content: flex-start;
@@ -629,7 +607,6 @@ li {
   color: #e7dbdb;
 }
 
-
 .addSupplierName,
 .addSupplierEmail,
 .addSupplierTelephoneNumber {
@@ -647,7 +624,7 @@ li {
   margin-left: 0.2rem;
   margin-right: 0.2rem;
 }
-.addProductButton{
+.addProductButton {
   align-items: center;
   justify-content: left;
   display: flex;
@@ -662,8 +639,6 @@ li {
   border: 2px solid rgb(155, 255, 237);
   gap: 1.5rem;
 }
-
-
 
 .submit_popup {
   color: #e7dbdb;
