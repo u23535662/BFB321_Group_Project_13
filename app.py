@@ -252,9 +252,6 @@ def api_delete_supplier(supplier_id):
     except Exception as e:
         return jsonify({'success': False, 'error': str(e)}), 500
 
-if __name__ == '__main__':
-    app.run(debug=True)
-
 
 
 # SALES
@@ -343,3 +340,13 @@ def api_delete_sale(sale_id):
         return jsonify({'success': True, 'message': 'Sale deleted successfully'}), 200
     except Exception as e:
         return jsonify({'success': False, 'error': str(e)}), 500
+
+
+
+
+
+
+
+
+if __name__ == '__main__':
+    app.run(debug=True)    
