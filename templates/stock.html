@@ -3,59 +3,62 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Stock Management | Stanway</title>
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
       href="https://fonts.googleapis.com/css2?family=Gelasio:ital,wght@0,400..700;1,400..700&display=swap"
-      rel="stylesheet" />
-    <!-- insert here -->
+      rel="stylesheet"
+    />
     <link rel="stylesheet" href="../static/css/stock_style.css" />
   </head>
 
   <body>
-    <!--NAV BAR START-->
+    <!-- NAV BAR START -->
     <nav class="navbar">
       <div class="logobox">
         <div class="logo">
           <img
             src="../static/images/Stanway-Logo-picture.png"
-            class="logoimg" />
+            alt="Stanway Logo"
+            class="logoimg"
+          />
         </div>
         <i class="fa-solid fa-grip-lines"></i>
       </div>
       <ul class="navlist">
         <li class="pagenames">
-          <a href="index.html" class="noto-sans-display-page"
-            ><div>
+          <a href="index.html" class="noto-sans-display-page">
+            <div>
               <i class="fa-solid fa-chart-line"></i>
               Overview
-            </div></a
-          >
+            </div>
+          </a>
         </li>
         <li class="pagenames active">
-          <a href="stock.html" class="noto-sans-display-page page_active"
-            ><div>
+          <a href="stock.html" class="noto-sans-display-page page_active">
+            <div>
               <i class="fa-solid fa-boxes-packing"></i>
               Stock
-            </div></a
-          >
+            </div>
+          </a>
         </li>
         <li class="pagenames">
-          <a href="order.html" class="noto-sans-display-page"
-            ><div>
+          <a href="order.html" class="noto-sans-display-page">
+            <div>
               <i class="fa-solid fa-hand-holding-dollar"></i>
               Orders
-            </div></a
-          >
+            </div>
+          </a>
         </li>
         <li class="pagenames">
-          <a href="suppliers.html" class="noto-sans-display-page"
-            ><div>
+          <a href="suppliers.html" class="noto-sans-display-page">
+            <div>
               <i class="fa-solid fa-truck-field"></i>
               Suppliers
-            </div></a
-          >
+            </div>
+          </a>
         </li>
       </ul>
       <div class="accountbox">
@@ -63,48 +66,21 @@
         <h3 class="noto-sans-display-h1">Account</h3>
       </div>
     </nav>
-
     <!-- NAV BAR END -->
 
     <!-- STOCK BLOCKS START -->
     <div class="stockblocks">
       <div class="stockBtns">
-        <button id="stockButton1" class="stockbutton1">
+        <!-- Add Item Button -->
+        <button type="button" id="stockButton1" class="stockbutton1">
           <div class="new_item_icon">
             <i data-lucide="circle-plus"></i>
           </div>
           <div class="new_item_text">New Item</div>
         </button>
 
-        <!-- Modal start -->
-        <div id="myModal" class="modal">
-          <!-- Modal content -->
-          <div class="modal-content">
-            <span class="close" id="close_stock_popup">
-              <i data-lucide="circle-x"></i>
-            </span>
-            <div class="popup_name">
-              <p class="popup_title">Add New Product</p>
-            </div>
-
-            <p class="block_title">Product Name</p>
-            <input class="addProd" type="text" placeholder="Product name..." required />
-
-            <h3 class="block_title">Supplier Name</h3>
-            <select class="addSupp">
-              <option value="">Select a supplier...</option>
-            </select>
-
-            <p class="block_title">Units in Stock</p>
-            <input class="addUnits" type="number" min="0" step="1" placeholder="Units in Stock..." required />
-
-            <p class="popup-status text" style="display: none;"></p>
-            <button type="button" class="submit_popup">Submit</button>
-          </div>
-        </div>
-        <!-- Modal end -->
-        
-        <button id="stockButton2" class="stockbutton2">
+        <!-- Delete Item Button -->
+        <button type="button" id="stockButton2" class="stockbutton2">
           <div class="delete_item_icon">
             <i data-lucide="circle-x"></i>
           </div>
@@ -112,12 +88,70 @@
         </button>
       </div>
 
+      <!-- Add Product Modal -->
+      <div id="addProductModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="addModalTitle">
+        <div class="modal-content">
+          <span class="close" id="close_stock_popup" role="button" tabindex="0" aria-label="Close modal">
+            <i data-lucide="circle-x"></i>
+          </span>
+          <div class="popup_name">
+            <p id="addModalTitle" class="popup_title">Add New Product</p>
+          </div>
+
+          <form id="addProductForm" novalidate>
+            <label class="block_title" for="addProdName">Product Name</label>
+            <input id="addProdName" class="addProd" type="text" placeholder="Product name..." required />
+
+            <label class="block_title" for="addSuppSelect">Supplier Name</label>
+            <select id="addSuppSelect" class="addSupp" required>
+              <option value="">Select a supplier...</option>
+            </select>
+
+            <label class="block_title" for="addProdUnits">Units in Stock</label>
+            <input id="addProdUnits" class="addUnits" type="number" min="0" step="1" placeholder="Units in Stock..." required />
+
+            <label class="block_title" for="addProdPrice">Unit Price</label>
+            <input id="addProdPrice" class="addUnits" type="number" min="0" step="0.01" placeholder="0.00" value="0" />
+
+            <label class="block_title" for="addProdHoldingCost">Holding Cost</label>
+            <input id="addProdHoldingCost" class="addUnits" type="number" min="0" step="0.01" placeholder="0.00" value="0" />
+
+            <p class="popup-status text" style="display: none;"></p>
+            <button type="submit" class="submit_popup">Submit</button>
+          </form>
+        </div>
+      </div>
+
+      <!-- Delete Product Modal -->
+      <div id="deleteProductModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="deleteModalTitle">
+        <div class="modal-content">
+          <span class="close" id="close_delete_popup" role="button" tabindex="0" aria-label="Close modal">
+            <i data-lucide="circle-x"></i>
+          </span>
+          <div class="popup_name">
+            <p id="deleteModalTitle" class="popup_title">Delete Product</p>
+          </div>
+
+          <form id="deleteProductForm" novalidate>
+            <label class="block_title" for="deleteProdSelect">Select Product to Remove</label>
+            <select id="deleteProdSelect" class="addSupp" required>
+              <option value="">Loading products...</option>
+            </select>
+
+            <p class="popup-status text" style="display: none;"></p>
+            <button type="submit" class="submit_popup" style="background-color: #c0392b;">Delete Product</button>
+          </form>
+        </div>
+      </div>
+
+      <!-- Main Suppliers List -->
       <div class="blocksuppliersmain">
-        <div id = "suppliers_list">
+        <div id="suppliers_list">
           <p class="text">Loading suppliers...</p>
         </div>
       </div>
 
+      <!-- Low Stock Panel -->
       <div class="blocklowstock">
         <div class="headingblockstock">
           <p>Low Stock Items</p>
@@ -127,199 +161,298 @@
         </div>
       </div>
     </div>
-
     <!-- STOCK BLOCKS END -->
 
-    <!-- Script for icons-->
-    <script
-      src="https://kit.fontawesome.com/3000704a08.js"
-      crossorigin="anonymous"></script>
+    <!-- Icon & Base Scripts -->
+    <script src="https://kit.fontawesome.com/3000704a08.js" crossorigin="anonymous"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
-    <script>
-      lucide.createIcons();
-    </script>
     <script src="../templates/script.js"></script>
 
-
-    <!-- API integration -->
+    <!-- API Integration -->
     <script>
+      // Store card controllers by supplierId so we can refresh them dynamically
+      const supplierCardControllers = new Map();
+
+      function refreshIcons() {
+        if (window.lucide && typeof window.lucide.createIcons === "function") {
+          window.lucide.createIcons();
+        }
+      }
+
       document.addEventListener("DOMContentLoaded", () => {
+        refreshIcons();
         loadSuppliers();
         loadLowStockProducts();
-        const stockModal = document.getElementById("myModal");
-            const stockOpenBtn = document.getElementById("stockButton1");
-            const stockCloseBtn = document.getElementById("close_stock_popup");
+        initAddProductModal();
+        initDeleteProductModal();
 
-            if (!stockModal || !stockOpenBtn || !stockCloseBtn) return;
-
-            const prodInput = stockModal.querySelector(".addProd");
-            const suppSelect = stockModal.querySelector(".addSupp");
-            const unitsInput = stockModal.querySelector(".addUnits");
-            const submitBtn = stockModal.querySelector(".submit_popup");
-            const statusEl = stockModal.querySelector(".popup-status");
-
-            let suppliersLoaded = false;
-
-            function setPopupStatus(message, isError = false) {
-              if (!statusEl) return;
-              statusEl.style.display = message ? "block" : "none";
-              statusEl.textContent = message;
-              statusEl.style.color = isError ? "#c0392b" : "#27ae60";
-            }
-
-            function resetModalForm() {
-              if (prodInput) prodInput.value = "";
-              if (suppSelect) suppSelect.value = "";
-              if (unitsInput) unitsInput.value = "";
-              setPopupStatus("");
-            }
-
-            function closeStockModal() {
-              stockModal.style.display = "none";
-              setPopupStatus("");
-            }
-
-            async function populateSuppliersDropdown(forceReload = false) {
-              if (!suppSelect || (suppliersLoaded && !forceReload)) return;
-
-              suppSelect.innerHTML = `<option value="">Loading suppliers...</option>`;
-              suppSelect.disabled = true;
-
-              try {
-                const response = await fetch("/api/suppliers");
-                if (!response.ok) {
-                  throw new Error(`HTTP ${response.status}`);
-                }
-
-                const payload = await response.json();
-                const suppliers = Array.isArray(payload)
-                  ? payload
-                  : Array.isArray(payload.data)
-                    ? payload.data
-                    : [];
-
-                suppSelect.innerHTML = `<option value="">Select a supplier...</option>`;
-
-                suppliers.forEach((supplier) => {
-                  const option = document.createElement("option");
-                  const id = supplier.id ?? supplier.supplier_id ?? "";
-                  const name = supplier.name ?? supplier.supplier_name ?? "Unnamed Supplier";
-                  option.value = id;
-                  option.textContent = name;
-                  suppSelect.appendChild(option);
-                });
-
-                suppliersLoaded = true;
-              } catch (error) {
-                console.error("Failed to load suppliers for modal:", error);
-                suppSelect.innerHTML = `<option value="">Failed to load suppliers</option>`;
-                setPopupStatus("Could not load suppliers list.", true);
-              } finally {
-                suppSelect.disabled = false;
-              }
-            }
-
-            // Open Popup & load suppliers
-            stockOpenBtn.addEventListener("click", () => {
-              resetModalForm();
-              stockModal.style.display = "block";
-              populateSuppliersDropdown();
+        // Allow Escape key to close any open modal
+        document.addEventListener("keydown", (event) => {
+          if (event.key === "Escape") {
+            document.querySelectorAll(".modal").forEach((modal) => {
+              modal.style.display = "none";
             });
-
-            // Close Popup
-            stockCloseBtn.addEventListener("click", (event) => {
-              event.preventDefault();
-              event.stopPropagation();
-              closeStockModal();
-            });
-
-            // Close Popup (click outside)
-            stockModal.addEventListener("click", (event) => {
-              if (event.target === stockModal) {
-                closeStockModal();
-              }
-            });
-
-            // Submit New Product
-            submitBtn?.addEventListener("click", async () => {
-              const name = (prodInput?.value || "").trim();
-              const supplierId = suppSelect?.value || "";
-              const units = Number(unitsInput?.value);
-
-              if (!name) {
-                setPopupStatus("Please enter a product name.", true);
-                return;
-              }
-              if (!supplierId) {
-                setPopupStatus("Please select a supplier.", true);
-                return;
-              }
-              if (Number.isNaN(units) || units < 0) {
-                setPopupStatus("Please enter a valid number of units.", true);
-                return;
-              }
-
-              submitBtn.disabled = true;
-              setPopupStatus("Saving product...", false);
-
-              try {
-                // Matches app.py's api_create_product required fields
-                const body = {
-                  name,
-                  supplier_id: Number.isNaN(Number(supplierId)) ? supplierId : Number(supplierId),
-                  year_starting_inventory: Math.trunc(units),
-                  price: 0,
-                  holding_cost: 0
-                };
-
-                const response = await fetch("/api/products", {
-                  method: "POST",
-                  headers: { "Content-Type": "application/json" },
-                  body: JSON.stringify(body)
-                });
-
-                const result = await response.json();
-
-                if (!response.ok || !result.success) {
-                  throw new Error(result.error || `HTTP ${response.status}`);
-                }
-
-                setPopupStatus("Product added successfully!", false);
-
-                if (typeof loadLowStockProducts === "function") {
-                  loadLowStockProducts();
-                }
-
-                setTimeout(() => {
-                  closeStockModal();
-                }, 700);
-              } catch (error) {
-                console.error("Error creating product:", error);
-                setPopupStatus(error.message || "Failed to add product.", true);
-              } finally {
-                submitBtn.disabled = false;
-              }
-            });
+          }
+        });
       });
 
+      /* ---------------- ADD PRODUCT MODAL ---------------- */
+      function initAddProductModal() {
+        const modal = document.getElementById("addProductModal");
+        const openBtn = document.getElementById("stockButton1");
+        const closeBtn = document.getElementById("close_stock_popup");
+        const form = document.getElementById("addProductForm");
+
+        if (!modal || !openBtn || !closeBtn || !form) return;
+
+        const prodInput = document.getElementById("addProdName");
+        const suppSelect = document.getElementById("addSuppSelect");
+        const unitsInput = document.getElementById("addProdUnits");
+        const priceInput = document.getElementById("addProdPrice");
+        const holdingCostInput = document.getElementById("addProdHoldingCost");
+        const submitBtn = form.querySelector(".submit_popup");
+        const statusEl = modal.querySelector(".popup-status");
+
+        let suppliersLoaded = false;
+
+        function setStatus(message, isError = false) {
+          statusEl.style.display = message ? "block" : "none";
+          statusEl.textContent = message;
+          statusEl.style.color = isError ? "#c0392b" : "#27ae60";
+        }
+
+        function resetForm() {
+          form.reset();
+          setStatus("");
+        }
+
+        function closeModal() {
+          modal.style.display = "none";
+          setStatus("");
+        }
+
+        async function populateSuppliers(forceReload = false) {
+          if (suppliersLoaded && !forceReload) return;
+
+          suppSelect.innerHTML = `<option value="">Loading suppliers...</option>`;
+          suppSelect.disabled = true;
+
+          try {
+            const response = await fetch("/api/suppliers");
+            if (!response.ok) throw new Error(`HTTP ${response.status}`);
+
+            const payload = await response.json();
+            const suppliers = Array.isArray(payload) ? payload : payload.data || [];
+
+            suppSelect.innerHTML = `<option value="">Select a supplier...</option>`;
+            suppliers.forEach((supplier) => {
+              const option = document.createElement("option");
+              option.value = supplier.id ?? supplier.supplier_id ?? "";
+              option.textContent = supplier.name ?? supplier.supplier_name ?? "Unnamed Supplier";
+              suppSelect.appendChild(option);
+            });
+
+            suppliersLoaded = true;
+          } catch (error) {
+            console.error("Failed to load suppliers for modal:", error);
+            suppSelect.innerHTML = `<option value="">Failed to load suppliers</option>`;
+            setStatus("Could not load suppliers list.", true);
+          } finally {
+            suppSelect.disabled = false;
+          }
+        }
+
+        openBtn.addEventListener("click", () => {
+          resetForm();
+          modal.style.display = "block";
+          populateSuppliers();
+          prodInput.focus();
+        });
+
+        closeBtn.addEventListener("click", closeModal);
+        modal.addEventListener("click", (e) => {
+          if (e.target === modal) closeModal();
+        });
+
+        form.addEventListener("submit", async (e) => {
+          e.preventDefault();
+
+          const name = prodInput.value.trim();
+          const supplierId = suppSelect.value;
+          const units = Number(unitsInput.value);
+          const price = Number(priceInput.value || 0);
+          const holdingCost = Number(holdingCostInput.value || 0);
+
+          if (!name) return setStatus("Please enter a product name.", true);
+          if (!supplierId) return setStatus("Please select a supplier.", true);
+          if (unitsInput.value === "" || Number.isNaN(units) || units < 0) {
+            return setStatus("Please enter a valid number of units.", true);
+          }
+          if (Number.isNaN(price) || price < 0 || Number.isNaN(holdingCost) || holdingCost < 0) {
+            return setStatus("Price and holding cost must be 0 or greater.", true);
+          }
+
+          submitBtn.disabled = true;
+          setStatus("Saving product...", false);
+
+          try {
+            const normalizedSupplierId = Number.isNaN(Number(supplierId)) ? supplierId : Number(supplierId);
+            const body = {
+              name,
+              supplier_id: normalizedSupplierId,
+              year_starting_inventory: Math.trunc(units),
+              price,
+              holding_cost: holdingCost
+            };
+
+            const response = await fetch("/api/products", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(body)
+            });
+
+            const result = await response.json();
+            if (!response.ok || !result.success) {
+              throw new Error(result.error || `HTTP ${response.status}`);
+            }
+
+            setStatus("Product added successfully!", false);
+
+            // Refresh low stock list and the affected supplier's product list
+            loadLowStockProducts();
+            const controller = supplierCardControllers.get(String(normalizedSupplierId));
+            if (controller) {
+              controller.refresh();
+            }
+
+            setTimeout(closeModal, 600);
+          } catch (error) {
+            console.error("Error creating product:", error);
+            setStatus(error.message || "Failed to add product.", true);
+          } finally {
+            submitBtn.disabled = false;
+          }
+        });
+      }
+
+      /* ---------------- DELETE PRODUCT MODAL ---------------- */
+      function initDeleteProductModal() {
+        const modal = document.getElementById("deleteProductModal");
+        const openBtn = document.getElementById("stockButton2");
+        const closeBtn = document.getElementById("close_delete_popup");
+        const form = document.getElementById("deleteProductForm");
+
+        if (!modal || !openBtn || !closeBtn || !form) return;
+
+        const prodSelect = document.getElementById("deleteProdSelect");
+        const submitBtn = form.querySelector(".submit_popup");
+        const statusEl = modal.querySelector(".popup-status");
+
+        function setStatus(message, isError = false) {
+          statusEl.style.display = message ? "block" : "none";
+          statusEl.textContent = message;
+          statusEl.style.color = isError ? "#c0392b" : "#27ae60";
+        }
+
+        function closeModal() {
+          modal.style.display = "none";
+          setStatus("");
+        }
+
+        async function populateProducts() {
+          prodSelect.innerHTML = `<option value="">Loading products...</option>`;
+          prodSelect.disabled = true;
+
+          try {
+            const response = await fetch("/api/products");
+            if (!response.ok) throw new Error(`HTTP ${response.status}`);
+
+            const payload = await response.json();
+            const products = Array.isArray(payload) ? payload : payload.data || [];
+
+            prodSelect.innerHTML = `<option value="">Select a product...</option>`;
+            products.forEach((product) => {
+              const option = document.createElement("option");
+              option.value = product.id;
+              option.dataset.supplierId = product.supplier_id ?? "";
+              option.textContent = `${product.name} (${product.current_inventory ?? 0} in stock)`;
+              prodSelect.appendChild(option);
+            });
+          } catch (error) {
+            console.error("Failed to load products for deletion:", error);
+            prodSelect.innerHTML = `<option value="">Failed to load products</option>`;
+            setStatus("Could not load products.", true);
+          } finally {
+            prodSelect.disabled = false;
+          }
+        }
+
+        openBtn.addEventListener("click", () => {
+          setStatus("");
+          modal.style.display = "block";
+          populateProducts();
+        });
+
+        closeBtn.addEventListener("click", closeModal);
+        modal.addEventListener("click", (e) => {
+          if (e.target === modal) closeModal();
+        });
+
+        form.addEventListener("submit", async (e) => {
+          e.preventDefault();
+          const productId = prodSelect.value;
+          const selectedOption = prodSelect.options[prodSelect.selectedIndex];
+          const supplierId = selectedOption?.dataset.supplierId;
+
+          if (!productId) return setStatus("Please select a product to delete.", true);
+
+          submitBtn.disabled = true;
+          setStatus("Deleting product...", false);
+
+          try {
+            const response = await fetch(`/api/products/${encodeURIComponent(productId)}`, {
+              method: "DELETE"
+            });
+
+            const result = await response.json().catch(() => ({}));
+            if (!response.ok || result.success === false) {
+              throw new Error(result.error || `HTTP ${response.status}`);
+            }
+
+            setStatus("Product deleted.", false);
+            loadLowStockProducts();
+
+            if (supplierId && supplierCardControllers.has(String(supplierId))) {
+              supplierCardControllers.get(String(supplierId)).refresh();
+            } else {
+              // Refresh any open supplier cards if supplierId wasn't returned on /api/products
+              supplierCardControllers.forEach((ctrl) => ctrl.refreshIfOpen());
+            }
+
+            setTimeout(closeModal, 600);
+          } catch (error) {
+            console.error("Error deleting product:", error);
+            setStatus(error.message || "Failed to delete product.", true);
+          } finally {
+            submitBtn.disabled = false;
+          }
+        });
+      }
+
+      /* ---------------- SUPPLIERS & PRODUCTS ---------------- */
       async function loadSuppliers() {
         const container = document.getElementById("suppliers_list");
         if (!container) return;
 
-        container.innerHTML = `<p class="text suppliers-status">Loading suppliers...</p>`;
+        container.innerHTML = `<p class="text">Loading suppliers...</p>`;
+        supplierCardControllers.clear();
 
         try {
           const response = await fetch("/api/suppliers");
-          if (!response.ok) {
-            throw new Error(`HTTP ${response.status}`);
-          }
+          if (!response.ok) throw new Error(`HTTP ${response.status}`);
 
           const payload = await response.json();
-          const suppliers = Array.isArray(payload)
-            ? payload
-            : Array.isArray(payload.data)
-              ? payload.data
-              : [];
+          const suppliers = Array.isArray(payload) ? payload : payload.data || [];
 
           if (suppliers.length === 0) {
             container.innerHTML = `<p class="text">No suppliers found.</p>`;
@@ -332,10 +465,7 @@
             container.appendChild(card);
           });
 
-          // Render Lucide icons for newly created elements
-          if (window.lucide && typeof window.lucide.createIcons === "function") {
-            window.lucide.createIcons();
-          }
+          refreshIcons();
         } catch (error) {
           console.error("Error fetching suppliers:", error);
           container.innerHTML = `<p class="text">Failed to load suppliers.</p>`;
@@ -343,7 +473,6 @@
       }
 
       function createSupplierCard(supplier) {
-        // Adjust field names below if your API uses e.g. `supplier_id` or `supplier_name`
         const supplierId = supplier.id ?? supplier.supplier_id;
         const supplierName = supplier.name ?? supplier.supplier_name ?? "Unnamed Supplier";
 
@@ -359,19 +488,19 @@
               </div>
               <p class="list_item_title"></p>
             </div>
-            <button type="button" class="list_item_button" aria-expanded="false">
+            <button type="button" class="list_item_button" aria-expanded="false" aria-label="Toggle supplier products">
               <i data-lucide="chevron-up" class="open_list"></i>
               <i data-lucide="chevron-down" class="close_list"></i>
             </button>
           </div>
           <div class="supplier_item_expanded_content hidden">
             <div class="expanded_searchbutt">
-              <input class="searchbar" type="text" placeholder="Search..." />
+              <input class="searchbar" type="text" placeholder="Search products..." />
               <div class="others">
-                <button type="button" class="filterbutt">
+                <button type="button" class="filterbutt" aria-label="Filter products">
                   <i data-lucide="funnel"></i>
                 </button>
-                <button type="button" class="clearbutt">
+                <button type="button" class="clearbutt" aria-label="Clear search">
                   <i data-lucide="funnel-x"></i>
                 </button>
               </div>
@@ -382,22 +511,17 @@
                 <p>Product</p>
                 <p>Sold this month</p>
               </div>
-              <button type="button" class="editbutt">
+              <button type="button" class="editbutt" aria-label="Edit products">
                 <i data-lucide="pencil"></i>
               </button>
             </div>
-            <!-- Product Data per supplier here -->
-            <div class="expanded_values product-list">
-              <p class="text product-loading-status">Fetching data ...</p>
-            </div>
+            <ul class="expanded_values product-list">
+              <li class="text product-loading-status">Fetching data ...</li>
+            </ul>
           </div>
         `;
 
-        // Safely set text content
-        const titleEl = itemEl.querySelector(".list_item_title");
-        if (titleEl) {
-          titleEl.textContent = supplierName;
-        }
+        itemEl.querySelector(".list_item_title").textContent = supplierName;
 
         const toggleBtn = itemEl.querySelector(".list_item_button");
         const expandedContent = itemEl.querySelector(".supplier_item_expanded_content");
@@ -410,6 +534,12 @@
         let hasLoaded = false;
         let cachedProducts = [];
 
+        async function loadAndRenderProducts() {
+          hasLoaded = true;
+          cachedProducts = await fetchSupplierProducts(itemEl, supplierId);
+          applyFilter();
+        }
+
         toggleBtn?.addEventListener("click", () => {
           const isOpening = expandedContent.classList.contains("hidden");
 
@@ -419,10 +549,7 @@
           toggleBtn.setAttribute("aria-expanded", String(isOpening));
 
           if (isOpening && !hasLoaded && supplierId != null) {
-            hasLoaded = true;
-            fetchSupplierProducts(itemEl, supplierId).then((products) => {
-              cachedProducts = products;
-            });
+            loadAndRenderProducts();
           }
         });
 
@@ -439,6 +566,7 @@
         }
 
         filterBtn?.addEventListener("click", applyFilter);
+        searchInput?.addEventListener("input", applyFilter);
         searchInput?.addEventListener("keydown", (event) => {
           if (event.key === "Enter") {
             event.preventDefault();
@@ -451,13 +579,33 @@
           renderSupplierProducts(itemEl, cachedProducts);
         });
 
+        // Register controller for external cache invalidation/refresh
+        if (supplierId != null) {
+          supplierCardControllers.set(String(supplierId), {
+            refresh: () => {
+              if (!expandedContent.classList.contains("hidden")) {
+                loadAndRenderProducts();
+              } else {
+                hasLoaded = false; // Force reload next time it's opened
+              }
+            },
+            refreshIfOpen: () => {
+              if (!expandedContent.classList.contains("hidden")) {
+                loadAndRenderProducts();
+              } else {
+                hasLoaded = false;
+              }
+            }
+          });
+        }
+
         return itemEl;
       }
 
       function ensureStatusEl(listEl) {
         let statusEl = listEl.querySelector(".product-loading-status");
         if (!statusEl) {
-          statusEl = document.createElement("p");
+          statusEl = document.createElement("li");
           statusEl.className = "text product-loading-status";
           listEl.appendChild(statusEl);
         }
@@ -488,7 +636,7 @@
 
           const invP = document.createElement("p");
           invP.className = "text";
-          invP.textContent = product.current_inventory ?? "";
+          invP.textContent = product.current_inventory ?? 0;
 
           const nameP = document.createElement("p");
           nameP.className = "text t2";
@@ -496,7 +644,7 @@
 
           const soldP = document.createElement("p");
           soldP.className = "text t1";
-          soldP.textContent = product.sold_month ?? "";
+          soldP.textContent = product.sold_month ?? 0;
 
           wrapper.append(invP, nameP, soldP);
           li.appendChild(wrapper);
@@ -516,12 +664,15 @@
         try {
           const url = `/api/suppliers/${encodeURIComponent(supplierId)}/products`;
           const response = await fetch(url);
-          if (!response.ok) {
-            throw new Error(`HTTP ${response.status}`);
-          }
+          if (!response.ok) throw new Error(`HTTP ${response.status}`);
 
           const payload = await response.json();
-          const products = payload.success && Array.isArray(payload.data) ? payload.data : [];
+          const products =
+            payload.success && Array.isArray(payload.data?.products_data)
+              ? payload.data.products_data
+              : Array.isArray(payload.data)
+                ? payload.data
+                : [];
 
           renderSupplierProducts(itemEl, products);
           return products;
@@ -533,92 +684,57 @@
         }
       }
 
+      /* ---------------- LOW STOCK PANEL ---------------- */
       async function loadLowStockProducts() {
-          const listBlock = document.getElementById("low_stock_list");
-          if (!listBlock) return;
+        const listBlock = document.getElementById("low_stock_list");
+        if (!listBlock) return;
 
-          listBlock.innerHTML = `<p class="text">Checking stock levels...</p>`;
+        listBlock.innerHTML = `<p class="text">Checking stock levels...</p>`;
 
-          try {
-            const response = await fetch("/api/products");
-            if (!response.ok) {
-              throw new Error(`HTTP ${response.status}`);
-            }
+        try {
+          const response = await fetch("/api/products");
+          if (!response.ok) throw new Error(`HTTP ${response.status}`);
 
-            const payload = await response.json();
-            const products = Array.isArray(payload)
-              ? payload
-              : Array.isArray(payload.data)
-                ? payload.data
-                : [];
+          const payload = await response.json();
+          const products = Array.isArray(payload) ? payload : payload.data || [];
 
-            const lowStockProducts = products.filter((item) => {
-              const currentInv = Number(item.current_inventory);
-              const rop = Number(item.rop);
-              return !Number.isNaN(currentInv) && !Number.isNaN(rop) && currentInv <= rop;
-            });
+          const lowStockProducts = products.filter((item) => {
+            const currentInv = Number(item.current_inventory);
+            const rop = Number(item.rop);
+            return !Number.isNaN(currentInv) && !Number.isNaN(rop) && currentInv <= rop;
+          });
 
-            listBlock.innerHTML = "";
+          listBlock.innerHTML = "";
 
-            if (lowStockProducts.length === 0) {
-              const emptyEl = document.createElement("p");
-              emptyEl.className = "text";
-              emptyEl.textContent = "No low-stock products.";
-              listBlock.appendChild(emptyEl);
-              return;
-            }
-
-            lowStockProducts.forEach((product) => {
-              const rowEl = document.createElement("div");
-              rowEl.className = "lowstockitem";
-              rowEl.dataset.productId = product.id ?? "";
-
-              const nameEl = document.createElement("p");
-              nameEl.className = "text";
-              nameEl.textContent = product.name ?? "Unnamed Product";
-
-              const qtyEl = document.createElement("p");
-              qtyEl.className = "text";
-              qtyEl.textContent = product.current_inventory ?? 0;
-
-              rowEl.append(nameEl, qtyEl);
-              listBlock.appendChild(rowEl);
-            });
-          } catch (error) {
-            console.error("Error loading low-stock products:", error);
-            listBlock.innerHTML = `<p class="text low-stock-status">Failed to load stock data.</p>`;
+          if (lowStockProducts.length === 0) {
+            const emptyEl = document.createElement("p");
+            emptyEl.className = "text";
+            emptyEl.textContent = "No low-stock products.";
+            listBlock.appendChild(emptyEl);
+            return;
           }
+
+          lowStockProducts.forEach((product) => {
+            const rowEl = document.createElement("div");
+            rowEl.className = "lowstockitem";
+            rowEl.dataset.productId = product.id ?? "";
+
+            const nameEl = document.createElement("p");
+            nameEl.className = "text";
+            nameEl.textContent = product.name ?? "Unnamed Product";
+
+            const qtyEl = document.createElement("p");
+            qtyEl.className = "text";
+            qtyEl.textContent = product.current_inventory ?? 0;
+
+            rowEl.append(nameEl, qtyEl);
+            listBlock.appendChild(rowEl);
+          });
+        } catch (error) {
+          console.error("Error loading low-stock products:", error);
+          listBlock.innerHTML = `<p class="text low-stock-status">Failed to load stock data.</p>`;
         }
-        // Get the modal
-        const stockModal = document.getElementById("myModal");
-
-        // Get the button that opens the modal
-        const stockOpenBtn = document.getElementById("stockButton1");
-
-        // Get the <span> element that closes the modal
-        const stockCloseBtn = document.getElementById("close_stock_popup");
-
-        if (stockModal && stockOpenBtn && stockCloseBtn) {
-          // Open Popup
-          stockOpenBtn.addEventListener("click", function () {
-            stockModal.style.display = "block";
-          });
-
-          // Close Popup
-          stockCloseBtn.addEventListener("click", function (event) {
-            event.preventDefault();
-            event.stopPropagation();
-            stockModal.style.display = "none";
-          });
-
-          // Close Popup (click outside)
-          stockModal.addEventListener("click", function (event) {
-            if (event.target === stockModal) {
-              stockModal.style.display = "none";
-            }
-          });
-        }
-
+      }
     </script>
   </body>
 </html>

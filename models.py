@@ -183,7 +183,7 @@ def _to_datetime(value):
         return value
     return datetime.fromisoformat(str(value))
 
-
+# PRODUCT FUNCTIONS
 ## Getting raw product data
 def get_products_raw(product_id=None):
     if product_id == "" or product_id is None:
@@ -588,6 +588,27 @@ def get_suppliers(supplier_id=None):
             'contact_phone': str(s['contact_phone'] or '')
         }
 
+## Getting products for supplier
+def get_products_supplier(supplier_id=None):
+    supplier = get_suppliers(supplier_id)
+    if not supplier:
+        return None
+    
+    sql = """
+    SELECT ps.supplier_id, ps.product_id
+    FROM product_supplier ps
+    WHERE ps.supplier_id = %s
+    """
+    products= db.query_all(sql, (supplier_id,))
+    products_dict = []
+    for p in products:
+        product = get_products(int(p['product_id']))
+        if product:
+            products_dict.append(product)
+    return{
+        'supplier_data':supplier,
+        'products_data':products_dict
+    }
 
 ## Creating a supplier
 def insert_supplier(

@@ -152,6 +152,17 @@ def api_get_supplier(supplier_id):
     except Exception as e:
         return jsonify({'success': False, 'error': str(e)}), 500
 
+# Get products associated with supplier
+@app.route("/api/suppliers/<int:supplier_id>/products")
+def api_get_products_for_supplier(supplier_id):
+    try:
+        data = models.get_products_supplier(supplier_id)
+        if not data:
+            return jsonify({'success':False, 'error':'Data not found'}), 404
+        return jsonify({'success':True, 'data':data}), 200
+    except Exception as e:
+        return jsonify({'success':False, 'error':str(e)}), 500
+    
 # Create supplier
 @app.route("/api/suppliers", methods=["POST"])
 def api_create_supplier():
