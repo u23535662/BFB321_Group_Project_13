@@ -154,30 +154,6 @@ if (plOpenBtn && plPopup && plCloseBtn) {
   console.log("No popup close");
 }
 
-//
-// List View Expanding start
-//
-
-const toggleViewListBtn = document.getElementById("toggle_list_view_btn");
-
-if (toggleViewListBtn) {
-  const orderExpandedContent = document.querySelector(
-    ".order_expanded_content",
-  );
-  const openListIcon = document.querySelector(".open_list");
-  const closeListIcon = document.querySelector(".close_list");
-
-  // Toggle list view between open and close
-  toggleViewListBtn.addEventListener("click", () => {
-    orderExpandedContent.classList.toggle("hidden");
-    openListIcon.classList.toggle("hidden");
-    closeListIcon.classList.toggle("unhide");
-  });
-}
-
-//
-// List View expanding end
-//
 
 //
 //
