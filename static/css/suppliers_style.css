@@ -542,6 +542,8 @@ li {
   overflow: auto;
   background-color: rgb(0, 0, 0);
   background-color: rgba(0, 0, 0, 0.4);
+  justify-content: center;
+  align-items: center;
 }
 
 /* Modal Content/Box */
@@ -554,6 +556,8 @@ li {
   width: 35%;
   height: 65%;
   gap: 1rem;
+  justify-content: center;
+  align-items: center;
 }
 
 .modal_details_block{
