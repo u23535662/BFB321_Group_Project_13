@@ -527,3 +527,217 @@ def delete_product(product_id: int):
     rows_affected = db.execute(sql, (product_id,))
     db.close_db()
     return rows_affected
+
+## SUPPLIER FUNCTIONS
+## Getting supplier data
+def get_suppliers(supplier_id=None):
+    if supplier_id == '' or supplier_id is None:
+        sql = """
+        SELECT 
+            s.supplier_id AS id,
+            s.supplier_name AS name,
+            s.supplier_from_date AS from_date,   
+            s.reason_for_changing_supplier AS change_reason,
+            s.created_at AS created_at,
+            s.updated_at AS updated_at,
+            s.contact_email AS contact_email,
+            s.contact_phone AS contact_phone
+        FROM supplier s
+        """
+        suppliers = db.query_all(sql)
+        db.close_db()
+        formatted_suppliers = []
+        for s in suppliers:
+            formatted_suppliers.append({
+                'id': int(s['id']),
+                'name': str(s['name']),
+                'from_date': str(s['from_date']) if s['from_date'] else '',
+                'change_reason': str(s['change_reason'] or ''),
+                'created_at': str(s['created_at']) if s['created_at'] else '',
+                'updated_at': str(s['updated_at']) if s['updated_at'] else '',
+                'contact_email': str(s['contact_email'] or ''),
+                'contact_phone': str(s['contact_phone'] or '')
+            })
+        return formatted_suppliers
+    else:
+        sql = """
+        SELECT 
+            s.supplier_id AS id,
+            s.supplier_name AS name,
+            s.supplier_from_date AS from_date,   
+            s.reason_for_changing_supplier AS change_reason,
+            s.created_at AS created_at,
+            s.updated_at AS updated_at,
+            s.contact_email AS contact_email,
+            s.contact_phone AS contact_phone
+        FROM supplier s
+        WHERE s.supplier_id = %s
+        """
+        s = db.query_one(sql, (supplier_id,))
+        db.close_db()
+        if not s:
+            return None
+        return {
+            'id': int(s['id']),
+            'name': str(s['name']),
+            'from_date': str(s['from_date']) if s['from_date'] else '',
+            'change_reason': str(s['change_reason'] or ''),
+            'created_at': str(s['created_at']) if s['created_at'] else '',
+            'updated_at': str(s['updated_at']) if s['updated_at'] else '',
+            'contact_email': str(s['contact_email'] or ''),
+            'contact_phone': str(s['contact_phone'] or '')
+        }
+
+
+## Creating a supplier
+def insert_supplier(
+        name: str = '', 
+        from_date: str = '', 
+        change_reason: str = '', 
+        contact_email: str = '', 
+        contact_phone: str = '',
+    ):
+    sql = """
+    INSERT INTO supplier (supplier_name, supplier_from_date, reason_for_changing_supplier, created_at, updated_at, contact_email, contact_phone)
+    VALUES (%s, %s, %s, NOW(), NOW(), %s, %s)
+    """
+    new_id = db.execute(sql, (name, from_date, change_reason, contact_email, contact_phone))
+    db.close_db()
+    return new_id
+
+
+## Editing a supplier
+def update_supplier(
+        name: str, 
+        from_date: str, 
+        change_reason: str, 
+        supplier_id: int, 
+        contact_email: str = '', 
+        contact_phone: str = ''
+    ):
+    sql = """
+    UPDATE supplier
+    SET supplier_name = %s, supplier_from_date = %s, reason_for_changing_supplier = %s, contact_email = %s, contact_phone = %s, updated_at = NOW()
+    WHERE supplier_id = %s
+    """
+    rows_affected = db.execute(sql, (name, from_date, change_reason, contact_email, contact_phone, supplier_id))
+    db.close_db()
+    return rows_affected
+
+
+## Deleting a supplier
+def delete_supplier(supplier_id: int):
+    sql = """
+    DELETE FROM supplier WHERE supplier_id = %s
+    """
+    rows_affected = db.execute(sql, (supplier_id,))
+    db.close_db()
+    return rows_affected
+
+
+
+## SALE FUNCTIONS
+## Getting sale data
+def get_sales(sale_id=None):
+    if sale_id == '' or sale_id is None:
+        sql = """
+        SELECT 
+            s.sale_id AS id,
+            s.product_id AS product_id,
+            p.product_name AS product_name,
+            p.product_price AS unit_price,
+            s.sold_qty AS sale_qty,
+            (s.sold_qty * p.product_price) AS total_sale_value,
+            s.sold_date AS sale_date,
+            s.created_at AS created_at,
+            s.updated_at AS updated_at
+        FROM sale s
+        JOIN product p ON s.product_id = p.product_id
+        ORDER BY s.sold_date DESC, s.sale_id DESC
+        """
+        sales = db.query_all(sql)
+        db.close_db()
+        formatted_sales = []
+        for s in sales:
+            formatted_sales.append({
+                'id': int(s['id']),
+                'product_id': int(s['product_id']),
+                'product_name': str(s['product_name']),
+                'unit_price': float(s['unit_price']),
+                'sale_qty': int(s['sale_qty']),
+                'total_sale_value': float(s['total_sale_value']),
+                'sale_date': str(s['sale_date']) if s['sale_date'] else '',
+                'created_at': str(s['created_at']) if s['created_at'] else '',
+                'updated_at': str(s['updated_at']) if s['updated_at'] else ''
+            })
+        return formatted_sales
+    else:
+        sql = """
+        SELECT 
+            s.sale_id AS id,
+            s.product_id AS product_id,
+            p.product_name AS product_name,
+            p.product_price AS unit_price,
+            s.sold_qty AS sale_qty,
+            (s.sold_qty * p.product_price) AS total_sale_value,
+            s.sold_date AS sale_date,
+            s.created_at AS created_at,
+            s.updated_at AS updated_at
+        FROM sale s
+        JOIN product p ON s.product_id = p.product_id
+        WHERE s.sale_id = %s
+        """
+        s = db.query_one(sql, (sale_id,))
+        db.close_db()
+        if not s:
+            return None
+        return {
+            'id': int(s['id']),
+            'product_id': int(s['product_id']),
+            'product_name': str(s['product_name']),
+            'unit_price': float(s['unit_price']),
+            'sale_qty': int(s['sale_qty']),
+            'total_sale_value': float(s['total_sale_value']),
+            'sale_date': str(s['sale_date']) if s['sale_date'] else '',
+            'created_at': str(s['created_at']) if s['created_at'] else '',
+            'updated_at': str(s['updated_at']) if s['updated_at'] else ''
+        }
+
+## Creating a sale
+def insert_sale(
+        product_id: int, 
+        sale_qty: int, 
+        sale_date: str
+    ):
+    sql = """
+    INSERT INTO sale (product_id, sold_qty, sold_date, created_at, updated_at)
+    VALUES (%s, %s, %s, NOW(), NOW())
+    """
+    new_id = db.execute(sql, (product_id, sale_qty, sale_date))
+    db.close_db()
+    return new_id
+
+# Updating a sale
+def update_sale(
+        product_id: int, 
+        sale_qty: int, 
+        sale_date: str, 
+        sale_id: int
+    ):
+    sql = """
+    UPDATE sale
+    SET product_id = %s, sold_qty = %s, sold_date = %s, updated_at = NOW()
+    WHERE sale_id = %s
+    """
+    rows_affected = db.execute(sql, (product_id, sale_qty, sale_date, sale_id))
+    db.close_db()
+    return rows_affected
+
+# Deleting a sale
+def delete_sale(sale_id: int):
+    sql = """
+    DELETE FROM sale WHERE sale_id = %s
+    """
+    rows_affected = db.execute(sql, (sale_id,))
+    db.close_db()
+    return rows_affected
