@@ -127,5 +127,116 @@ def api_delete_product(product_id):
     except Exception as e:
         return jsonify({'success':False, 'error':str(e)}), 500
 
+# SUPPLIERS 
+# Get all suppliers 
+@app.route("/api/suppliers", methods=["GET"])
+def api_get_suppliers():
+    try:
+        suppliers = models.get_suppliers()
+        return jsonify({'success': True, 'data': suppliers}), 200
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+# Get single supplier
+@app.route("/api/suppliers/<int:supplier_id>", methods=["GET"])
+def api_get_supplier(supplier_id):
+    try:
+        supplier = models.get_suppliers(supplier_id)
+        if not supplier:
+            return jsonify({'success': False, 'error': 'Supplier not found'}), 404
+        return jsonify({'success': True, 'data': supplier}), 200
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+# Create supplier
+@app.route("/api/suppliers", methods=["POST"])
+def api_create_supplier():
+    if not request.is_json:
+        return jsonify({'success': False, 'error': 'Content-Type must be application/json'}), 400
+    data = request.get_json()
+    
+    if not data or 'name' not in data or 'from_date' not in data or 'change_reason' not in data:
+        return jsonify({'success': False, 'error': 'Missing required fields (name, from_date, change_reason)'}), 400
+    
+    try:
+        name = str(data['name'])
+        from_date = str(data['from_date'])
+        change_reason = str(data['change_reason'])
+        contact_email = str(data.get('contact_email', ''))
+        contact_phone = str(data.get('contact_phone', ''))
+
+        new_id = models.insert_supplier(
+            name, from_date, change_reason, contact_email, contact_phone
+        )
+        new_supplier = {
+            'id': new_id,
+            'name': name,
+            'from_date': from_date,
+            'change_reason': change_reason,
+            'contact_email': contact_email,
+            'contact_phone': contact_phone
+        }
+        return jsonify({'success': True, 'data': new_supplier}), 201
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+
+# Update supplier
+@app.route("/api/suppliers/<int:supplier_id>", methods=["PUT"])
+def api_update_supplier(supplier_id):
+    supplier = models.get_suppliers(supplier_id)
+    
+    if not supplier:
+        return jsonify({'success': False, 'error': 'Supplier not found'}), 404
+    if not request.is_json:
+        return jsonify({'success': False, 'error': 'Content-Type must be application/json'}), 400
+
+    data = request.get_json()
+    try:
+        n_name = str(data.get('name', supplier['name']))
+        n_date = str(data.get('from_date', supplier['from_date']))
+        n_reason = str(data.get('change_reason', supplier['change_reason']))
+        n_email = str(data.get('contact_email', supplier['contact_email']))
+        n_phone = str(data.get('contact_phone', supplier['contact_phone']))
+
+        models.update_supplier(
+            name=n_name, 
+            from_date=n_date, 
+            change_reason=n_reason, 
+            supplier_id=supplier_id, 
+            contact_email=n_email, 
+            contact_phone=n_phone
+        )
+
+        updated_supplier = {
+            'id': supplier_id,
+            'name': n_name,
+            'from_date': n_date,
+            'change_reason': n_reason,
+            'contact_email': n_email,
+            'contact_phone': n_phone
+        }
+
+        return jsonify({'success': True, 'message': 'Supplier updated successfully', 'data': updated_supplier}), 200
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+# Delete supplier
+@app.route("/api/suppliers/<int:supplier_id>", methods=["DELETE"])
+def api_delete_supplier(supplier_id):
+    supplier = models.get_suppliers(supplier_id)
+    if not supplier:
+        return jsonify({'success': False, 'error': 'Supplier not found'}), 404
+    try:
+        models.delete_supplier(supplier_id)
+        return jsonify({'success': True, 'message': 'Supplier deleted successfully'}), 200
+    except pymysql.err.IntegrityError:
+        return jsonify({
+            'success': False, 
+            'error': 'Cannot delete this supplier because it is linked to existing products or orders.'
+        }), 400
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)}), 500
+
 if __name__ == '__main__':
     app.run(debug=True)

@@ -546,7 +546,11 @@ def get_suppliers(supplier_id=None):
             s.supplier_id AS id,
             s.supplier_name AS name,
             s.supplier_from_date AS from_date,   
-            s.reason_for_changing_supplier AS change_reason
+            s.reason_for_changing_supplier AS change_reason,
+            s.created_at AS created_at,
+            s.updated_at AS updated_at,
+            s.contact_email AS contact_email,
+            s.contact_phone AS contact_phone
         FROM supplier s
         """
         suppliers = db.query_all(sql)
@@ -557,7 +561,11 @@ def get_suppliers(supplier_id=None):
                 'id': int(s['id']),
                 'name': str(s['name']),
                 'from_date': str(s['from_date']) if s['from_date'] else '',
-                'change_reason': str(s['change_reason'] or '')
+                'change_reason': str(s['change_reason'] or ''),
+                'created_at': str(s['created_at']) if s['created_at'] else '',
+                'updated_at': str(s['updated_at']) if s['updated_at'] else '',
+                'contact_email': str(s['contact_email'] or ''),
+                'contact_phone': str(s['contact_phone'] or '')
             })
         return formatted_suppliers
     else:
@@ -566,7 +574,11 @@ def get_suppliers(supplier_id=None):
             s.supplier_id AS id,
             s.supplier_name AS name,
             s.supplier_from_date AS from_date,   
-            s.reason_for_changing_supplier AS change_reason
+            s.reason_for_changing_supplier AS change_reason,
+            s.created_at AS created_at,
+            s.updated_at AS updated_at,
+            s.contact_email AS contact_email,
+            s.contact_phone AS contact_phone
         FROM supplier s
         WHERE s.supplier_id = %s
         """
@@ -578,29 +590,33 @@ def get_suppliers(supplier_id=None):
             'id': int(s['id']),
             'name': str(s['name']),
             'from_date': str(s['from_date']) if s['from_date'] else '',
-            'change_reason': str(s['change_reason'] or '')
+            'change_reason': str(s['change_reason'] or ''),
+            'created_at': str(s['created_at']) if s['created_at'] else '',
+            'updated_at': str(s['updated_at']) if s['updated_at'] else '',
+            'contact_email': str(s['contact_email'] or ''),
+            'contact_phone': str(s['contact_phone'] or '')
         }
 
 
 ## Creating a supplier
-def insert_supplier(name: str = '', from_date: str = '', change_reason: str = ''):
+def insert_supplier(name: str = '', from_date: str = '', change_reason: str = '', contact_email: str = '', contact_phone: str = ''):
     sql = """
-    INSERT INTO supplier (supplier_name, supplier_from_date, reason_for_changing_supplier)
-    VALUES (%s, %s, %s)
+    INSERT INTO supplier (supplier_name, supplier_from_date, reason_for_changing_supplier, created_at, updated_at, contact_email, contact_phone)
+    VALUES (%s, %s, %s, NOW(), NOW(), %s, %s)
     """
-    new_id = db.execute(sql, (name, from_date, change_reason))
+    new_id = db.execute(sql, (name, from_date, change_reason, contact_email, contact_phone))
     db.close_db()
     return new_id
 
 
 ## Editing a supplier
-def update_supplier(name: str, from_date: str, change_reason: str, supplier_id: str):
+def update_supplier(name: str, from_date: str, change_reason: str, supplier_id: str, contact_email: str = '', contact_phone: str = ''):
     sql = """
     UPDATE supplier
-    SET supplier_name = %s, supplier_from_date = %s, reason_for_changing_supplier = %s
+    SET supplier_name = %s, supplier_from_date = %s, reason_for_changing_supplier = %s, contact_email = %s, contact_phone = %s
     WHERE supplier_id = %s
     """
-    result = db.execute(sql, (name, from_date, change_reason, supplier_id))
+    result = db.execute(sql, (name, from_date, change_reason, contact_email, contact_phone, supplier_id))
     db.close_db()
     return result
 
