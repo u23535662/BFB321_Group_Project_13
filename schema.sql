@@ -27,14 +27,14 @@ DROP TABLE IF EXISTS `inventory_update`;
 CREATE TABLE `inventory_update` (
   `update_id` int NOT NULL AUTO_INCREMENT,
   `order_id` int DEFAULT NULL,
-  `update_date` datetime NOT NULL DEFAULT (curdate()),
+  `update_date` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `update_note` text,
   `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`update_id`),
   KEY `fk_inventory_update_po_idx` (`order_id`),
-  CONSTRAINT `fk_inventory_update_po` FOREIGN KEY (`order_id`) REFERENCES `purchase_order` (`order_id`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+  CONSTRAINT `fk_inventory_update_po` FOREIGN KEY (`order_id`) REFERENCES `purchase_order` (`order_id`) ON DELETE SET NULL ON UPDATE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=84 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -55,9 +55,10 @@ CREATE TABLE `inventory_update_item` (
   PRIMARY KEY (`update_item_id`),
   KEY `fk_update_item_update_idx` (`update_id`),
   KEY `fk_update_item_product_idx` (`product_id`),
-  CONSTRAINT `fk_update_item_product` FOREIGN KEY (`product_id`) REFERENCES `product` (`product_id`),
-  CONSTRAINT `fk_update_item_update` FOREIGN KEY (`update_id`) REFERENCES `inventory_update` (`update_id`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=16 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+  CONSTRAINT `fk_update_item_product` FOREIGN KEY (`product_id`) REFERENCES `product` (`product_id`) ON DELETE RESTRICT ON UPDATE CASCADE,
+  CONSTRAINT `fk_update_item_update` FOREIGN KEY (`update_id`) REFERENCES `inventory_update` (`update_id`) ON DELETE CASCADE,
+  CONSTRAINT `chk_update_item_qty_nonzero` CHECK ((`update_amount` > 0))
+) ENGINE=InnoDB AUTO_INCREMENT=248 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -74,7 +75,7 @@ CREATE TABLE `job` (
   `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`job_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -92,11 +93,13 @@ CREATE TABLE `job_consumables` (
   `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`job_consumables_id`),
+  UNIQUE KEY `uq_job_consumables_job_product` (`job_id`,`product_id`),
   KEY `fk_job_consumables_product1_idx` (`product_id`),
   KEY `fk_job_consumables_job1_idx` (`job_id`),
-  CONSTRAINT `fk_job_consumables_job1` FOREIGN KEY (`job_id`) REFERENCES `job` (`job_id`),
-  CONSTRAINT `fk_job_consumables_product1` FOREIGN KEY (`product_id`) REFERENCES `product` (`product_id`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+  CONSTRAINT `fk_job_consumables_job1` FOREIGN KEY (`job_id`) REFERENCES `job` (`job_id`) ON DELETE RESTRICT ON UPDATE CASCADE,
+  CONSTRAINT `fk_job_consumables_product1` FOREIGN KEY (`product_id`) REFERENCES `product` (`product_id`) ON DELETE RESTRICT ON UPDATE CASCADE,
+  CONSTRAINT `chk_job_consumables_qty_pos` CHECK ((`qty_of_product_used` > 0))
+) ENGINE=InnoDB AUTO_INCREMENT=16 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -115,8 +118,8 @@ CREATE TABLE `job_instance` (
   `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`job_instance_id`),
   KEY `fk_job_instance_job_idx` (`job_id`),
-  CONSTRAINT `fk_job_instance_job` FOREIGN KEY (`job_id`) REFERENCES `job` (`job_id`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+  CONSTRAINT `fk_job_instance_job` FOREIGN KEY (`job_id`) REFERENCES `job` (`job_id`) ON DELETE RESTRICT ON UPDATE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=138 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -134,8 +137,11 @@ CREATE TABLE `product` (
   `year_starting_inventory` int NOT NULL DEFAULT '0',
   `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  PRIMARY KEY (`product_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+  PRIMARY KEY (`product_id`),
+  CONSTRAINT `chk_product_holding_nonneg` CHECK ((`product_holding_cost` >= 0)),
+  CONSTRAINT `chk_product_price_nonneg` CHECK ((`product_price` >= 0)),
+  CONSTRAINT `chk_product_start_inv_nonneg` CHECK ((`year_starting_inventory` >= 0))
+) ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -154,11 +160,14 @@ CREATE TABLE `product_supplier` (
   `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`product_supplier_id`),
+  UNIQUE KEY `uq_product_supplier_pair` (`product_id`,`supplier_id`),
   KEY `fk_product_supplier_product_idx` (`product_id`),
   KEY `fk_product_supplier_supplier1_idx` (`supplier_id`),
-  CONSTRAINT `fk_product_supplier_product` FOREIGN KEY (`product_id`) REFERENCES `product` (`product_id`),
-  CONSTRAINT `fk_product_supplier_supplier1` FOREIGN KEY (`supplier_id`) REFERENCES `supplier` (`supplier_id`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+  CONSTRAINT `fk_product_supplier_product` FOREIGN KEY (`product_id`) REFERENCES `product` (`product_id`) ON DELETE RESTRICT ON UPDATE CASCADE,
+  CONSTRAINT `fk_product_supplier_supplier1` FOREIGN KEY (`supplier_id`) REFERENCES `supplier` (`supplier_id`) ON DELETE RESTRICT ON UPDATE CASCADE,
+  CONSTRAINT `chk_ps_price_nonneg` CHECK ((`supplier_price` >= 0)),
+  CONSTRAINT `chk_ps_units_pos` CHECK ((`units_per_package` > 0))
+) ENGINE=InnoDB AUTO_INCREMENT=19 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -177,8 +186,8 @@ CREATE TABLE `purchase_order` (
   `updated_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`order_id`),
   KEY `fk_purchase_order_supplier_idx` (`supplier_id`),
-  CONSTRAINT `fk_purchase_order_supplier` FOREIGN KEY (`supplier_id`) REFERENCES `supplier` (`supplier_id`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=18 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+  CONSTRAINT `fk_purchase_order_supplier` FOREIGN KEY (`supplier_id`) REFERENCES `supplier` (`supplier_id`) ON DELETE RESTRICT ON UPDATE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=86 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -196,11 +205,13 @@ CREATE TABLE `purchase_order_item` (
   `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`po_item_id`),
+  UNIQUE KEY `uq_po_item_order_product` (`order_id`,`product_id`),
   KEY `fk_po_item_order_idx` (`order_id`),
   KEY `fk_po_item_product_idx` (`product_id`),
-  CONSTRAINT `fk_po_item_order` FOREIGN KEY (`order_id`) REFERENCES `purchase_order` (`order_id`),
-  CONSTRAINT `fk_po_item_product` FOREIGN KEY (`product_id`) REFERENCES `product` (`product_id`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=24 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+  CONSTRAINT `fk_po_item_order` FOREIGN KEY (`order_id`) REFERENCES `purchase_order` (`order_id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `fk_po_item_product` FOREIGN KEY (`product_id`) REFERENCES `product` (`product_id`) ON DELETE RESTRICT ON UPDATE CASCADE,
+  CONSTRAINT `chk_po_item_qty_pos` CHECK ((`order_amount` > 0))
+) ENGINE=InnoDB AUTO_INCREMENT=255 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -213,14 +224,15 @@ DROP TABLE IF EXISTS `sale`;
 CREATE TABLE `sale` (
   `sale_id` int NOT NULL AUTO_INCREMENT,
   `sold_qty` int NOT NULL,
-  `sold_date` datetime NOT NULL DEFAULT (curdate()),
+  `sold_date` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `product_id` int NOT NULL,
   `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`sale_id`),
   KEY `fk_sale_product1_idx` (`product_id`),
-  CONSTRAINT `fk_sale_product1` FOREIGN KEY (`product_id`) REFERENCES `product` (`product_id`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=361 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+  CONSTRAINT `fk_sale_product1` FOREIGN KEY (`product_id`) REFERENCES `product` (`product_id`) ON DELETE RESTRICT ON UPDATE CASCADE,
+  CONSTRAINT `chk_sale_qty_pos` CHECK ((`sold_qty` > 0))
+) ENGINE=InnoDB AUTO_INCREMENT=3601 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -239,11 +251,11 @@ CREATE TABLE `supplier` (
   `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   `contact_email` varchar(160) NOT NULL,
-  `contact_phone` varchar(10) DEFAULT NULL,
+  `contact_phone` varchar(20) DEFAULT NULL,
   PRIMARY KEY (`supplier_id`),
   KEY `fk_supplier_supplier1_idx` (`replaces_supplier_id`),
-  CONSTRAINT `fk_supplier_supplier1` FOREIGN KEY (`replaces_supplier_id`) REFERENCES `supplier` (`supplier_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+  CONSTRAINT `fk_supplier_supplier1` FOREIGN KEY (`replaces_supplier_id`) REFERENCES `supplier` (`supplier_id`) ON DELETE RESTRICT ON UPDATE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
@@ -255,4 +267,4 @@ CREATE TABLE `supplier` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2026-11-20 19:13:30
+-- Dump completed on 2026-11-21 11:56:53
