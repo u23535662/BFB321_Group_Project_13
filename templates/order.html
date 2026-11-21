@@ -65,13 +65,17 @@
     </nav>
 
     <!-- NAV BAR END -->
+
     <!-- ORDER BODY START-->
     <div class="order_body">
       <div class="order_topblock">
+        <!-- NEW ORDER BUTTON START -->
         <button class="new_order_button">
           <i data-lucide="circle-plus"></i>
           <p class="new_order_text">New Order</p>
         </button>
+
+        <!-- NEW ORDER BUTTON END -->
       </div>
       <div class="order_bodyblock">
         <!-- START OF ORDER LIST -->
@@ -139,7 +143,63 @@
         <!-- END OF ORDER LIST-->
       </div>
     </div>
-    <!-- PRICELIST BODY END -->
+
+    <!-- ORDER BODY END -->
+
+    <!-- NEW ORDER POPUP START -->
+    <div class="new_order_popup">
+      <div class="new_order_popup_content">
+        <div class="add_new_order_heading">
+          <h1>Add New Order</h1>
+        </div>
+        <div class="new_order_body">
+          <div class="selectors">
+            <div class="supplier_select">
+              <select class="supplier_sel" name="supplier" id="supplier">
+                <option value="" disabled selected hidden>
+                  Select Supplier
+                </option>
+                <option value="supplier1">Supplier 1</option>
+                <option value="supplier2">Supplier 2</option>
+                <option value="supplier3">Supplier 3</option>
+              </select>
+            </div>
+            <div class="product_and_unit_select">
+              <div class="product_select">
+                <select class="product_sel" name="product" id="product">
+                  <option value="" disabled selected hidden>
+                    Select Product
+                  </option>
+                  <option value="product1">Product 1</option>
+                  <option value="product2">Product 2</option>
+                  <option value="product3">Product 3</option>
+                </select>
+              </div>
+              <div class="unit_select">
+                <input
+                  type="number"
+                  class="unit_input"
+                  name="units"
+                  id="units"
+                  placeholder="Units" />
+              </div>
+            </div>
+            <div class="est_del_date_select"></div>
+          </div>
+          <div class="confirm_or_cancel_order">
+            <div class="cancel">
+              <p>Cancel</p>
+            </div>
+            <div class="confirm">
+              <p>Confirm</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- NEW ORDER POPUP END -->
+
+    <!-- SCRIPTS START -->
 
     <!-- Script for icons-->
     <script
@@ -149,7 +209,30 @@
     <script>
       lucide.createIcons();
     </script>
-    <!-- <script src="../script.js"></script> -->
-    <script src="../templates/script.js"></script>
+
+    <!-- Script for expanding order -->
+    <script>
+      const toggleViewListBtn = document.getElementById("toggle_list_view_btn");
+
+      if (toggleViewListBtn) {
+        const orderExpandedContent = document.querySelector(
+          ".order_expanded_content",
+        );
+        const openListIcon = document.querySelector(".open_list");
+        const closeListIcon = document.querySelector(".close_list");
+
+        // Toggle list view between open and close
+        toggleViewListBtn.addEventListener("click", () => {
+          orderExpandedContent.classList.toggle("hidden");
+          openListIcon.classList.toggle("hidden");
+          closeListIcon.classList.toggle("unhide");
+        });
+      }
+    </script>
+
+    <!-- Script for new order popup -->
+    <script></script>
+
+    <!-- SCRIPTS END -->
   </body>
 </html>
