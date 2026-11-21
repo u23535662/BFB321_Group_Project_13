@@ -282,7 +282,7 @@ def get_products(product_id=None):
     avg_yearly_sales AS (
         SELECT
             product_id,
-            SUM(yearly_qty) / 5.0 AS avg_annual_sold_qty
+            SUM(yearly_qty) / %s AS avg_annual_sold_qty
         FROM yearly_sales
         GROUP BY product_id
     ),
@@ -425,12 +425,22 @@ def get_products(product_id=None):
         ON ua.id = p.product_id
     WHERE p.product_id = %s;
     """
+    month_sold_sql = """
+    SELECT 
+        s.product_id AS id, 
+        SUM(s.sold_qty) AS sold 
+    FROM sale s 
+    WHERE s.sold_date >= DATE_FORMAT(CURDATE(), '%%Y-%%m-01')
+        AND s.sold_date < DATE_FORMAT(CURDATE(), '%%Y-%%m-01') + INTERVAL 1 MONTH
+        AND s.product_id = %s;
+    """
 
     for p in products_to_process:
         p_id = p["id"]
-        data_eoq = db.query_one(eoq_sql, (historical_years,p_id,))
+        data_eoq = db.query_one(eoq_sql, (historical_years,historical_years,p_id,))
         data_ss = db.query_one(ss_sql, (p_id,historical_years,historical_years,))
         data_cur_inv = db.query_one(current_inv_sql, (p_id,))
+        data_sold = db.query_one(month_sold_sql, (p_id,))
 
         if data_eoq:
             annual_demand = float(data_eoq["annual_demand"] or 0)
@@ -468,6 +478,11 @@ def get_products(product_id=None):
         else:
             current_inv = 0
 
+        if data_sold:
+            sold = int(data_sold["sold"])
+        else:
+            sold=0
+
         output_product.append({
             "id": int(p["id"]),
             "name": str(p["name"]),
@@ -478,6 +493,7 @@ def get_products(product_id=None):
             "rop": int(rop),
             "class": str(p_class),
             "current_inventory": int(current_inv),
+            "sold":int(sold),
         })
 
     return output_product[0] if product_id is not None else output_product

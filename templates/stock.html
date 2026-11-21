@@ -644,7 +644,7 @@
 
           const soldP = document.createElement("p");
           soldP.className = "text t1";
-          soldP.textContent = product.sold_month ?? 0;
+          soldP.textContent = product.sold ?? 0;
 
           wrapper.append(invP, nameP, soldP);
           li.appendChild(wrapper);

@@ -22,6 +22,11 @@ def overview():
 def stock():
     return render_template('stock.html')
 
+@app.route("/orders")
+@app.route("/order")
+def orders():
+    return render_template('order.html')
+
 # =====================================================================
 # JSON STUFF
 # =====================================================================
