@@ -5,7 +5,7 @@
 
 <!-- HEADER SECTION -->
 <h5 align="center" style="padding:0;margin:0;">Jessica Gazendam u23535662</h5>
-<h5 align="center" style="padding:0;margin:0;">Marianne Semmelink u23545420</h5>
+<h5 align="center" style="padding:0;margin:0;">Marianne Semmelink u23545420 </h5>
 <h5 align="center" style="padding:0;margin:0;">Hannah Moldenhauer u22742477</h5>
 <h5 align="center" style="padding:0;margin:0;">Riaan Coetzee u23525283</h5>
 <h6 align="center">BFB 321 Group 13</h6>
