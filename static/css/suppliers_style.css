@@ -570,8 +570,8 @@ li {
   margin-bottom: 1rem;
   /* border: 1px solid red; */
 }
-
-.modal_contact_details_block{
+.modal_contact_details_block
+.modal_add_supplier_buttons{
   display: flex;
   flex-direction: row;
   justify-content: flex-start;
@@ -632,6 +632,24 @@ li {
   margin-left: 0.2rem;
   margin-right: 0.2rem;
 }
+
+
+.addProductButton{
+  align-items: center;
+  justify-content: left;
+  display: flex;
+  /* flex-direction: row; */
+  align-content: center;
+
+  background-color: rgb(21, 45, 47, 0.6);
+  width: 45%;
+  height: 2rem;
+
+  border-radius: 1rem;
+  border: 2px solid rgb(155, 255, 237);
+  gap: 1.5rem;
+}
+
 
 
 .submit_popup {

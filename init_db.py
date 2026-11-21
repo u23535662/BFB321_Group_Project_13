@@ -4,18 +4,17 @@ from db import BASE_DIR, connect
 
 # Children tables before parent tables to respect foreign key constraints
 TABLES_IN_DROP_ORDER = [
-    "inventory_update_item", 
-    "inventory_update", 
-    "purchase_order_item", 
-    "job_consumables", 
-    "job_instance", 
-    "product_supplier", 
+    "inventory_update_item",
+    "inventory_update",
+    "purchase_order_item",
     "purchase_order",
+    "job_consumables",
+    "job_instance",
+    "product_supplier",
     "sale",
     "job",
     "product",
     "supplier",
-    "user"
 ]
 
 def read_statements(filename):

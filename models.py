@@ -1,16 +1,20 @@
-import db
+from datetime import datetime
 import math
 import statistics
+import db
 
 # =============================================================================
 # SUPPLY CHAIN FORMULAS
 # =============================================================================
 
+
 ## Economic Order Quantity
-def calculate_eoq(annual_demand: float, holding_cost: float, setup_cost: float, conversion: int) -> int:
+def calculate_eoq(
+    annual_demand: float, holding_cost: float, setup_cost: float, conversion: int
+) -> int:
     """
     Calculates the Economic Order Quantity (EOQ) using the classical Wilson lot-size formula.
-    
+
     Formula:
         Q = sqrt((2 * D * S) / H)
         where:
@@ -35,58 +39,77 @@ def calculate_eoq(annual_demand: float, holding_cost: float, setup_cost: float, 
     if holding_cost <= 0 or annual_demand <= 0 or setup_cost <= 0:
         return 0
     conversion = max(int(conversion), 1)
-    raw_eoq = math.sqrt((2.0 * float(annual_demand) * float(setup_cost)) / float(holding_cost))
+    raw_eoq = math.sqrt(
+        (2.0 * float(annual_demand) * float(setup_cost)) / float(holding_cost)
+    )
     box_eoq = math.ceil(raw_eoq / conversion) * conversion
     return int(round(box_eoq))
 
 
 ## Safety Stock
-def calculate_ss(service_level: float, std_lt: float, std_demand: float, lt: int) -> int:
+def calculate_ss(
+    service_level: float,
+    std_lt: float | None,
+    std_demand: float | None,
+    lt: float | int | None,
+    avg_daily_demand: float | None = 0.0,
+) -> int:
     """
     Computes required Safety Stock (SS) under stochastic demand and supplier lead time.
-    
+
     Formula:
-        SS = z * sqrt(sigma_d^2 + sigma_LT^2) * sqrt(LT)
+        SS = z * sqrt(LT * sigma_d^2 + d_bar^2 * sigma_LT^2)
         where:
             z = Inverse cumulative standard normal distribution value for service level
-            sigma_d = Standard deviation of daily clinical demand
+            LT = Mean vendor lead time in days (clamped to >= 1)
+            sigma_d = Standard deviation of daily demand (units/day)
+            d_bar = Mean daily demand (units/day)
             sigma_LT = Standard deviation of supplier lead time in days
-            LT = Mean vendor lead time in days
 
     Inputs:
         service_level (float): Target cycle service level (e.g. 0.95 for 95% protection).
         std_lt (float): Standard deviation of replenishment lead time.
         std_demand (float): Standard deviation of daily units consumed/sold.
         lt (int): Average lead time in calendar days.
+        avg_daily_demand (float): Average daily demand in units.
 
     Returns:
         int: Buffer stock units required to prevent stockouts during replenishment lead time.
 
     Assumptions / Edge Cases:
-        - Uses Python standard library statistics.NormalDist(0, 1).inv_cdf() for exact z score.
-        - Clamps minimum effective lead time to 1 day to prevent zero multiplication.
-        - Assumes clinical demand and vendor delivery lead times follow independent normal distributions.
+        Uses Python standard library statistics.NormalDist(0, 1).inv_cdf() for exact z score.
+        Clamps minimum effective lead time to 1 day to prevent zero multiplication.
+        Assumes clinical demand and vendor delivery lead times follow independent normal distributions.
     """
-    effective_lt = max(int(round(lt)), 1)
-    # Combined variance under stochastic demand & lead time
-    combined_std = math.sqrt((float(std_demand) ** 2) + (float(std_lt) ** 2))
-    
-    # Calculate z factor from target service level
+    effective_lt = max(float(lt) if lt is not None else 1.0, 1.0)
+    sigma_d = max(float(std_demand) if std_demand is not None else 0.0, 0.0)
+    sigma_lt = max(float(std_lt) if std_lt is not None else 0.0, 0.0)
+    d_bar = max(
+        float(avg_daily_demand) if avg_daily_demand is not None else 0.0, 0.0
+    )
+
+    variance_lead_time_demand = (effective_lt * (sigma_d**2)) + (
+        (d_bar**2) * (sigma_lt**2)
+    )
+    std_lead_time_demand = math.sqrt(variance_lead_time_demand)
+
+    clamped_sl = min(max(float(service_level), 0.50), 0.999)
     try:
-        dist = statistics.NormalDist(mu=0.0, sigma=1.0)
-        z = dist.inv_cdf(min(max(service_level, 0.50), 0.999))
+        z = statistics.NormalDist(mu=0.0, sigma=1.0).inv_cdf(clamped_sl)
     except Exception:
         z = 1.64485  # Fallback for 95% cycle service level
-        
-    ss_value = z * combined_std * math.sqrt(effective_lt)
+
+    ss_value = z * std_lead_time_demand
     return int(round(ss_value))
 
 
 ## Re-order Point
-def calculate_rop(daily_demand: float, effective_lt: float, safety_stock: int) -> int:
+def calculate_rop(
+    daily_demand: float, effective_lt: float, safety_stock: int
+) -> int:
     """
     Calculates the Reorder Point (ROP) inventory threshold that triggers replenishment.
-    
+
     Formula:
         ROP = (d_bar * L_eff) + SS
         where:
@@ -112,7 +135,19 @@ def calculate_rop(daily_demand: float, effective_lt: float, safety_stock: int) -
 
 ## ABC Classification
 def calculate_abc(products_list: list) -> list:
-    # Function for assigning tiers
+    """
+    Calculate the Classification for each product.
+
+    Inputs:
+        products_list (list): List of product dictionary objects, each containing:
+            - 'product_id' (int): Primary product identifier
+            - 'price' (float): Clinical unit selling price
+            - 'demand' (int): Cumulative historical 5-year consumption
+
+    Returns:
+        list: Sorted product list enriched with 'value', 'cum_pct', and 'tier'.
+    """
+
     def assign_tier(cum_pct: float) -> str:
         if cum_pct <= 80.0:
             return "A"
@@ -124,24 +159,23 @@ def calculate_abc(products_list: list) -> list:
     if not products_list:
         return []
 
-    # Calculate value for each SKU
     for p in products_list:
-        p['value'] = float(p['demand']) * float(p['price'])
+        p["value"] = float(p["demand"]) * float(p["price"])
 
-    # Sort SKUs descending by value
-    skus_sorted = sorted(products_list, key=lambda item: item['value'], reverse=True)
+    skus_sorted = sorted(
+        products_list, key=lambda item: item["value"], reverse=True
+    )
 
-    # Calculate cumulative percentage and assign tiers
-    total_value = sum(item['value'] for item in skus_sorted)
+    total_value = sum(item["value"] for item in skus_sorted)
     running_total = 0.0
     for item in skus_sorted:
         if total_value > 0:
-            running_total += item['value']
-            item['cum_pct'] = (running_total / total_value) * 100.0
-            item['tier'] = assign_tier(item['cum_pct'])
+            running_total += item["value"]
+            item["cum_pct"] = (running_total / total_value) * 100.0
+            item["tier"] = assign_tier(item["cum_pct"])
         else:
-            item['cum_pct'] = 0.0
-            item['tier'] = "C"
+            item["cum_pct"] = 0.0
+            item["tier"] = "C"
 
     return skus_sorted
 
@@ -150,16 +184,25 @@ def calculate_abc(products_list: list) -> list:
 # JSON FUNCTIONS
 # =============================================================================
 
+
+def _to_datetime(value):
+    if value is None or isinstance(value, datetime):
+        return value
+    return datetime.fromisoformat(str(value))
+
+
 ## Getting raw product data
 def get_products_raw(product_id=None):
-    if product_id == '' or product_id is None:
+    if product_id == "" or product_id is None:
         sql = """
-        SELECT 
+        SELECT
             p.product_id AS id,
             p.product_name AS name,
-            p.product_price AS price,   
-            p.stock_quantity AS starting_inv,
-            p.product_holding_cost AS hc
+            p.product_price AS price,
+            p.year_starting_inventory AS starting_inv,
+            p.product_holding_cost AS hc,
+            p.created_at,
+            p.updated_at
         FROM product p
         """
         products = db.query_all(sql)
@@ -167,21 +210,25 @@ def get_products_raw(product_id=None):
         formatted_products = []
         for p in products:
             formatted_products.append({
-                'id': int(p['id']),
-                'name': str(p['name']),
-                'price': float(p['price']),
-                'year_starting_inventory': int(p['starting_inv']),
-                'holding_cost': float(p['hc'])
+                "id": int(p["id"]),
+                "name": str(p["name"]),
+                "price": float(p["price"]),
+                "year_starting_inventory": int(p["starting_inv"]),
+                "holding_cost": float(p["hc"]),
+                "created_at": _to_datetime(p["created_at"]),
+                "updated_at": _to_datetime(p["updated_at"]),
             })
         return formatted_products
     else:
         sql = """
-        SELECT 
+        SELECT
             p.product_id AS id,
             p.product_name AS name,
-            p.product_price AS price,   
-            p.stock_quantity AS starting_inv,
-            p.product_holding_cost AS hc
+            p.product_price AS price,
+            p.year_starting_inventory AS starting_inv,
+            p.product_holding_cost AS hc,
+            p.created_at,
+            p.updated_at
         FROM product p
         WHERE p.product_id = %s
         """
@@ -190,11 +237,13 @@ def get_products_raw(product_id=None):
         if not p:
             return None
         return {
-            'id': int(p['id']),
-            'name': str(p['name']),
-            'price': float(p['price']),
-            'year_starting_inventory': int(p['starting_inv']),
-            'holding_cost': float(p['hc'])
+            "id": int(p["id"]),
+            "name": str(p["name"]),
+            "price": float(p["price"]),
+            "year_starting_inventory": int(p["starting_inv"]),
+            "holding_cost": float(p["hc"]),
+            "created_at": _to_datetime(p["created_at"]),
+            "updated_at": _to_datetime(p["updated_at"]),
         }
 
 
@@ -204,16 +253,16 @@ def get_products(product_id=None):
     if not r_product:
         return None if product_id is not None else []
 
-    # Normalize to a list so the loop works for both all-products and single-product requests
-    products_to_process = [r_product] if product_id is not None else r_product
+    products_to_process = (
+        [r_product] if product_id is not None else r_product
+    )
     output_product = []
 
-    # Past 1 full calendar year, excluding the current year
     abc_sql = """
-    SELECT 
-        s.product_id AS id, 
-        p.product_price AS price, 
-        SUM(s.sold_qty) AS demand 
+    SELECT
+        s.product_id AS id,
+        p.product_price AS price,
+        SUM(s.sold_qty) AS demand
     FROM sale s
     JOIN product p
         ON s.product_id = p.product_id
@@ -223,115 +272,113 @@ def get_products(product_id=None):
     """
     product_list = db.query_all(abc_sql)
     abc_data = calculate_abc(product_list)
-    abc_lookup = {int(item['id']): item['tier'] for item in abc_data}
+    abc_lookup = {int(item["id"]): item["tier"] for item in abc_data}
 
-    # Past 5 full calendar years, excluding the current year
     eoq_sql = """
     WITH yearly_sales AS (
-        SELECT 
-            product_id, 
+        SELECT
+            product_id,
             YEAR(sold_date) AS sales_year,
             SUM(sold_qty) AS yearly_qty
         FROM sale
         WHERE sold_date >= MAKEDATE(YEAR(CURDATE()) - 5, 1)
           AND sold_date < MAKEDATE(YEAR(CURDATE()), 1)
-        GROUP BY 
-            product_id, 
+        GROUP BY
+            product_id,
             YEAR(sold_date)
     ),
     avg_yearly_sales AS (
-        SELECT 
-            product_id, 
+        SELECT
+            product_id,
             SUM(yearly_qty) / 5.0 AS avg_annual_sold_qty
         FROM yearly_sales
         GROUP BY product_id
     ),
     current_setup AS (
-        SELECT 
-            product_id, 
-            supplier_unit, 
+        SELECT
+            product_id,
+            units_per_package,
             supplier_price,
             ROW_NUMBER() OVER (
-                PARTITION BY product_id 
-                ORDER BY effective_date DESC
+                PARTITION BY product_id
+                ORDER BY created_at DESC, product_supplier_id DESC
             ) AS rn
         FROM product_supplier
     )
-    SELECT 
-        COALESCE(ays.avg_annual_sold_qty, 0) AS annual_demand, 
-        COALESCE(cs.supplier_price, 0) AS setup_cost, 
-        COALESCE(cs.supplier_unit, 1) AS box_conversion
-    FROM product p 
-    LEFT JOIN avg_yearly_sales ays ON p.product_id = ays.product_id 
-    LEFT JOIN current_setup cs ON p.product_id = cs.product_id AND cs.rn = 1
+    SELECT
+        COALESCE(ays.avg_annual_sold_qty, 0) AS annual_demand,
+        COALESCE(cs.supplier_price, 0) AS setup_cost,
+        COALESCE(cs.units_per_package, 1) AS box_conversion
+    FROM product p
+    LEFT JOIN avg_yearly_sales ays
+        ON p.product_id = ays.product_id
+    LEFT JOIN current_setup cs
+        ON p.product_id = cs.product_id
+       AND cs.rn = 1
     WHERE p.product_id = %s;
     """
 
-    # Past 5 full calendar years, excluding the current year
     ss_sql = """
-    WITH filtered_po AS (
+    WITH target_product AS (
+        SELECT %s AS product_id
+    ),
+    filtered_po AS (
         SELECT
             po.order_id,
             po.order_date
         FROM purchase_order po
         JOIN purchase_order_item poi
             ON po.order_id = poi.order_id
+        CROSS JOIN target_product tp
         WHERE po.order_status = 'Received'
-          AND poi.product_id = %s
+          AND poi.product_id = tp.product_id
           AND po.order_date >= MAKEDATE(YEAR(CURDATE()) - 5, 1)
           AND po.order_date < MAKEDATE(YEAR(CURDATE()), 1)
         GROUP BY po.order_id, po.order_date
     ),
+    receipt_dates AS (
+        SELECT
+            order_id,
+            MAX(DATE(update_date)) AS receipt_date
+        FROM inventory_update
+        WHERE order_id IS NOT NULL
+        GROUP BY order_id
+    ),
     lead_time_metrics AS (
         SELECT
-            AVG(DATEDIFF(iu_agg.receipt_date, fpo.order_date)) AS avg_lt,
-            STD(DATEDIFF(iu_agg.receipt_date, fpo.order_date)) AS std_lt
+            AVG(DATEDIFF(rd.receipt_date, fpo.order_date)) AS avg_lt,
+            STDDEV_SAMP(DATEDIFF(rd.receipt_date, fpo.order_date)) AS std_lt
         FROM filtered_po fpo
-        JOIN (
-            SELECT
-                order_id,
-                MAX(update_date) AS receipt_date
-            FROM inventory_update
-            GROUP BY order_id
-        ) iu_agg
-            ON fpo.order_id = iu_agg.order_id
-        WHERE iu_agg.receipt_date >= fpo.order_date
+        JOIN receipt_dates rd
+            ON fpo.order_id = rd.order_id
+        WHERE rd.receipt_date >= fpo.order_date
+    ),
+    daily_sales AS (
+        SELECT
+            DATE(s.sold_date) AS sale_day,
+            SUM(s.sold_qty) AS daily_qty
+        FROM sale s
+        CROSS JOIN target_product tp
+        WHERE s.product_id = tp.product_id
+          AND s.sold_date >= MAKEDATE(YEAR(CURDATE()) - 5, 1)
+          AND s.sold_date < MAKEDATE(YEAR(CURDATE()), 1)
+        GROUP BY DATE(s.sold_date)
     ),
     demand_metrics AS (
         SELECT
-            STD(s.sold_qty) AS std_d
-        FROM sale s
-        WHERE s.product_id = %s
-          AND s.sold_date >= MAKEDATE(YEAR(CURDATE()) - 5, 1)
-          AND s.sold_date < MAKEDATE(YEAR(CURDATE()), 1)
+            AVG(daily_qty) AS avg_daily_demand,
+            STDDEV_SAMP(daily_qty) AS std_d
+        FROM daily_sales
     )
     SELECT
-        %s AS id,
+        tp.product_id AS id,
         lt.avg_lt,
         lt.std_lt,
+        dm.avg_daily_demand,
         dm.std_d
-    FROM lead_time_metrics lt
+    FROM target_product tp
+    CROSS JOIN lead_time_metrics lt
     CROSS JOIN demand_metrics dm;
-    """
-
-    # Past 5 full calendar years, excluding the current year
-    rop_sql = """
-    WITH daily_sales AS (
-        SELECT
-            product_id,
-            DATE(sold_date) AS sale_day,
-            SUM(sold_qty) AS daily_qty
-        FROM sale
-        WHERE sold_date >= MAKEDATE(YEAR(CURDATE()) - 5, 1)
-          AND sold_date < MAKEDATE(YEAR(CURDATE()), 1)
-        GROUP BY product_id, DATE(sold_date)
-    )
-    SELECT
-        product_id,
-        AVG(daily_qty) AS avg_daily_demand
-    FROM daily_sales
-    WHERE product_id = %s
-    GROUP BY product_id;
     """
 
     current_inv_sql = """
@@ -348,7 +395,7 @@ def get_products(product_id=None):
             ji.job_id
         FROM job_instance ji
         WHERE ji.status != 'Cancelled'
-        AND ji.operation_date >= MAKEDATE(YEAR(CURDATE()), 1)
+          AND ji.operation_date >= MAKEDATE(YEAR(CURDATE()), 1)
     ),
     consumables_agg AS (
         SELECT
@@ -372,7 +419,7 @@ def get_products(product_id=None):
     SELECT
         p.product_id AS id,
         (
-            p.stock_quantity
+            p.year_starting_inventory
             - COALESCE(sa.sales, 0)
             - COALESCE(ca.used, 0)
             + COALESCE(ua.update_total, 0)
@@ -386,59 +433,59 @@ def get_products(product_id=None):
         ON ua.id = p.product_id
     WHERE p.product_id = %s;
     """
+
     for p in products_to_process:
-        p_id = p['id']
+        p_id = p["id"]
         data_eoq = db.query_one(eoq_sql, (p_id,))
-        data_ss = db.query_one(ss_sql, (p_id, p_id, p_id))
-        data_rop = db.query_one(rop_sql, (p_id,))
-        data_cur_inv = db.query_one(current_inv_sql, (p_id))
+        data_ss = db.query_one(ss_sql, (p_id,))
+        data_cur_inv = db.query_one(current_inv_sql, (p_id,))
 
         if data_eoq:
-            annual_demand = float(data_eoq['annual_demand'] or 0)
-            setup_cost = float(data_eoq['setup_cost'] or 0)
-            box_conversion = max(int(data_eoq['box_conversion'] or 1), 1)
-            eoq = calculate_eoq(annual_demand, p['holding_cost'], setup_cost, box_conversion)
+            annual_demand = float(data_eoq["annual_demand"] or 0)
+            setup_cost = float(data_eoq["setup_cost"] or 0)
+            box_conversion = max(int(data_eoq["box_conversion"] or 1), 1)
+            eoq = calculate_eoq(
+                annual_demand, p["holding_cost"], setup_cost, box_conversion
+            )
         else:
             eoq = 0
 
         if data_ss:
             service_level = 0.95
-            std_lt = float(data_ss['std_lt'] or 0)
-            std_d = float(data_ss['std_d'] or 0)
-            lt = int(round(float(data_ss['avg_lt'] or 0)))
-            ss = calculate_ss(service_level, std_lt, std_d, lt)
+            std_lt = float(data_ss["std_lt"] or 0)
+            std_d = float(data_ss["std_d"] or 0)
+            lt = float(data_ss["avg_lt"] or 0)
+            daily_demand = float(data_ss["avg_daily_demand"] or 0)
+            ss = calculate_ss(service_level, std_lt, std_d, lt, daily_demand)
         else:
-            lt = 0
+            lt = 0.0
             ss = 0
+            daily_demand = 0.0
 
-        if data_rop and data_rop['avg_daily_demand'] is not None:
-            daily_demand = float(data_rop['avg_daily_demand'])
-            if daily_demand > 0 and eoq > 0:
-                t = eoq / daily_demand
-                effective_lt = lt % t
-                rop = calculate_rop(daily_demand, effective_lt, ss)
-            else:
-                rop = ss
+        if daily_demand > 0 and eoq > 0:
+            t = eoq / daily_demand
+            effective_lt = lt % t
+            rop = calculate_rop(daily_demand, effective_lt, ss)
         else:
             rop = ss
 
         p_class = abc_lookup.get(p_id, "C")
 
         if data_cur_inv:
-            current_inv = int(data_cur_inv['current_inventory'])
+            current_inv = int(data_cur_inv["current_inventory"])
         else:
             current_inv = 0
 
-        output_product.append({ 
-            'id': int(p['id']),
-            'name': str(p['name']),
-            'price': float(p['price']),
-            'holding_cost': float(p['holding_cost']),
-            'eoq': int(eoq),
-            'ss': int(ss),
-            'rop': int(rop),
-            'class': str(p_class),
-            'current_inventory':int(current_inv)
+        output_product.append({
+            "id": int(p["id"]),
+            "name": str(p["name"]),
+            "price": float(p["price"]),
+            "holding_cost": float(p["holding_cost"]),
+            "eoq": int(eoq),
+            "ss": int(ss),
+            "rop": int(rop),
+            "class": str(p_class),
+            "current_inventory": int(current_inv),
         })
 
     db.close_db()
@@ -446,9 +493,14 @@ def get_products(product_id=None):
 
 
 ## Creating a product
-def insert_product(name: str = '', price: float = 0.0, holding_cost: float = 0.0, starting_inventory: int = 0):
+def insert_product(
+    name: str = "",
+    price: float = 0.0,
+    holding_cost: float = 0.0,
+    starting_inventory: int = 0,
+):
     sql = """
-    INSERT INTO product (product_name, product_price, product_holding_cost, stock_quantity)
+    INSERT INTO product (product_name, product_price, product_holding_cost, year_starting_inventory)
     VALUES (%s, %s, %s, %s)
     """
     product_id = db.execute(sql, (name, price, holding_cost, starting_inventory))
@@ -457,13 +509,21 @@ def insert_product(name: str = '', price: float = 0.0, holding_cost: float = 0.0
 
 
 ## Editing product
-def update_product(name: str, price: float, holding_cost: float, starting_inventory: int, product_id: int):
+def update_product(
+    name: str,
+    price: float,
+    holding_cost: float,
+    starting_inventory: int,
+    product_id: int,
+):
     sql = """
     UPDATE product
-    SET product_name = %s, product_price = %s, product_holding_cost = %s, stock_quantity = %s
+    SET product_name = %s, product_price = %s, product_holding_cost = %s, year_starting_inventory = %s
     WHERE product_id = %s
     """
-    rows_affected = db.execute(sql, (name, price, holding_cost, starting_inventory, product_id))
+    rows_affected = db.execute(
+        sql, (name, price, holding_cost, starting_inventory, product_id)
+    )
     db.close_db()
     return rows_affected
 
