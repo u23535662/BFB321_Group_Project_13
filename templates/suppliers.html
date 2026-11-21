@@ -76,6 +76,35 @@
           <div class="new_item_text">Add Supplier</div>
         </button>
 
+        <!-- addSupplierModal start -->
+        <div id="addSupplier" class="modal">
+          <!-- Modal content -->
+          <div class="modal-content">
+            <span class="close" id="close_addSupplier_popup">
+              <i data-lucide="circle-x"></i>
+            </span>
+            <div class="popup_name">
+              <h3 class="popup_title">Add New Product</h3>
+            </div>
+            <div class="modal_details_block">
+              <h3 class="block_title">General Details</h3>
+              <input class="addSupplierName" type="text" placeholder="Supplier name..." />
+              <h3 class="block_title">Contact Details</h3>
+              <div class="modal_contact_details_block">
+                <input class="addSupplierEmail" type="text" placeholder="Email adress..." />
+                <input class="addSupplierTelephoneNumber" type="text" placeholder="Telephone number (optional)..." />
+              </div>
+            </div>
+
+
+            
+            <div class="modal_submit_block">
+              <span class="submit_popup">Submit</span>
+            </div>
+          </div>
+        </div>
+        <!-- addSupplierModal end -->
+          
         <button id="supplierButton2" class="supplierbutton2">
           <div class="delete_item_icon">
             <i data-lucide="circle-x"></i>
@@ -144,39 +173,66 @@
         </div>
       </div>
     </div>
+  </div>
 
-    <script>
-      // SUPPLIERS PRICE LIST PAGE START
-      const supOpenBtn = document.getElementById("sup_Block");
-      const supPopup = document.getElementById("sup_popup_Hold");
-      const supCloseBtn = document.getElementById("close_sup");
+  <script>
+    // SUPPLIERS PRICE LIST PAGE START
+    const supOpenBtn = document.getElementById("sup_Block");
+    const supPopup = document.getElementById("sup_popup_Hold");
+    const supCloseBtn = document.getElementById("close_sup");
 
-      if (supOpenBtn && supPopup && supCloseBtn) {
-        // Open Popup
-        supOpenBtn.addEventListener("click", function () {
-          supPopup.style.display = "flex";
-        });
+    if (supOpenBtn && supPopup && supCloseBtn) {
+      // Open Popup
+      supOpenBtn.addEventListener("click", function () {
+        supPopup.style.display = "flex";
+      });
 
-        // Close Popup
-        supCloseBtn.addEventListener("click", function () {
+      // Close Popup
+      supCloseBtn.addEventListener("click", function () {
+        supPopup.style.display = "none";
+      });
+
+      // Close Popup (click outside)
+      supPopup.addEventListener("click", function (event) {
+        if (event.target === supPopup) {
           supPopup.style.display = "none";
-        });
+        }
+      });
+    } else if (!supOpenBtn) {
+      console.log("No open Button");
+    } else if (!supPopup) {
+      console.log("No popup hold...");
+    } else if (!supCloseBtn) {
+      console.log("No popup close");
+    }
+    // SUPPLIERS PRICE LIST END
+ 
+    // SUPPLIERS ADD MODAL START
+    const addSupplierModal = document.getElementById("addSupplier");
+    const addSupplierOpenBtn = document.getElementById("supplierButton1");
+    const addSupplierCloseBtn = document.getElementById("close_addSupplier_popup");
 
-        // Close Popup (click outside)
-        supPopup.addEventListener("click", function (event) {
-          if (event.target === supPopup) {
-            supPopup.style.display = "none";
-          }
-        });
-      } else if (!supOpenBtn) {
-        console.log("No open Button");
-      } else if (!supPopup) {
-        console.log("No popup hold...");
-      } else if (!supCloseBtn) {
-        console.log("No popup close");
-      }
-      // SUPPLIERS PRICE LIST END
+    if (addSupplierModal && addSupplierOpenBtn && addSupplierCloseBtn) {
+      // Open Popup
+      addSupplierOpenBtn.addEventListener("click", function () {
+        addSupplierModal.style.display = "block";
+      });
 
+      // Close Popup
+      addSupplierCloseBtn.addEventListener("click", function (event) {
+        event.preventDefault();
+        event.stopPropagation();
+        addSupplierModal.style.display = "none";
+      });
+
+      // Close Popup (click outside)
+      addSupplierModal.addEventListener("click", function (event) {
+        if (event.target === addSupplierModal) {
+          addSupplierModal.style.display = "none";
+        }
+      });
+    }
+    // SUPPLIERS ADD MODAL END
     </script>
 
     <!-- Script for icons-->
@@ -187,7 +243,6 @@
     <script>
       lucide.createIcons();
     </script>
-    <script src="../templates/script.js"></script>
 
     <!-- JSON DATA LOADING FOR PAGE -->
     <script></script>
