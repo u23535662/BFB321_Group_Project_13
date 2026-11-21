@@ -70,14 +70,26 @@
     <div class="overviewblocks">
       <div class="blockfacts">
         <div class="topfacts">
-          <div class="jobtracker"></div>
-          <div class="producttracker"></div>
-          <div class="suppliertracker"></div>
+          <div class="jobtracker">
+            <p># Jobs</p>
+          </div>
+          <div class="producttracker">
+            <p># Products</p>
+          </div>
+          <div class="suppliertracker">
+            <p># Suppliers</p>
+          </div>
         </div>
         <div class="bottomfacts">
-          <div class="openordertracker"></div>
-          <div class="revenuetracker"></div>
-          <div class="lowstocktracker"></div>
+          <div class="openordertracker">
+            <p># Open orders</p>
+          </div>
+          <div class="revenuetracker">
+            <p>Revenue</p>
+          </div>
+          <div class="lowstocktracker">
+            <p># Low stock items</p>
+          </div>
         </div>
       </div>
 
@@ -94,45 +106,35 @@
               <div>Order</div>
             </button>
 
-            <!-- Modal start -->
-            <div id="myModal" class="modal">
-              <!-- Modal content -->
-              <div class="modal-content">
-                <span class="close" id="close_index_popup">
-                  <i data-lucide="circle-x"></i>
-                </span>
-
-                <div class="popup_name">
-                  <p class="popup_title">Add to Order</p>
-                </div>
-                <div class="popup_subtitle_block">
-                  <h3 class="block_title">Checkbox</h3>
-                  <h3 class="block_title">Product Name</h3>
-                  <h3 class="block_title">Amount in stock</h3>
+            <!-- To DO Popup start -->
+            <div id="myModal" class="todo_popup_background">
+              <!-- To Do Popup content -->
+              <div class="totdo_popup_content">
+                <div class="top_of_popup">
+                  <div class="popup_name">
+                    <h1 class="popup_title">Add to Order</h1>
+                  </div>
+                  <div class="close" id="close_index_popup">
+                    <i data-lucide="circle-x"></i>
+                  </div>
                 </div>
 
                 <div class="todo_list_item">
-                  <div class="list_item">
-                    <div class="list_item_left">
-                      <div class="list_item_icon">
-                        <i data-lucide="users-round"></i>
-                      </div>
-                      <p class="list_item_title">Product</p>
-                    </div>
-                    <button
-                      class="list_item_button"
-                      id="toggle_list_view_btn"
-                      onclick="toggleListView()">
-                      <i data-lucide="chevron-up" class="open_list"></i>
-                      <i data-lucide="chevron-down" class="close_list"></i>
-                    </button>
+                  <div class="checkbox">
+                    <input class="popup_checkbox" type="checkbox" />
+                  </div>
+                  <div class="product_for_order">
+                    <p>Product Name</p>
+                  </div>
+                  <div class="unit_amount">
+                    <p># Units</p>
                   </div>
                 </div>
 
                 <span class="submit_popup">Submit</span>
               </div>
             </div>
-            <!-- Modal end -->
+            <!-- To do Popup end -->
           </div>
         </div>
         <div class="contentblocktodo">
@@ -157,26 +159,6 @@
           <!-- FILLER END -->
         </div>
       </div>
-      <!-- <div class="blockproducts">
-        <div class="headingblockproducts">
-          <h2>Products</h2>
-        </div>
-        <div class="contentblockproducts">
-          <div id="product" class="productname_block">
-            <p id="loading-status">Loading products...</p>
-          </div>
-
-        </div>
-      </div> -->
-
-      <!-- <div class="indexBtns">
-        <button id="indexbutton2" class="indexbutton2">
-          <div class="new_item_icon">
-            <i data-lucide="sticker"></i>
-          </div>
-          <div>Buttons?</div>
-        </button>
-      </div> -->
 
       <!-- TWO GRAPH BLOCKS -->
 

@@ -86,79 +86,28 @@
             <div class="popup_name">
               <h3 class="popup_title">Add New Product</h3>
             </div>
-            <div class="modal_details_block">
-              <h3 class="block_title">General Details</h3>
-              <input class="addSupplierName" type="text" placeholder="Supplier name..." />
-              <h3 class="block_title">Contact Details</h3>
-              <div class="modal_details_sub_block">
-                <input class="addSupplierEmail" type="text" placeholder="Email adress..." />
-                <input class="addSupplierTelephoneNumber" type="text" placeholder="Telephone number (optional)..." />
+            <div class="supplier_details_block">
+              <h3 class="block_title">Supplier Details</h3>
+              <div class="supplier_details_sub_block">
+                <input class="addSupplierName" type="text" placeholder="Supplier Name" />
+                <input class="addSupplierEmail" type="text" placeholder="Email Address" />
               </div>
+              <input class="addSupplierTelephoneNumber" type="text" placeholder="Telephone Number (optional)" />
             </div>
 
             <div>
-              <button id="add_product_button" class="add_product">
+              <button id="add_product_button" class="addProductButton">
                 <div class="new_item_text">Add Product</div>
               </button>
               
-              <ul class="add_ul" id="add_product_ul">
-                <li class="add_li" id="add_product_li">
-
-                </li>
-              </ul>
-
-              <script>
-                const list = document.getElementById('add_product_li');
-
-                const add_product = document.getElementById('add_product_button');
-                add_product.addEventListener('click', (event) => {
-
-                  const parentDiv = document.createElement('div');
-                  parentDiv.id = 'container'
-                  parentDiv.className = 'modal_details_block'
-
-                  const childDiv1 = document.createElement('div');
-                  childDiv1.className = 'modal_details_sub_block'
-
-                  const input1 = document.createElement('input');
-                  input1.className = 'addSupplierName'
-
-                  const input2 = document.createElement('input');
-                  input2.className = 'addSupplierEmail'
-
-                  const childDiv2 = document.createElement('div');
-                  childDiv2.className = 'modal_product_details_sub_block'
-
-                  const input3 = document.createElement('input');
-                  input3.className = 'addSupplierEmail'
-
-                  const childDiv3 = document.createElement('div');
-                  childDiv3.className = 'modal_submit_block'
-
-                  const cancelButton = document.createElement('Button')
-                  cancelButton.className = 'supplierbutton2'
-                  cancelButton.addEventListener('click', () => {
-                  parentDiv.remove();
-                  })
-
-                  const childDiv4 = document.createElement('div');
-                  childDiv4.className = 'delete_item_text'
-
-                  cancelButton.appendChild(childDiv4);
-                  childDiv3.appendChild(cancelButton);
-                  childDiv2.appendChild(input3);
-                  childDiv2.appendChild(childDiv3);
-                  childDiv1.appendChild(input1);
-                  childDiv1.appendChild(input2);
-                  parentDiv.appendChild(childDiv1);
-                  parentDiv.appendChild(childDiv2);
-                  list.appendChild(parentDiv);
-                  })
-
-              </script>
+              <div class="ul_block">
+                <ul class="add_ul" id="add_product_ul">
+                  <li class="add_li" id="add_product_li"></li>
+                </ul>
+              </div>
             </div>
             
-            <div class="modal_submit_block">
+            <div class="cancel_and_submit_block">
               <span class="submit_popup">Submit</span>
             </div>
           </div>
@@ -195,7 +144,7 @@
         </button>
       </div>
 
-      <!-- POPUP MODAL -->
+      <!-- SUPPLIER POPUP MODAL -->
       <div id="sup_popup_Hold" class="sup_popup_hold">
         <div class="sup_popup_content">
           <!-- CLOSE BUTTON -->
@@ -233,66 +182,121 @@
         </div>
       </div>
     </div>
-  </div>
 
-  <script>
-    // SUPPLIERS PRICE LIST PAGE START
-    const supOpenBtn = document.getElementById("sup_Block");
-    const supPopup = document.getElementById("sup_popup_Hold");
-    const supCloseBtn = document.getElementById("close_sup");
+    <script>
+      // SUPPLIERS PRICE LIST PAGE START
+      const supOpenBtn = document.getElementById("sup_Block");
+      const supPopup = document.getElementById("sup_popup_Hold");
+      const supCloseBtn = document.getElementById("close_sup");
 
-    if (supOpenBtn && supPopup && supCloseBtn) {
-      // Open Popup
-      supOpenBtn.addEventListener("click", function () {
-        supPopup.style.display = "flex";
-      });
+      if (supOpenBtn && supPopup && supCloseBtn) {
+        // Open Popup
+        supOpenBtn.addEventListener("click", function () {
+          supPopup.style.display = "flex";
+        });
 
-      // Close Popup
-      supCloseBtn.addEventListener("click", function () {
-        supPopup.style.display = "none";
-      });
-
-      // Close Popup (click outside)
-      supPopup.addEventListener("click", function (event) {
-        if (event.target === supPopup) {
+        // Close Popup
+        supCloseBtn.addEventListener("click", function () {
           supPopup.style.display = "none";
-        }
-      });
-    } else if (!supOpenBtn) {
-      console.log("No open Button");
-    } else if (!supPopup) {
-      console.log("No popup hold...");
-    } else if (!supCloseBtn) {
-      console.log("No popup close");
-    }
-    // SUPPLIERS PRICE LIST END
- 
-    // SUPPLIERS ADD MODAL START
-    const addSupplierModal = document.getElementById("addSupplier");
-    const addSupplierOpenBtn = document.getElementById("supplierButton1");
-    const addSupplierCloseBtn = document.getElementById("close_addSupplier_popup");
+        });
 
-    if (addSupplierModal && addSupplierOpenBtn && addSupplierCloseBtn) {
-      // Open Popup
-      addSupplierOpenBtn.addEventListener("click", function () {
-        addSupplierModal.style.display = "block";
-      });
+        // Close Popup (click outside)
+        supPopup.addEventListener("click", function (event) {
+          if (event.target === supPopup) {
+            supPopup.style.display = "none";
+          }
+        });
+      } else if (!supOpenBtn) {
+        console.log("No open Button");
+      } else if (!supPopup) {
+        console.log("No popup hold...");
+      } else if (!supCloseBtn) {
+        console.log("No popup close");
+      }
+      // SUPPLIERS PRICE LIST END
+  
+      // ADD SUPPLIERS POPUP START
+      const addSupplierModal = document.getElementById("addSupplier");
+      const addSupplierOpenBtn = document.getElementById("supplierButton1");
+      const addSupplierCloseBtn = document.getElementById("close_addSupplier_popup");
 
-      // Close Popup
-      addSupplierCloseBtn.addEventListener("click", function (event) {
-        event.preventDefault();
-        event.stopPropagation();
-        addSupplierModal.style.display = "none";
-      });
+      if (addSupplierModal && addSupplierOpenBtn && addSupplierCloseBtn) {
+        // Open Popup
+        addSupplierOpenBtn.addEventListener("click", function () {
+          addSupplierModal.style.display = "block";
+        });
 
-      // Close Popup (click outside)
-      addSupplierModal.addEventListener("click", function (event) {
-        if (event.target === addSupplierModal) {
+        // Close Popup
+        addSupplierCloseBtn.addEventListener("click", function (event) {
+          event.preventDefault();
+          event.stopPropagation();
           addSupplierModal.style.display = "none";
-        }
-      });
-    }
-    // SUPPLIERS ADD MODAL END
+        });
+
+        // Close Popup (click outside)
+        addSupplierModal.addEventListener("click", function (event) {
+          if (event.target === addSupplierModal) {
+            addSupplierModal.style.display = "none";
+          }
+        });
+      }
+      // ADD SUPPLIERS POPUP END
+
+      // ADD PRODUCT EXPANDING BUTTON START
+      const list = document.getElementById('add_product_li');
+
+      const add_product = document.getElementById('add_product_button');
+      add_product.addEventListener('click', (event) => {
+
+        const parentDiv = document.createElement('div');
+        parentDiv.id = 'container'
+        parentDiv.className = 'product_details_block'
+
+        const childDiv1 = document.createElement('div');
+        childDiv1.className = 'product_details_sub_block'
+
+        const input1 = document.createElement('input');
+        input1.className = 'addProductName'
+        input1.type = 'text';
+        input1.placeholder = "Product Name"
+
+        const input2 = document.createElement('input');
+        input2.className = 'addProductPrice'
+        input2.type = 'text';
+        input2.placeholder = "Product Price"
+
+        const childDiv2 = document.createElement('div');
+        childDiv2.className = 'product_details_sub_block'
+
+        const input3 = document.createElement('input');
+        input3.className = 'addProductUnits'
+        input3.type = 'text';
+        input3.placeholder = "Units Per Box"
+
+        const childDiv3 = document.createElement('div');
+        childDiv3.className = 'delete_block'
+
+        const cancelButton = document.createElement('Button')
+        cancelButton.className = 'deletebutton'
+        cancelButton.textContent = "Delete";
+        cancelButton.addEventListener('click', () => {
+          parentDiv.remove();
+          })
+
+        const childDiv4 = document.createElement('div');
+        childDiv4.className = 'delete_item_text'
+
+        cancelButton.appendChild(childDiv4);
+        childDiv3.appendChild(cancelButton);
+        childDiv2.appendChild(input3);
+        childDiv2.appendChild(childDiv3);
+        childDiv1.appendChild(input1);
+        childDiv1.appendChild(input2);
+        parentDiv.appendChild(childDiv1);
+        parentDiv.appendChild(childDiv2);
+        list.appendChild(parentDiv);
+        })
+      // ADD PRODUCT EXPANDING BUTTON END
     </script>
 
     <!-- Script for icons-->
