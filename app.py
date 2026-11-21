@@ -18,6 +18,10 @@ db.init_app(app)
 def overview():
     return render_template('index.html')
 
+@app.route("/stock")
+def stock():
+    return render_template('stock.html')
+
 # =====================================================================
 # JSON STUFF
 # =====================================================================

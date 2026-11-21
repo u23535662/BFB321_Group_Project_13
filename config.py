@@ -16,7 +16,7 @@ class Config:
     """Base configuration shared across environments."""
 
     SECRET_KEY = os.getenv("SECRET_KEY", "dev-secret-change-in-production")
-    DEBUG = False
+    DEBUG = True
     TESTING = False
 
     # MySQL / Aiven database settings
