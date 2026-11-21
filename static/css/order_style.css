@@ -183,7 +183,7 @@ li {
   gap: 2rem;
 
   grid-template-columns: 1fr;
-  grid-template-rows: 4rem 1fr;
+  grid-template-rows: 2rem 1fr;
   grid-template-areas:
     "order_buttons"
     "order_list";
@@ -194,15 +194,41 @@ li {
 
   display: flex;
   flex-direction: row;
-  justify-content: flex-start;
+  justify-content: flex-end;
   align-items: center;
 
   width: 100%;
   height: 100%;
 
-  background-color: rgb(84, 147, 136);
   border-radius: 1rem;
   gap: 1rem;
+}
+
+.new_order_button {
+  align-items: center;
+  justify-content: left;
+  display: flex;
+  /* flex-direction: row; */
+  align-content: center;
+
+  background-color: rgb(169, 217, 208, 0.6);
+  width: 20%;
+  height: 2rem;
+
+  border-radius: 1rem;
+  border: 2px solid rgb(155, 255, 237);
+  gap: 1.5rem;
+  margin-right: 1rem;
+}
+
+.new_order_button:hover {
+  background-color: rgb(155, 255, 237);
+  color: rgb(84, 147, 136);
+  cursor: pointer;
+}
+
+.new_order_button:active {
+  background-color: rgb(84, 147, 136);
 }
 
 .order_bodyblock {
