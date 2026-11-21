@@ -567,11 +567,11 @@ li {
   background-color: rgb(169, 217, 208, 0.6);
   padding: 0.5rem;
   border-radius: 1rem;
+  margin-top: 1rem;
   margin-bottom: 1rem;
   /* border: 1px solid red; */
 }
-.modal_contact_details_block
-.modal_add_supplier_buttons{
+.modal_contact_details_block{
   display: flex;
   flex-direction: row;
   justify-content: flex-start;
@@ -581,7 +581,19 @@ li {
   width: 100%;
   /* border: 1px solid red; */
 }
+.modal_contact_details_block{
+  margin-bottom: 1rem;
+}
 
+.modal_submit_block{
+  display: flex;
+  flex-direction: row-reverse;
+  justify-content: flex-start;
+  align-items: flex-start;
+  align-self: stretch;
+
+  width: 100%;
+}
 
 /* The Close Button */
 .close {
@@ -624,16 +636,13 @@ li {
 
   background-color: rgb(84, 147, 136);
   width: 70%;
-  height: 100%;
+  height: 2rem;
 
   border-radius: 1rem;
   border-style: none;
-  margin-top: 0.2rem;
   margin-left: 0.2rem;
   margin-right: 0.2rem;
 }
-
-
 .addProductButton{
   align-items: center;
   justify-content: left;
