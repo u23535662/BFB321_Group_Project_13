@@ -127,6 +127,8 @@ def api_delete_product(product_id):
     except Exception as e:
         return jsonify({'success':False, 'error':str(e)}), 500
 
+
+
 # SUPPLIERS 
 # Get all suppliers 
 @app.route("/api/suppliers", methods=["GET"])
@@ -179,7 +181,6 @@ def api_create_supplier():
         return jsonify({'success': True, 'data': new_supplier}), 201
     except Exception as e:
         return jsonify({'success': False, 'error': str(e)}), 500
-
 
 # Update supplier
 @app.route("/api/suppliers/<int:supplier_id>", methods=["PUT"])
@@ -240,3 +241,92 @@ def api_delete_supplier(supplier_id):
 
 if __name__ == '__main__':
     app.run(debug=True)
+
+
+
+# SALES
+# Get all sales
+@app.route("/api/sales", methods=["GET"])
+def api_get_sales():
+    try:
+        sales = models.get_sales()
+        return jsonify({'success': True, 'count': len(sales), 'data': sales}), 200
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+# Get single sale
+@app.route("/api/sales/<int:sale_id>", methods=["GET"])
+def api_get_sale(sale_id):
+    try:
+        sale = models.get_sales(sale_id)
+        if not sale:
+            return jsonify({'success': False, 'error': 'Sale not found'}), 404
+        return jsonify({'success': True, 'data': sale}), 200
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+# Create sale
+@app.route("/api/sales", methods=["POST"])
+def api_create_sale():
+    if not request.is_json:
+        return jsonify({'success': False, 'error': 'Content-Type must be application/json'}), 400
+    data = request.get_json()
+    
+    if not data or 'product_id' not in data or 'sale_qty' not in data or 'sale_date' not in data:
+        return jsonify({'success': False, 'error': 'Missing required fields (product_id, sale_qty, sale_date)'}), 400
+    
+    try:
+        product_id = int(data['product_id'])
+        sale_qty = int(data['sale_qty'])
+        sale_date = str(data['sale_date'])
+
+        new_id = models.insert_sale(product_id, sale_qty, sale_date)
+        new_sale = models.get_sales(new_id)
+        return jsonify({'success': True, 'data': new_sale}), 201
+    except pymysql.err.IntegrityError as e:
+        return jsonify({'success': False, 'error': 'Invalid product_id or other integrity constraint violation: ' + str(e)}), 400
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+# Update sale
+@app.route("/api/sales/<int:sale_id>", methods=["PUT"])
+def api_update_sale(sale_id):
+    sale = models.get_sales(sale_id)
+    
+    if not sale:
+        return jsonify({'success': False, 'error': 'Sale not found'}), 404
+    if not request.is_json:
+        return jsonify({'success': False, 'error': 'Content-Type must be application/json'}), 400
+
+    data = request.get_json()
+    
+    try:
+        n_product_id = int(data.get('product_id', sale['product_id']))
+        n_sale_qty = int(data.get('sale_qty', sale['sale_qty']))
+        n_sale_date = str(data.get('sale_date', sale['sale_date']))
+
+        models.update_sale(
+            product_id = n_product_id, 
+            sale_qty = n_sale_qty, 
+            sale_date = n_sale_date, 
+            sale_id = sale_id
+        )
+        updated_sale = models.get_sales(sale_id)
+        return jsonify({'success': True, 'message': 'Sale updated successfully', 'data': updated_sale}), 200
+    except pymysql.err.IntegrityError as e:
+        return jsonify({'success': False, 'error': 'Invalid product_id or other integrity constraint violation: ' + str(e)}), 400
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+# Delete sale
+@app.route("/api/sales/<int:sale_id>", methods=["DELETE"])
+def api_delete_sale(sale_id):
+    sale = models.get_sales(sale_id)
+    if not sale:
+        return jsonify({'success': False, 'error': 'Sale not found'}), 404
+
+    try:
+        models.delete_sale(sale_id)
+        return jsonify({'success': True, 'message': 'Sale deleted successfully'}), 200
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)}), 500
