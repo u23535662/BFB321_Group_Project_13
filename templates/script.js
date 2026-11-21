@@ -125,59 +125,7 @@ if (stockModal && stockOpenBtn && stockCloseBtn) {
 //
 //
 
-const plOpenBtn = document.getElementById("pl_Block");
-const plPopup = document.getElementById("pl_popup_Hold");
-const plCloseBtn = document.getElementById("close_pl");
 
-if (plOpenBtn && plPopup && plCloseBtn) {
-  // Open Popup
-  plOpenBtn.addEventListener("click", function () {
-    plPopup.style.display = "flex";
-  });
-
-  // Close Popup
-  plCloseBtn.addEventListener("click", function () {
-    plPopup.style.display = "none";
-  });
-
-  // Close Popup (click outside)
-  plPopup.addEventListener("click", function (event) {
-    if (event.target === plPopup) {
-      plPopup.style.display = "none";
-    }
-  });
-} else if (!plOpenBtn) {
-  console.log("No open Button");
-} else if (!plPopup) {
-  console.log("No popup hold...");
-} else if (!plCloseBtn) {
-  console.log("No popup close");
-}
-
-//
-// List View Expanding start
-//
-
-const toggleViewListBtn = document.getElementById("toggle_list_view_btn");
-
-if (toggleViewListBtn) {
-  const orderExpandedContent = document.querySelector(
-    ".order_expanded_content",
-  );
-  const openListIcon = document.querySelector(".open_list");
-  const closeListIcon = document.querySelector(".close_list");
-
-  // Toggle list view between open and close
-  toggleViewListBtn.addEventListener("click", () => {
-    orderExpandedContent.classList.toggle("hidden");
-    openListIcon.classList.toggle("hidden");
-    closeListIcon.classList.toggle("unhide");
-  });
-}
-
-//
-// List View expanding end
-//
 
 //
 //

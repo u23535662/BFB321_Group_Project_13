@@ -2,16 +2,20 @@ from datetime import datetime
 import math
 import statistics
 import db
+from flask import current_app
+from config import get_config
 
 # =============================================================================
 # SUPPLY CHAIN FORMULAS
 # =============================================================================
 
+def _get_config_value(key: str, default=None):
+    if current_app:
+        return current_app.config.get(key, default)
+    return getattr(get_config(), key, default)
 
 ## Economic Order Quantity
-def calculate_eoq(
-    annual_demand: float, holding_cost: float, setup_cost: float, conversion: int
-) -> int:
+def calculate_eoq(annual_demand: float, holding_cost: float, setup_cost: float, conversion: int) -> int:
     """
     Calculates the Economic Order Quantity (EOQ) using the classical Wilson lot-size formula.
 
@@ -47,13 +51,7 @@ def calculate_eoq(
 
 
 ## Safety Stock
-def calculate_ss(
-    service_level: float,
-    std_lt: float | None,
-    std_demand: float | None,
-    lt: float | int | None,
-    avg_daily_demand: float | None = 0.0,
-) -> int:
+def calculate_ss(service_level: float,std_lt: float | None,std_demand: float | None,lt: float | int | None,avg_daily_demand: float | None = 0.0,) -> int:
     """
     Computes required Safety Stock (SS) under stochastic demand and supplier lead time.
 
@@ -84,13 +82,9 @@ def calculate_ss(
     effective_lt = max(float(lt) if lt is not None else 1.0, 1.0)
     sigma_d = max(float(std_demand) if std_demand is not None else 0.0, 0.0)
     sigma_lt = max(float(std_lt) if std_lt is not None else 0.0, 0.0)
-    d_bar = max(
-        float(avg_daily_demand) if avg_daily_demand is not None else 0.0, 0.0
-    )
+    d_bar = max(float(avg_daily_demand) if avg_daily_demand is not None else 0.0, 0.0)
 
-    variance_lead_time_demand = (effective_lt * (sigma_d**2)) + (
-        (d_bar**2) * (sigma_lt**2)
-    )
+    variance_lead_time_demand = (effective_lt * (sigma_d**2)) + ((d_bar**2) * (sigma_lt**2))
     std_lead_time_demand = math.sqrt(variance_lead_time_demand)
 
     clamped_sl = min(max(float(service_level), 0.50), 0.999)
@@ -104,9 +98,7 @@ def calculate_ss(
 
 
 ## Re-order Point
-def calculate_rop(
-    daily_demand: float, effective_lt: float, safety_stock: int
-) -> int:
+def calculate_rop(daily_demand: float, effective_lt: float, safety_stock: int) -> int:
     """
     Calculates the Reorder Point (ROP) inventory threshold that triggers replenishment.
 
@@ -147,11 +139,12 @@ def calculate_abc(products_list: list) -> list:
     Returns:
         list: Sorted product list enriched with 'value', 'cum_pct', and 'tier'.
     """
-
+    A = float(_get_config_value("ABC_A_THRESHOLD", 80.0))
+    B = float(_get_config_value("ABC_B_THRESHOLD", 95.0))
     def assign_tier(cum_pct: float) -> str:
-        if cum_pct <= 80.0:
+        if cum_pct <= A:
             return "A"
-        elif cum_pct <= 95.0:
+        elif cum_pct <= B:
             return "B"
         else:
             return "C"
@@ -206,7 +199,6 @@ def get_products_raw(product_id=None):
         FROM product p
         """
         products = db.query_all(sql)
-        db.close_db()
         formatted_products = []
         for p in products:
             formatted_products.append({
@@ -233,7 +225,6 @@ def get_products_raw(product_id=None):
         WHERE p.product_id = %s
         """
         p = db.query_one(sql, (product_id,))
-        db.close_db()
         if not p:
             return None
         return {
@@ -250,6 +241,7 @@ def get_products_raw(product_id=None):
 ## Getting relevant product data
 def get_products(product_id=None):
     r_product = get_products_raw(product_id)
+    historical_years = max(int(_get_config_value("HISTORICAL_YEARS", 5)), 1)
     if not r_product:
         return None if product_id is not None else []
 
@@ -281,7 +273,7 @@ def get_products(product_id=None):
             YEAR(sold_date) AS sales_year,
             SUM(sold_qty) AS yearly_qty
         FROM sale
-        WHERE sold_date >= MAKEDATE(YEAR(CURDATE()) - 5, 1)
+        WHERE sold_date >= MAKEDATE(YEAR(CURDATE()) - %s, 1)
           AND sold_date < MAKEDATE(YEAR(CURDATE()), 1)
         GROUP BY
             product_id,
@@ -332,7 +324,7 @@ def get_products(product_id=None):
         CROSS JOIN target_product tp
         WHERE po.order_status = 'Received'
           AND poi.product_id = tp.product_id
-          AND po.order_date >= MAKEDATE(YEAR(CURDATE()) - 5, 1)
+          AND po.order_date >= MAKEDATE(YEAR(CURDATE()) - %s, 1)
           AND po.order_date < MAKEDATE(YEAR(CURDATE()), 1)
         GROUP BY po.order_id, po.order_date
     ),
@@ -360,7 +352,7 @@ def get_products(product_id=None):
         FROM sale s
         CROSS JOIN target_product tp
         WHERE s.product_id = tp.product_id
-          AND s.sold_date >= MAKEDATE(YEAR(CURDATE()) - 5, 1)
+          AND s.sold_date >= MAKEDATE(YEAR(CURDATE()) - %s, 1)
           AND s.sold_date < MAKEDATE(YEAR(CURDATE()), 1)
         GROUP BY DATE(s.sold_date)
     ),
@@ -436,8 +428,8 @@ def get_products(product_id=None):
 
     for p in products_to_process:
         p_id = p["id"]
-        data_eoq = db.query_one(eoq_sql, (p_id,))
-        data_ss = db.query_one(ss_sql, (p_id,))
+        data_eoq = db.query_one(eoq_sql, (historical_years,p_id,))
+        data_ss = db.query_one(ss_sql, (p_id,historical_years,historical_years,))
         data_cur_inv = db.query_one(current_inv_sql, (p_id,))
 
         if data_eoq:
@@ -451,7 +443,7 @@ def get_products(product_id=None):
             eoq = 0
 
         if data_ss:
-            service_level = 0.95
+            service_level = float(_get_config_value("DEFAULT_SERVICE_LEVEL", 0.95))
             std_lt = float(data_ss["std_lt"] or 0)
             std_d = float(data_ss["std_d"] or 0)
             lt = float(data_ss["avg_lt"] or 0)
@@ -488,7 +480,6 @@ def get_products(product_id=None):
             "current_inventory": int(current_inv),
         })
 
-    db.close_db()
     return output_product[0] if product_id is not None else output_product
 
 

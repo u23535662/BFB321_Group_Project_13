@@ -2,14 +2,12 @@ import os
 from flask import Flask, flash, redirect, render_template, request, url_for, jsonify
 import db
 import models
-import pandas as pd
-import numpy as np
 import pymysql
+from config import get_config
 
 
 app = Flask(__name__)
-app.config["SECRET_KEY"] = os.getenv("SECRET_KEY","dev-only-change-me")
-
+app.config.from_object(get_config())
 # Register database teardown context hook
 db.init_app(app)
 
@@ -19,6 +17,10 @@ db.init_app(app)
 @app.route("/overview")
 def overview():
     return render_template('index.html')
+
+@app.route("/stock")
+def stock():
+    return render_template('stock.html')
 
 # =====================================================================
 # JSON STUFF
