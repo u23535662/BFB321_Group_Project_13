@@ -125,34 +125,6 @@ if (stockModal && stockOpenBtn && stockCloseBtn) {
 //
 //
 
-const plOpenBtn = document.getElementById("pl_Block");
-const plPopup = document.getElementById("pl_popup_Hold");
-const plCloseBtn = document.getElementById("close_pl");
-
-if (plOpenBtn && plPopup && plCloseBtn) {
-  // Open Popup
-  plOpenBtn.addEventListener("click", function () {
-    plPopup.style.display = "flex";
-  });
-
-  // Close Popup
-  plCloseBtn.addEventListener("click", function () {
-    plPopup.style.display = "none";
-  });
-
-  // Close Popup (click outside)
-  plPopup.addEventListener("click", function (event) {
-    if (event.target === plPopup) {
-      plPopup.style.display = "none";
-    }
-  });
-} else if (!plOpenBtn) {
-  console.log("No open Button");
-} else if (!plPopup) {
-  console.log("No popup hold...");
-} else if (!plCloseBtn) {
-  console.log("No popup close");
-}
 
 
 //

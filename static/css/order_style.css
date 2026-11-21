@@ -171,6 +171,7 @@ li {
 /* NAV BAR STYLES END */
 
 /* ORDER PAGE STYLES START */
+
 .order_body {
   display: grid;
   flex-direction: row;
@@ -233,7 +234,7 @@ li {
 
 /* NEW ORDER POPUP STYLING START */
 .new_order_popup {
-  display: flex;
+  display: none;
   flex-direction: column;
   position: fixed;
   z-index: 1000;
@@ -248,7 +249,7 @@ li {
 }
 
 .new_order_popup_content {
-  display: flex; /*MAKE NONE*/
+  display: flex;
   flex-direction: column;
   justify-content: flex-start;
   align-items: center;
@@ -285,7 +286,6 @@ li {
   width: 100%;
   gap: 2rem;
 
-  /* background-color: rgb(169, 217, 208, 0.6); */
   border-radius: 1rem;
 }
 
@@ -298,13 +298,13 @@ li {
   height: 100%;
   width: 100%;
   gap: 2rem;
-  /* background-color: rgb(169, 217, 208, 0.6); */
 }
 
 .supplier_select,
 .est_del_date_select {
+  display: flex;
   justify-content: space-between;
-  flex-direction: row;
+  flex-direction: row !important;
   height: 15%;
   width: 90%;
 
@@ -312,13 +312,34 @@ li {
   border-radius: 0.5rem;
 }
 
+.est_del_date_text {
+  width: 60%;
+}
+
 .supplier_sel {
   display: flex;
+  justify-content: center;
+  align-items: center;
   width: 100%;
   height: 100%;
   background-color: rgb(169, 217, 208, 0.6);
   border-radius: 0.5rem;
   outline: none;
+}
+
+.supplier_sel,
+.supplier_sel::picker(select),
+.product_sel,
+.product_sel::picker(select) {
+  appearance: base-select;
+}
+
+.supplier_sel,
+.product_sel,
+.supplier_sel option,
+.product_sel option {
+  font-family: "Roboto", sans-serif;
+  font-weight: 300;
 }
 
 .product_and_unit_select {
@@ -336,11 +357,67 @@ li {
   border-radius: 0.5rem;
 }
 
+.product_sel {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 100%;
+  background-color: rgb(169, 217, 208, 0.6);
+  border-radius: 0.5rem;
+  outline: none;
+}
+
 .unit_select {
   display: flex;
   width: 20%;
   background-color: rgb(169, 217, 208, 0.6);
   border-radius: 0.5rem;
+}
+
+.unit_input {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  background-color: rgb(169, 217, 208, 0.6);
+  border-radius: 0.5rem;
+  outline: none;
+  border-style: solid;
+  border-color: #152d2f;
+  border-width: 1px;
+
+  font-family: "Roboto", sans-serif;
+  font-weight: 300;
+}
+
+.unit_input::placeholder {
+  font-family: "Roboto", sans-serif;
+  font-weight: 300;
+}
+
+.est_del_date_select {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  border-style: solid;
+  border-color: #152d2f;
+  border-width: 1px;
+}
+
+.est_del_date_text {
+  display: flex;
+  margin-left: 0.5rem;
+}
+
+.est_del_date_input {
+  background-color: rgb(169, 217, 208, 0);
+
+  border-style: solid;
+  border-color: #152d2f;
+  border-width: 1px;
+  border-radius: 0.2rem;
+  margin-right: 0.5rem;
 }
 
 .confirm_or_cancel_order {
@@ -365,6 +442,10 @@ li {
   background-color: rgb(169, 217, 208, 0.6);
   border-radius: 0.5rem;
   margin: 1rem;
+
+  border-style: solid;
+  border-color: #152d2f;
+  border-width: 1px;
 }
 
 .cancel {
@@ -377,9 +458,81 @@ li {
   background-color: rgb(169, 217, 208, 0.6);
   border-radius: 0.5rem;
   margin: 1rem;
+
+  border-style: solid;
+  border-color: #152d2f;
+  border-width: 1px;
+}
+
+.supplier_select:hover,
+.product_select:hover,
+.est_del_date_input:hover,
+.confirm:hover,
+.cancel:hover {
+  cursor: pointer;
+}
+
+.confirm:active,
+.cancel:active {
+  background-color: rgb(84, 147, 136);
 }
 
 /* NEW ORDER POPUP STYLING END */
+
+/* ORDER CONFIRMED POPUP STYLING START */
+
+.confirm_background {
+  display: none; /*MAKE NONE */
+  flex-direction: column;
+  position: fixed;
+  z-index: 1000;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 100vw;
+  height: 100vh;
+  overflow: auto;
+  background-color: rgba(0, 0, 0, 0.4);
+}
+
+.confirm_message {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+
+  width: 30%;
+  height: auto;
+  gap: 0.5rem;
+
+  box-sizing: border-box;
+  background-color: rgb(84, 147, 136);
+  margin: auto;
+
+  border-radius: 1rem;
+}
+
+.top_x {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-end;
+
+  width: 98%;
+  height: 20%;
+
+  box-sizing: border-box;
+
+  margin-top: 0.2rem;
+
+  border-radius: 1rem;
+}
+
+.x_confirm:hover {
+  cursor: pointer;
+}
+
+/* ORDER CONFIRMED POPUP STYLING END */
 
 .order_bodyblock {
   grid-area: order_list;
@@ -413,8 +566,6 @@ li {
   padding: 0.5rem;
   border-radius: 1rem;
   border-style: none;
-
-  cursor: pointer;
 }
 
 .ordernumber_top {
@@ -435,7 +586,7 @@ li {
   gap: 0.5rem;
 }
 
-.pl_icon {
+.order_icon {
   align-items: center;
   justify-content: center;
   display: flex;
@@ -448,7 +599,7 @@ li {
   border-radius: 1rem;
 }
 
-.pl_title {
+.order_title {
   align-items: center;
   justify-content: center;
   display: flex;
@@ -604,135 +755,4 @@ li {
 /* EXPANDED CONTENT END */
 /* DROP DOWN END */
 
-/* POPUP (NOW REMOVED) START */
-
-/* .pl_popup_hold {
-  display: none;
-  flex-direction: column;
-  position: fixed;
-  z-index: 1;
-  left: 0;
-  top: 0;
-  width: 100%;
-  height: 100%;
-  overflow: auto;
-  background-color: rgb(0, 0, 0);
-  background-color: rgba(0, 0, 0, 0.4);
-}
-
-.pl_popup_content {
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-start;
-  align-items: center;
-  align-self: stretch;
-
-  gap: 2rem;
-
-  overflow: hidden;
-
-  position: relative;
-  box-sizing: border-box;
-  background-color: rgb(84, 147, 136);
-  margin: auto;
-  
-  border: 2px solid rgb(155, 255, 237);
-  border-radius: 1rem;
-  width: 35%;
- 
-}
-
-.close_pl_popup {
-  cursor: pointer;
-
-  background: none;
-  border-style: none;
-}
-
-.pl_popup_top_bar {
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-
-  width: 100%;
-  padding: 0.25rem;
-
-  background-color: rgb(169, 217, 208, 0.6);
-} */
-
-/* .pl_product_info {
-  display: flex;
-  flex-direction: row;
-  justify-content: center;
-  align-items: center;
-
-  align-self: stretch;
-
-  padding: 1.75rem;
-  gap: 1rem;
-
-
-} */
-
-/* .pl_info_left {
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-start;
-  align-items: flex-start;
-  align-self: stretch;
-
-  width: 100%;
-
-  background-color: rgb(169, 217, 208, 0.6);
-
-  padding: 0.5rem;
-
-  border-radius: 1rem;
-
-
-} */
-
-/* .pl_info_right {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: flex-start;
-  align-self: stretch;
-
-  width: 100%;
-
-  gap: 0.75rem;
-
-} */
-
-/* .pl_info_display {
-  display: flex;
-  flex-direction: column;
-  align-self: stretch;
-
-  background-color: rgb(169, 217, 208, 0.6);
-
-  padding: 0.5rem;
-
-  border-radius: 1rem;
-
-
-} */
-
-/* POPUP (NOW REMOVED) END */
-
-.filterbutt,
-.clearbutt {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: center;
-
-  background-color: rgb(21, 45, 47, 0.6);
-  height: 2rem;
-  width: 2rem;
-
-  border-radius: 0.5rem;
-  border-style: none;
-}
 /* PRICELIST PAGE STYLES END */

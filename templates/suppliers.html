@@ -90,13 +90,73 @@
               <h3 class="block_title">General Details</h3>
               <input class="addSupplierName" type="text" placeholder="Supplier name..." />
               <h3 class="block_title">Contact Details</h3>
-              <div class="modal_contact_details_block">
+              <div class="modal_details_sub_block">
                 <input class="addSupplierEmail" type="text" placeholder="Email adress..." />
                 <input class="addSupplierTelephoneNumber" type="text" placeholder="Telephone number (optional)..." />
               </div>
             </div>
 
+            <div>
+              <button id="add_product_button" class="add_product">
+                <div class="new_item_text">Add Product</div>
+              </button>
+              
+              <ul class="add_ul" id="add_product_ul">
+                <li class="add_li" id="add_product_li">
 
+                </li>
+              </ul>
+
+              <script>
+                const list = document.getElementById('add_product_li');
+
+                const add_product = document.getElementById('add_product_button');
+                add_product.addEventListener('click', (event) => {
+
+                  const parentDiv = document.createElement('div');
+                  parentDiv.id = 'container'
+                  parentDiv.className = 'modal_details_block'
+
+                  const childDiv1 = document.createElement('div');
+                  childDiv1.className = 'modal_details_sub_block'
+
+                  const input1 = document.createElement('input');
+                  input1.className = 'addSupplierName'
+
+                  const input2 = document.createElement('input');
+                  input2.className = 'addSupplierEmail'
+
+                  const childDiv2 = document.createElement('div');
+                  childDiv2.className = 'modal_product_details_sub_block'
+
+                  const input3 = document.createElement('input');
+                  input3.className = 'addSupplierEmail'
+
+                  const childDiv3 = document.createElement('div');
+                  childDiv3.className = 'modal_submit_block'
+
+                  const cancelButton = document.createElement('Button')
+                  cancelButton.className = 'supplierbutton2'
+                  cancelButton.addEventListener('click', () => {
+                  parentDiv.remove();
+                  })
+
+                  const childDiv4 = document.createElement('div');
+                  childDiv4.className = 'delete_item_text'
+
+                  cancelButton.appendChild(childDiv4);
+                  childDiv3.appendChild(cancelButton);
+                  childDiv2.appendChild(input3);
+                  childDiv2.appendChild(childDiv3);
+                  childDiv1.appendChild(input1);
+                  childDiv1.appendChild(input2);
+                  parentDiv.appendChild(childDiv1);
+                  parentDiv.appendChild(childDiv2);
+                  list.appendChild(parentDiv);
+                  })
+
+              </script>
+            </div>
             
             <div class="modal_submit_block">
               <span class="submit_popup">Submit</span>

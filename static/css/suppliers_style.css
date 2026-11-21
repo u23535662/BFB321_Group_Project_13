@@ -553,7 +553,8 @@ li {
   margin-bottom: 1rem;
   /* border: 1px solid red; */
 }
-.modal_contact_details_block {
+.modal_product_details_sub_block,
+.modal_details_sub_block {
   display: flex;
   flex-direction: row;
   justify-content: flex-start;
@@ -563,7 +564,7 @@ li {
   width: 100%;
   /* border: 1px solid red; */
 }
-.modal_contact_details_block {
+.modal_details_sub_block {
   margin-bottom: 1rem;
 }
 
@@ -640,6 +641,7 @@ li {
   gap: 1.5rem;
 }
 
+.add_product,
 .submit_popup {
   color: #e7dbdb;
   float: center;
@@ -647,6 +649,8 @@ li {
   border-radius: 1rem;
   padding: 0.5rem;
 }
+.add_product:hover,
+.add_product:focus,
 .submit_popup:hover,
 .submit_popup:focus {
   color: black;
