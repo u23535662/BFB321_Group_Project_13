@@ -561,87 +561,90 @@ def delete_product(product_id: int):
 # SUPPLIER FUNCTIONS
 ## Getting supplier data (with linked products)
 def get_suppliers(supplier_id=None):
-    if supplier_id == "" or supplier_id is None:
-        sql = """
-        SELECT
-            s.supplier_id AS id,
-            s.supplier_name AS name,
-            s.supplier_from_date AS from_date,
-            s.reason_for_changing_supplier AS change_reason,
-            s.created_at AS created_at,
-            s.updated_at AS updated_at,
-            s.contact_email AS contact_email,
-            s.contact_phone AS contact_phone,
-            ps.product_supplier_id AS product_supplier_id,
-            p.product_id AS product_id,
-            p.product_name AS product_name,
-            ps.supplier_price AS supplier_price,
-            ps.units_per_package AS units_per_package
-        FROM supplier s
-        LEFT JOIN product_supplier ps ON s.supplier_id = ps.supplier_id
-        LEFT JOIN product p ON ps.product_id = p.product_id
-        """
-        is_single = supplier_id != "" and supplier_id is not None
+    sql = """
+    SELECT
+        s.supplier_id AS id,
+        s.supplier_name AS name,
+        s.supplier_from_date AS from_date,
+        s.reason_for_changing_supplier AS change_reason,
+        s.replaces_supplier_id AS replaces_supplier_id,
+        s.created_at AS created_at,
+        s.updated_at AS updated_at,
+        s.contact_email AS contact_email,
+        s.contact_phone AS contact_phone,
+        ps.product_supplier_id AS product_supplier_id,
+        p.product_id AS product_id,
+        p.product_name AS product_name,
+        ps.supplier_price AS supplier_price,
+        ps.units_per_package AS units_per_package
+     FROM supplier s
+    LEFT JOIN product_supplier ps ON s.supplier_id = ps.supplier_id
+    LEFT JOIN product p ON ps.product_id = p.product_id
+    """
+    is_single = supplier_id != "" and supplier_id is not None
 
-        if is_single:
-            sql += " WHERE s.supplier_id = %s ORDER BY p.product_name ASC"
-            suppliers = db.query_all(sql, (supplier_id,))
-        else:
-            sql += " ORDER BY s.supplier_id ASC, p.product_name ASC"
-            suppliers = db.query_all(sql)
-        db.close_db()
+    if is_single:
+        sql += " WHERE s.supplier_id = %s ORDER BY p.product_name ASC"
+        suppliers = db.query_all(sql, (supplier_id,))
+    else:
+        sql += " ORDER BY s.supplier_id ASC, p.product_name ASC"
+        suppliers = db.query_all(sql)
+    db.close_db()
 
-        if not suppliers:
-            return None if is_single else []
-        
-        suppliers_map = {}
-        for s in suppliers:
-            s_id = int(s["id"])
-            if s_id not in suppliers_map:
-                suppliers_map[s_id] = {
-                    "id": s_id,
-                    "name": str(s["name"]),
-                    "contact_email": str(s["contact_email"] or ""),
-                    "contact_phone": str(s["contact_phone"] or ""),
-                    "from_date": str(s["from_date"]) if s["from_date"] else "",
-                    "change_reason": str(s["change_reason"] or ""),
-                    "created_at": str(s["created_at"]) if s["created_at"] else "",
-                    "updated_at": str(s["updated_at"]) if s["updated_at"] else "",
-                    "products": [],
-                }
-            if s["product_id"] is not None:
-                suppliers_map[s_id]["products"].append({
-                    "product_supplier_id": int(s["product_supplier_id"]),
-                    "product_id": int(s["product_id"]),
-                    "product_name": str(s["product_name"]),
-                    "supplier_price": float(s["supplier_price"]),
-                    "units_per_package": int(s["units_per_package"]),
-                })
-        result = list(suppliers_map.values())
-        return result[0] if is_single else result
-    
+    if not suppliers:
+        return None if is_single else []
+      
+    suppliers_map = {}
+    for s in suppliers:
+        s_id = int(s["id"])
+        if s_id not in suppliers_map:
+            suppliers_map[s_id] = {
+                "id": s_id,
+                "name": str(s["name"]),
+                "contact_email": str(s["contact_email"] or ""),
+                "contact_phone": str(s["contact_phone"] or ""),
+                "from_date": str(s["from_date"]) if s["from_date"] else "",
+                "change_reason": str(s["change_reason"] or ""),
+                "replaces_supplier_id": int(s["replaces_supplier_id"]) if s["replaces_supplier_id"] is not None else None,
+                "created_at": str(s["created_at"]) if s["created_at"] else "",
+                "updated_at": str(s["updated_at"]) if s["updated_at"] else "",
+                "products": [],
+            }
+        if s["product_id"] is not None:
+            suppliers_map[s_id]["products"].append({
+                "product_supplier_id": int(s["product_supplier_id"]) if s["product_supplier_id"] is not None else None,
+                "product_id": int(s["product_id"]),
+                "product_name": str(s["product_name"]),
+                "supplier_price": float(s["supplier_price"]),
+                "units_per_package": int(s["units_per_package"]),
+            })
+    result = list(suppliers_map.values())
+    return result[0] if is_single else result
+
 
 ## Creating a supplier
 def insert_supplier(
     name: str = "",
     from_date: str = "",
     change_reason: str = "",
-    contact_email: str = "",
-    contact_phone: str = "",
+    contact_email: str | None = None,
+    contact_phone: str | None = None,
+    replaces_supplier_id: int | None = None
 ):
     sql = """
     INSERT INTO supplier (
         supplier_name,
         supplier_from_date,
         reason_for_changing_supplier,
+        replaces_supplier_id,
         created_at,
         updated_at,
         contact_email,
         contact_phone
     )
-    VALUES (%s, %s, %s, NOW(), NOW(), %s, %s)
+    VALUES (%s, %s, %s, %s, NOW(), NOW(), %s, %s)
     """
-    new_id = db.execute(sql, (name, from_date, change_reason, contact_email, contact_phone))
+    new_id = db.execute(sql, (name, from_date, change_reason, replaces_supplier_id, contact_email, contact_phone))
     db.close_db()
     return new_id
 
@@ -652,8 +655,9 @@ def update_supplier(
     from_date: str,
     change_reason: str,
     supplier_id: int,
-    contact_email: str = "",
-    contact_phone: str = "",
+    contact_email: str | None = None,
+    contact_phone: str | None = None,
+    replaces_supplier_id: int | None = None
 ):
     sql = """
     UPDATE supplier
@@ -661,13 +665,14 @@ def update_supplier(
         supplier_name = %s,
         supplier_from_date = %s,
         reason_for_changing_supplier = %s,
+        replaces_supplier_id = %s,
         contact_email = %s,
         contact_phone = %s,
         updated_at = NOW()
     WHERE supplier_id = %s
     """
     rows_affected = db.execute(
-        sql, (name, from_date, change_reason, contact_email, contact_phone, supplier_id)
+        sql, (name, from_date, change_reason, replaces_supplier_id, contact_email, contact_phone, supplier_id)
     )
     db.close_db()
     return rows_affected

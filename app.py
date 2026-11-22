@@ -170,15 +170,19 @@ def api_create_supplier():
     try:
         name = str(data['name'])
         from_date = str(data['from_date'])
-        change_reason = str(data['change_reason'])
+        change_reason = str(data['change_reason']) if data.get('change_reason') else None
         contact_email = str(data.get('contact_email', ''))
-        contact_phone = str(data.get('contact_phone', ''))
+        contact_phone = str(data['contact_phone']) if data.get('contact_phone') else None
+        raw_replaces = data.get('replaces_supplier_id')
+        replaces_supplier_id = int(raw_replaces) if raw_replaces not in (None, '') else None
 
         new_id = models.insert_supplier(
-            name, from_date, change_reason, contact_email, contact_phone
+            name, from_date, change_reason, contact_email, contact_phone, replaces_supplier_id
         )
         new_supplier = models.get_suppliers(new_id)
         return jsonify({'success': True, 'data': new_supplier}), 201
+    except pymysql.err.IntegrityError as e:
+        return jsonify({'success': False, 'error': 'Invalid replaces_supplier_id: ' + str(e)}), 400
     except Exception as e:
         return jsonify({'success': False, 'error': str(e)}), 500
 
@@ -196,21 +200,28 @@ def api_update_supplier(supplier_id):
     try:
         n_name = str(data.get('name', supplier['name']))
         n_date = str(data.get('from_date', supplier['from_date']))
-        n_reason = str(data.get('change_reason', supplier['change_reason']))
+        raw_reason = data.get('change_reason', supplier['change_reason'])
+        n_reason = str(raw_reason) if raw_reason else None
+        raw_replaces = data.get('replaces_supplier_id', supplier['replaces_supplier_id'])
+        n_replaces = int(raw_replaces) if raw_replaces not in (None, '') else None    
         n_email = str(data.get('contact_email', supplier['contact_email']))
-        n_phone = str(data.get('contact_phone', supplier['contact_phone']))
+        raw_phone = data.get('contact_phone', supplier['contact_phone'])
+        n_phone = str(raw_phone) if raw_phone else None
 
         models.update_supplier(
             name=n_name, 
             from_date=n_date, 
             change_reason=n_reason, 
             supplier_id=supplier_id, 
+            replaces_supplier_id=n_replaces,
             contact_email=n_email, 
             contact_phone=n_phone
         )
 
         updated_supplier = models.get_suppliers(supplier_id)
         return jsonify({'success': True, 'message': 'Supplier updated successfully', 'data': updated_supplier}), 200
+    except pymysql.err.IntegrityError as e:
+        return jsonify({'success': False, 'error': 'Invalid replaces_supplier_id: ' + str(e)}), 400
     except Exception as e:
         return jsonify({'success': False, 'error': str(e)}), 500
 
