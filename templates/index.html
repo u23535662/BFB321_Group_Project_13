@@ -98,8 +98,8 @@
           <div class="headingblocktodo">
             <h2>To do</h2>
           </div>
-          <div class="indexBtns">
-            <button id="indexButton1" class="indexbutton1">
+          <div class="orderBtn">
+            <button id="orderButton" class="indexbutton1">
               <div class="index_icon">
                 <i data-lucide="circle-plus"></i>
               </div>
@@ -107,7 +107,7 @@
             </button>
 
             <!-- To DO Popup start -->
-            <div id="myModal" class="todo_popup_background">
+            <div id="todo_popup_background" class="todo_popup_background">
               <!-- To Do Popup content -->
               <div class="totdo_popup_content">
                 <div class="top_of_popup">
@@ -131,9 +131,23 @@
                   </div>
                 </div>
 
-                <span class="submit_popup">Submit</span>
+                <div class="confirm_popup" id="confirm_btn_popup">
+                  <p>Confirm</p>
+                </div>
               </div>
             </div>
+
+            <!-- Confirm button popup -->
+
+            <div class="confirm_btn_background" id="confirm_btn_background">
+              <div class="confirm_btn_message">
+                <div class="confirm_x">
+                  <i class="x_btn" id="x_btn" data-lucide="circle-x"></i>
+                </div>
+                <h3>A new order has been confirmed</h3>
+              </div>
+            </div>
+
             <!-- To do Popup end -->
           </div>
         </div>
@@ -163,6 +177,17 @@
       <!-- TWO GRAPH BLOCKS -->
 
       <div class="blockgraphs">
+        <div class="filterBtns">
+          <div class="indexBtns">
+            <button id="indexbutton3" class="indexbutton3">
+              <div class="index_icon">
+                <i data-lucide="filter"></i>
+              </div>
+              <div>Filter</div>
+            </button>
+          </div>
+          <div class="zoom"></div>
+        </div>
         <!-- bar chart -->
         <div class="contentblockgraphsBar">
           <div class="headingblockbarchart">
@@ -175,14 +200,6 @@
         <div class="contentblockgraphsEOQ">
           <div class="headingblockeoqgraph">
             <h2>EOQ Graph</h2>
-            <div class="indexBtns">
-              <button id="indexbutton3" class="indexbutton3">
-                <div class="index_icon">
-                  <i data-lucide="circle-plus"></i>
-                </div>
-                <div>Filter</div>
-              </button>
-            </div>
           </div>
           <div class="eoqchart"></div>
         </div>
@@ -198,7 +215,71 @@
     <script>
       lucide.createIcons();
     </script>
-    <script src="../templates/script.js"></script>
+
+    <!-- SCRIPT FOR ORDER POPUP -->
+
+    <script>
+      //Script for order popup
+      const background = document.getElementById("todo_popup_background");
+      const indexOpenBtn = document.getElementById("orderButton");
+      const indexCloseBtn = document.getElementById("close_index_popup");
+
+      if (background && indexOpenBtn && indexCloseBtn) {
+        // Open Popup
+        indexOpenBtn.addEventListener("click", function () {
+          background.style.display = "flex";
+        });
+
+        // Close Popup
+        indexCloseBtn.addEventListener("click", function () {
+          background.style.display = "none";
+        });
+
+        // Close Popup (click outside)
+        background.addEventListener("click", function (event) {
+          if (event.target === background) {
+            background.style.display = "none";
+          }
+        });
+      } else if (!background) {
+        console.log("No open Button");
+      } else if (!indexOpenBtn) {
+        console.log("No popup hold...");
+      } else if (!indexCloseBtn) {
+        console.log("No popup close");
+      }
+
+      // Script for confirm popup
+      const confirmOpenBtn = document.getElementById("confirm_btn_popup");
+      const confirmPopup = document.getElementById("confirm_btn_background");
+      const confirmCloseBtn = document.getElementById("x_btn");
+
+      if (confirmOpenBtn && confirmPopup && confirmCloseBtn) {
+        // Open Popup
+        confirmOpenBtn.addEventListener("click", function () {
+          background.style.display = "none";
+          confirmPopup.style.display = "flex";
+        });
+
+        // Close Popup
+        confirmCloseBtn.addEventListener("click", function () {
+          confirmPopup.style.display = "none";
+        });
+
+        // Close Popup (click outside)
+        confirmPopup.addEventListener("click", function (event) {
+          if (event.target === confirmPopup) {
+            confirmPopup.style.display = "none";
+          }
+        });
+      } else if (!confirmOpenBtn) {
+        console.log("No open Button");
+      } else if (!confirmPopup) {
+        console.log("No popup hold...");
+      } else if (!confirmCloseBtn) {
+        console.log("No popup close");
+      }
+    </script>
 
     <!-- JSON DATA LOADING FOR PAGE -->
     <script>

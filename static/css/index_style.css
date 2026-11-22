@@ -255,9 +255,7 @@ li {
   padding: 0.5rem;
 }
 
-.indexBtns {
-  grid-area: indexBtns;
-
+.orderBtn {
   display: flex;
   flex-direction: row;
   justify-content: center;
@@ -278,6 +276,54 @@ li {
   border: 2px solid rgb(155, 255, 237);
   gap: 0.5rem;
 }
+
+/* FILTER AND ZOOM BUTTON START */
+.filterBtns {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-end;
+
+  width: 95%;
+  background-color: #152d2f;
+
+  gap: 1rem;
+  padding: 0.2rem;
+}
+
+.filter {
+  align-items: center;
+  justify-content: left;
+  display: flex;
+  align-content: center;
+
+  background-color: rgb(169, 217, 208, 0.6);
+  width: 7rem;
+  height: 2rem;
+
+  border-radius: 1rem;
+  border: 2px solid rgb(155, 255, 237);
+  gap: 10%;
+}
+
+.zoom {
+  align-items: center;
+  justify-content: left;
+  display: flex;
+  /* flex-direction: row; */
+  align-content: center;
+
+  background-color: rgb(169, 217, 208, 0.6);
+  width: 7rem;
+  height: 2rem;
+
+  border-radius: 1rem;
+  border: 2px solid rgb(155, 255, 237);
+  gap: 10%;
+}
+
+/* FILTER AND ZOOM BUTTON END */
+
 /* BLOCKS END */
 
 /* HEADINGS START */
@@ -401,6 +447,7 @@ li {
 .indexbutton3:hover {
   background-color: rgb(155, 255, 237);
   color: rgb(84, 147, 136);
+  cursor: pointer;
 }
 
 .indexbutton1:active,
@@ -447,23 +494,7 @@ li {
 
   border-radius: 1rem;
   border-style: none;
-
-  cursor: pointer;
 }
-
-/* .productname_block {
-  justify-content: space-between;
-  display: flex;
-  flex-direction: column;
-
-  width: 100%;
-  background-color: rgb(169, 217, 208, 0.6);
-  padding: 0.5rem;
-  border-radius: 1rem;
-  border-style: none;
-
-  cursor: pointer;
-} */
 
 .task_block_left {
   align-items: center;
@@ -501,7 +532,7 @@ li {
 /* POPUP START */
 /* BACKGROUND WHEN POPUP OPENS */
 .todo_popup_background {
-  display: flex;
+  display: none;
   flex-direction: column;
   justify-content: center;
   align-items: center;
@@ -543,6 +574,7 @@ li {
   background-color: rgb(84, 147, 136);
 
   border-radius: 1rem;
+  padding: 0.5rem;
 }
 
 .top_of_popup {
@@ -606,6 +638,9 @@ li {
   aspect-ratio: 1/1;
   width: 50%;
 }
+.popup_checkbox:hover {
+  cursor: pointer;
+}
 
 .product_for_order {
   width: 70%;
@@ -618,98 +653,83 @@ li {
   color: black;
 }
 
-.submit_popup {
-  color: #e7dbdb;
-  float: center;
-  background-color: #152d2f;
-  border-radius: 1rem;
-  padding: 0.5rem;
+.confirm_popup {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 2rem;
+  width: 25%;
+
+  background-color: rgb(169, 217, 208, 0.6);
+  border-radius: 0.5rem;
+  margin: 1rem;
+
+  border-style: solid;
+  border-color: #152d2f;
+  border-width: 1px;
 }
 
-.submit_popup:hover,
-.submit_popup:focus {
+.confirm_popup:hover,
+.confirm_popup:focus {
   color: black;
   text-decoration: none;
   cursor: pointer;
 }
-/* POPUP END */
 
-/* supplier block start */
-
-/* .list_item {
-  align-items: center;
-  justify-content: space-between;
-  display: flex;
-  flex-direction: row;
-
-  width: 100%;
+.confirm_popup:active {
+  background-color: rgb(84, 147, 136);
 }
 
-.list_item_left {
-  align-items: center;
-  justify-content: flex-start;
-  display: flex;
-  flex-direction: row;
+/* Confirm button popup */
+.confirm_btn_background {
+  display: none;
+  flex-direction: column;
+  position: fixed;
+  z-index: 1000;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 100vw;
+  height: 100vh;
+  overflow: auto;
+  background-color: rgba(0, 0, 0, 0.4);
+}
 
+.confirm_btn_message {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+
+  width: 30%;
+  height: auto;
   gap: 0.5rem;
-}
 
-.list_item_icon {
-  align-items: center;
-  justify-content: center;
-  display: flex;
-  flex-direction: row;
-
+  box-sizing: border-box;
   background-color: rgb(84, 147, 136);
-  width: 2rem;
-  height: 2rem;
+  margin: auto;
 
   border-radius: 1rem;
 }
 
-.list_item_title {
-  align-items: center;
-  justify-content: center;
+.confirm_x {
   display: flex;
-  flex-direction: row;
-}
-
-.list_item_button {
-  align-items: center;
+  flex-direction: column;
   justify-content: center;
-  display: flex;
-  flex-direction: row;
+  align-items: flex-end;
 
-  background-color: rgb(84, 147, 136);
-  width: 4rem;
-  height: 2rem;
+  width: 98%;
+  height: 20%;
+
+  box-sizing: border-box;
+
+  margin-top: 0.2rem;
 
   border-radius: 1rem;
-  border-style: none;
 }
 
-.list_item_button:hover {
-  background-color: rgb(155, 255, 237);
-  color: rgb(84, 147, 136);
+.x_btn:hover {
   cursor: pointer;
 }
-.list_item_button:active {
-  background-color: rgb(84, 147, 136);
-  color: rgb(155, 255, 237);
-}
 
-.text {
-  display: flex;
-
-  width: 100%;
-}
-
-.t1 {
-  margin-left: 3rem;
-}
-
-.t2 {
-  margin-left: 1.5rem;
-} */
-
-/* supplier block end */
+/* POPUP END */
