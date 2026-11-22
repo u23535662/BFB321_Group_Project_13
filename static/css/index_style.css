@@ -544,13 +544,14 @@ li {
 
 .contentblockgraphsEOQ {
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
   align-items: center;
   flex-direction: column;
 
-  width: 98%; /* background-color: rgb(169, 217, 208, 0.8); */
+  width: 99%; /* background-color: rgb(169, 217, 208, 0.8); */
   height: 85%;
   border-radius: 1rem;
+  margin: 0.5rem;
 }
 
 .contentblockheadings {
@@ -670,7 +671,7 @@ li {
   border-radius: 1rem;
 }
 .task_block_mid1 {
-  width: 20%;
+  width: 50%;
 }
 
 .task_mid2 {
@@ -685,7 +686,7 @@ li {
 }
 
 .task_block_right {
-  width: 15%;
+  width: 10%;
 }
 /* BUTTONS END */
 
