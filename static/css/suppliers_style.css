@@ -509,17 +509,20 @@ li {
 /* Add supplier title start */
 .popup_name {
   display: flex;
+  flex-direction: row;
   justify-content: center;
-  width: 95%;
-  height: 10%;
-  background-color: #152d2f;
-  border-radius: 1rem;
+  align-items: center;
+
+  height: 3rem;
+  width: 100%;
+  padding: 0.5rem;
 }
 .popup_title {
-  color: #e7dbdb;
+  color: #000000;
 }
 .block_title {
   color: #e7dbdb;
+  margin: 0.1rem;
 }
 /* Add supplier title end */
 
@@ -534,7 +537,6 @@ li {
   width: 100%;
   height: 100%;
   overflow: auto;
-  background-color: rgb(0, 0, 0);
   background-color: rgba(0, 0, 0, 0.4);
   justify-content: center;
   align-items: center;
@@ -546,9 +548,11 @@ li {
   border-radius: 1rem;
   width: 40%;
   max-height: 70%;
-  gap: 1rem;
+  gap: 2rem;
   justify-content: center;
   align-items: center;
+
+  overflow: hidden !important;
 }
 .supplier_details_block {
   display: flex;
@@ -557,10 +561,9 @@ li {
   align-items: flex-start;
   align-self: stretch;
 
-  padding: 0.5rem;
-  border-radius: 1rem;
   margin-top: 1rem;
   margin-bottom: 1rem;
+  gap: 0.5rem;
   /* border: 1px solid red; */
 }
 .product_details_block {
@@ -576,6 +579,7 @@ li {
   margin-top: 1rem;
   margin-bottom: 1rem;
   width: 90%;
+  gap: 0.5rem;
 }
 .ul_block{
   display: flex;
@@ -583,13 +587,13 @@ li {
   justify-content: center;
   align-items: center;
   overflow: hidden !important;
-  max-height: 10rem;
+  max-height: 11rem;
   width: 100%;
 }
 .add_ul{
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  justify-content: flex-start;
   align-items: center;
   overflow-y: scroll;
   width: 100%;
@@ -604,33 +608,39 @@ li {
   align-items: flex-start;
   align-self: stretch;
   width: 100%;
+  gap: 0.6rem;
+  margin-bottom: 0.4rem;
+  
   /* border: 1px solid red; */
 }
 
 .product_details_sub_block {
   display: flex;
   flex-direction: row;
+  justify-content: space-between;
+  align-items: flex-start;
+  align-self: stretch;
+  width: 100%;
+  gap: 0.5rem;
+  /* border: 1px solid red; */
+}
+
+.add_product_button_block{
+  display: flex;
+  flex-direction: row;
   justify-content: flex-start;
   align-items: flex-start;
   align-self: stretch;
   width: 100%;
-  /* border: 1px solid red; */
+  margin-bottom: 0.3rem
 }
-
 .addProductButton {
   color: #e7dbdb;
   float: center;
   background-color: #152d2f;
   border-color: #152d2f;
   border-radius: 1rem;
-  padding: 0.5rem;
-}
-.addProductButton {
-  color: #e7dbdb;
-  float: center;
-  background-color: #152d2f;
-  border-radius: 1rem;
-  padding: 0.5rem;
+  height: 1.5rem;
 }
 .addProductButton:hover {
   color: black;
@@ -640,22 +650,22 @@ li {
 
 .cancel_and_submit_block {
   display: flex;
-  flex-direction: row-reverse;
-  justify-content: flex-start;
-  align-items: flex-start;
-  align-self: stretch;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
 
+  height: 3rem;
   width: 100%;
+  margin-top: 1.5rem;
 }
 
 .delete_block {
   display: flex;
   flex-direction: row-reverse;
   justify-content: flex-start;
-  align-items: flex-start;
+  align-items: flex-end;
   align-self: stretch;
-
-  width: 100%;
+  width: 1fr;
 }
 .deletebutton {
   color: #e7dbdb;
@@ -663,7 +673,7 @@ li {
   background-color: #152d2f;
   border-color: #152d2f;
   border-radius: 1rem;
-  padding: 0.5rem;
+  height: 1.25rem;
 }
 .deletebutton:hover\ {
   background-color: rgb(155, 255, 237);
@@ -699,12 +709,11 @@ li {
 
   background-color: #9acec5;
   width: 70%;
-  height: 2rem;
+  height: 1.25rem;
 
   border-radius: 1rem;
   border-style: none;
-  margin-left: 0.2rem;
-  margin-right: 0.2rem;
+
 }
 
 
@@ -724,24 +733,21 @@ li {
 
 
 /* The close and submit button start */
-.close {
-  color: #e7dbdb;
-  float: right;
-  /* font-size: 25px;
-  font-weight: bold; */
-}
-.close:hover,
-.close:focus {
-  color: black;
-  text-decoration: none;
-  cursor: pointer;
-}
-.submit_popup {
-  color: #e7dbdb;
-  float: center;
-  background-color: #152d2f;
-  border-radius: 1rem;
-  padding: 0.5rem;
+.close,
+.submit_popup{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 2rem;
+  width: 80%;
+
+  background-color: rgb(169, 217, 208, 0.6);
+  border-radius: 0.5rem;
+  margin: 1rem;
+
+  border-style: solid;
+  border-color: #152d2f;
+  border-width: 1px;
 }
 .submit_popup:hover,
 .submit_popup:focus {
