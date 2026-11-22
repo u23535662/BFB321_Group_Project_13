@@ -1,13 +1,15 @@
 from datetime import datetime
 import math
 import statistics
-import db
 from flask import current_app
+
 from config import get_config
+import db
 
 # =============================================================================
 # SUPPLY CHAIN FORMULAS
 # =============================================================================
+
 
 def _get_config_value(key: str, default=None):
     if current_app:
@@ -15,43 +17,25 @@ def _get_config_value(key: str, default=None):
     return getattr(get_config(), key, default)
 
 
-## Economic Order Quantity
-def calculate_eoq(annual_demand: float, holding_cost: float, setup_cost: float, conversion: int) -> int:
+def calculate_eoq(
+    annual_demand: float, holding_cost: float, setup_cost: float, conversion: int
+) -> int:
     """
     Calculates the Economic Order Quantity (EOQ) using the classical Wilson lot-size formula.
 
     Formula:
         Q = sqrt((2 * D * S) / H)
-        where:
-            D = Annual demand in physical units
-            S = Fixed setup / ordering cost per procurement batch
-            H = Annual inventory holding cost per unit per year
-
-    Inputs:
-        annual_demand (float): Total expected or historical units consumed per year (D).
-        holding_cost (float): Holding / carrying cost per unit per annum (H).
-        setup_cost (float): Order placement, logistics, and processing cost per order (S).
-        conversion (int): Amount of units in an ordered box.
-
-    Returns:
-        int: The cost-minimizing order batch quantity (Q), rounded up to the nearest box quantity.
-
-    Assumptions / Edge Cases:
-        - If holding_cost <= 0, annual_demand <= 0, or setup_cost <= 0, returns 0 to
-          prevent ZeroDivisionError and domain errors under negative square roots.
-        - Demand rate is assumed deterministic and uniform across the planning horizon.
     """
     if holding_cost <= 0 or annual_demand <= 0 or setup_cost <= 0:
         return 0
-    conversion = max(int(conversion), 1)
+    box_size = max(int(conversion), 1)
     raw_eoq = math.sqrt(
         (2.0 * float(annual_demand) * float(setup_cost)) / float(holding_cost)
     )
-    box_eoq = math.ceil(raw_eoq / conversion) * conversion
+    box_eoq = math.ceil(raw_eoq / box_size) * box_size
     return int(round(box_eoq))
 
 
-## Safety Stock
 def calculate_ss(
     service_level: float,
     std_lt: float | None,
@@ -64,110 +48,63 @@ def calculate_ss(
 
     Formula:
         SS = z * sqrt(LT * sigma_d^2 + d_bar^2 * sigma_LT^2)
-        where:
-            z = Inverse cumulative standard normal distribution value for service level
-            LT = Mean vendor lead time in days (clamped to >= 1)
-            sigma_d = Standard deviation of daily demand (units/day)
-            d_bar = Mean daily demand (units/day)
-            sigma_LT = Standard deviation of supplier lead time in days
-
-    Inputs:
-        service_level (float): Target cycle service level (e.g. 0.95 for 95% protection).
-        std_lt (float): Standard deviation of replenishment lead time.
-        std_demand (float): Standard deviation of daily units consumed/sold.
-        lt (int): Average lead time in calendar days.
-        avg_daily_demand (float): Average daily demand in units.
-
-    Returns:
-        int: Buffer stock units required to prevent stockouts during replenishment lead time.
-
-    Assumptions / Edge Cases:
-        Uses Python standard library statistics.NormalDist(0, 1).inv_cdf() for exact z score.
-        Clamps minimum effective lead time to 1 day to prevent zero multiplication.
-        Assumes clinical demand and vendor delivery lead times follow independent normal distributions.
     """
     effective_lt = max(float(lt) if lt is not None else 1.0, 1.0)
     sigma_d = max(float(std_demand) if std_demand is not None else 0.0, 0.0)
     sigma_lt = max(float(std_lt) if std_lt is not None else 0.0, 0.0)
     d_bar = max(float(avg_daily_demand) if avg_daily_demand is not None else 0.0, 0.0)
 
-    variance_lead_time_demand = (effective_lt * (sigma_d**2)) + ((d_bar**2) * (sigma_lt**2))
+    variance_lead_time_demand = (effective_lt * (sigma_d**2)) + (
+        (d_bar**2) * (sigma_lt**2)
+    )
     std_lead_time_demand = math.sqrt(variance_lead_time_demand)
 
     clamped_sl = min(max(float(service_level), 0.50), 0.999)
     try:
         z = statistics.NormalDist(mu=0.0, sigma=1.0).inv_cdf(clamped_sl)
     except Exception:
-        z = 1.64485  # Fallback for 95% cycle service level
+        z = 1.64485  # Fallback for ~95% cycle service level
 
-    ss_value = z * std_lead_time_demand
-    return int(round(ss_value))
+    return int(round(z * std_lead_time_demand))
 
 
-## Re-order Point
 def calculate_rop(daily_demand: float, effective_lt: float, safety_stock: int) -> int:
     """
     Calculates the Reorder Point (ROP) inventory threshold that triggers replenishment.
 
     Formula:
         ROP = (d_bar * L_eff) + SS
-        where:
-            d_bar = Average daily demand rate
-            L_eff = Effective lead time modulus (lead time within the replenishment cycle)
-            SS = Safety stock buffer units
-
-    Inputs:
-        daily_demand (float): Mean units consumed/sold per calendar day (d_bar).
-        effective_lt (float): Lead time modulo cycle time (L_eff).
-        safety_stock (int): Buffer stock units (SS).
-
-    Returns:
-        int: Total inventory units at or below which a purchase order must be placed.
-
-    Assumptions / Edge Cases:
-        - When on-hand inventory drops to or below ROP, the system triggers restock.
-        - If lead time exceeds cycle time, effective lead time accounts for orders already in transit.
     """
     raw_rop = (float(daily_demand) * float(effective_lt)) + float(safety_stock)
     return int(round(raw_rop))
 
 
-## ABC Classification
-def calculate_abc(products_list: list) -> list:
+def calculate_abc(products_list: list[dict]) -> list[dict]:
     """
-    Calculate the Classification for each product.
-
-    Inputs:
-        products_list (list): List of product dictionary objects, each containing:
-            - 'product_id' (int): Primary product identifier
-            - 'price' (float): Clinical unit selling price
-            - 'demand' (int): Cumulative historical 5-year consumption
-
-    Returns:
-        list: Sorted product list enriched with 'value', 'cum_pct', and 'tier'.
+    Calculates ABC classification for each product based on value = demand * price.
     """
-    A = float(_get_config_value("ABC_A_THRESHOLD", 80.0))
-    B = float(_get_config_value("ABC_B_THRESHOLD", 95.0))
-
-    def assign_tier(cum_pct: float) -> str:
-        if cum_pct <= A:
-            return "A"
-        elif cum_pct <= B:
-            return "B"
-        else:
-            return "C"
-
     if not products_list:
         return []
 
+    a_threshold = float(_get_config_value("ABC_A_THRESHOLD", 80.0))
+    b_threshold = float(_get_config_value("ABC_B_THRESHOLD", 95.0))
+
+    def assign_tier(cum_pct: float) -> str:
+        if cum_pct <= a_threshold:
+            return "A"
+        if cum_pct <= b_threshold:
+            return "B"
+        return "C"
+
+    enriched = []
     for p in products_list:
-        p["value"] = float(p["demand"]) * float(p["price"])
+        item = dict(p)
+        item["value"] = float(item["demand"]) * float(item["price"])
+        enriched.append(item)
 
-    skus_sorted = sorted(
-        products_list, key=lambda item: item["value"], reverse=True
-    )
-
+    skus_sorted = sorted(enriched, key=lambda item: item["value"], reverse=True)
     total_value = sum(item["value"] for item in skus_sorted)
+
     running_total = 0.0
     for item in skus_sorted:
         if total_value > 0:
@@ -182,7 +119,7 @@ def calculate_abc(products_list: list) -> list:
 
 
 # =============================================================================
-# JSON FUNCTIONS
+# HELPERS & FORMATTERS
 # =============================================================================
 
 
@@ -192,76 +129,101 @@ def _to_datetime(value):
     return datetime.fromisoformat(str(value))
 
 
+def _format_product_raw(row: dict) -> dict:
+    return {
+        "id": int(row["id"]),
+        "supplier_id": int(row["supplier_id"]),
+        "name": str(row["name"]),
+        "supplier": str(row["supplier"]),
+        "sell_price": float(row["sell_price"]),
+        "cost_price": float(row["cost_price"]),
+        "holding_cost": float(row["hc"]),
+        "units_per_package": int(row["units_per_package"]),
+        "year_starting_inventory": int(row["starting_inv"]),
+        "storage_location": str(row["storage_location"]),
+        "created_at": str(row["created_at"]),
+        "updated_at": str(row["updated_at"]),
+    }
+
+
+def _format_supplier(row: dict) -> dict:
+    return {
+        "id": int(row["id"]),
+        "name": str(row["name"]),
+        "from_date": str(row["from_date"]) if row["from_date"] else "",
+        "change_reason": str(row["change_reason"] or ""),
+        "replaces_supplier_id": (
+            int(row["replaces_supplier_id"])
+            if row.get("replaces_supplier_id") is not None
+            else None
+        ),
+        "created_at": str(row["created_at"]) if row["created_at"] else "",
+        "updated_at": str(row["updated_at"]) if row["updated_at"] else "",
+        "contact_email": str(row["contact_email"] or ""),
+        "contact_phone": str(row["contact_phone"] or ""),
+    }
+
+
+def _format_sale(row: dict) -> dict:
+    return {
+        "id": int(row["id"]),
+        "product_id": int(row["product_id"]),
+        "product_name": str(row["product_name"]),
+        "unit_price": float(row["unit_price"]),
+        "sale_qty": int(row["sale_qty"]),
+        "total_sale_value": float(row["total_sale_value"]),
+        "sale_date": str(row["sale_date"]) if row["sale_date"] else "",
+        "created_at": str(row["created_at"]) if row["created_at"] else "",
+        "updated_at": str(row["updated_at"]) if row["updated_at"] else "",
+    }
+
+
+# =============================================================================
 # PRODUCT FUNCTIONS
-## Getting raw product data
+# =============================================================================
+
+_BASE_PRODUCT_SELECT = """
+SELECT
+    p.product_id AS id,
+    p.supplier_id AS supplier_id,
+    p.product_name AS name,
+    s.supplier_name AS supplier,
+    p.product_price AS sell_price,
+    p.supplier_price AS cost_price,
+    p.product_holding_cost AS hc,
+    p.units_per_package,
+    p.year_starting_inventory AS starting_inv,
+    p.storage_location,
+    p.created_at,
+    p.updated_at
+FROM product p
+JOIN supplier s
+    ON p.supplier_id = s.supplier_id
+"""
+
+
 def get_products_raw(product_id=None):
     if product_id == "" or product_id is None:
-        sql = """
-        SELECT
-            p.product_id AS id,
-            p.product_name AS name,
-            p.product_price AS price,
-            p.year_starting_inventory AS starting_inv,
-            p.product_holding_cost AS hc,
-            p.storage_location AS storage_location,
-            p.created_at,
-            p.updated_at
-        FROM product p
-        """
-        products = db.query_all(sql)
-        formatted_products = []
-        for p in products:
-            formatted_products.append({
-                "id": int(p["id"]),
-                "name": str(p["name"]),
-                "price": float(p["price"]),
-                "year_starting_inventory": int(p["starting_inv"]),
-                "holding_cost": float(p["hc"]),
-                "storage_location": str(p["storage_location"] or ""),
-                "created_at": _to_datetime(p["created_at"]),
-                "updated_at": _to_datetime(p["updated_at"]),
-            })
-        return formatted_products
-    else:
-        sql = """
-        SELECT
-            p.product_id AS id,
-            p.product_name AS name,
-            p.product_price AS price,
-            p.year_starting_inventory AS starting_inv,
-            p.product_holding_cost AS hc,
-            p.storage_location AS storage_location,
-            p.created_at,
-            p.updated_at
-        FROM product p
-        WHERE p.product_id = %s
-        """
-        p = db.query_one(sql, (product_id,))
-        if not p:
-            return None
-        return {
-            "id": int(p["id"]),
-            "name": str(p["name"]),
-            "price": float(p["price"]),
-            "year_starting_inventory": int(p["starting_inv"]),
-            "holding_cost": float(p["hc"]),
-            "storage_location": str(p["storage_location"] or ""),
-            "created_at": _to_datetime(p["created_at"]),
-            "updated_at": _to_datetime(p["updated_at"]),
-        }
+        rows = db.query_all(_BASE_PRODUCT_SELECT)
+        return [_format_product_raw(r) for r in rows]
+
+    row = db.query_one(f"{_BASE_PRODUCT_SELECT} WHERE p.product_id = %s", (product_id,))
+    return _format_product_raw(row) if row else None
 
 
-## Getting relevant product data
 def get_products(product_id=None):
-    r_product = get_products_raw(product_id)
-    historical_years = max(int(_get_config_value("HISTORICAL_YEARS", 5)), 1)
-    if not r_product:
-        return None if product_id is not None else []
+    single_mode = product_id is not None and product_id != ""
+    raw_data = get_products_raw(product_id if single_mode else None)
 
-    products_to_process = (
-        [r_product] if product_id is not None else r_product
-    )
-    output_product = []
+    if not raw_data:
+        return None if single_mode else []
+
+    products_to_process = [raw_data] if single_mode else raw_data
+    historical_years = max(int(_get_config_value("HISTORICAL_YEARS", 5)), 1)
+    service_level = float(_get_config_value("DEFAULT_SERVICE_LEVEL", 0.95))
+
+    product_filter_sql = "AND product_id = %s" if single_mode else ""
+    product_filter_params = (int(product_id),) if single_mode else ()
 
     abc_sql = """
     SELECT
@@ -275,11 +237,12 @@ def get_products(product_id=None):
       AND s.sold_date < MAKEDATE(YEAR(CURDATE()), 1)
     GROUP BY s.product_id, p.product_price
     """
-    product_list = db.query_all(abc_sql)
-    abc_data = calculate_abc(product_list)
-    abc_lookup = {int(item["id"]): item["tier"] for item in abc_data}
+    abc_rows = db.query_all(abc_sql)
+    abc_lookup = {
+        int(item["id"]): item["tier"] for item in calculate_abc(abc_rows)
+    }
 
-    eoq_sql = """
+    eoq_sql = f"""
     WITH yearly_sales AS (
         SELECT
             product_id,
@@ -288,112 +251,91 @@ def get_products(product_id=None):
         FROM sale
         WHERE sold_date >= MAKEDATE(YEAR(CURDATE()) - %s, 1)
           AND sold_date < MAKEDATE(YEAR(CURDATE()), 1)
-        GROUP BY
-            product_id,
-            YEAR(sold_date)
-    ),
-    avg_yearly_sales AS (
-        SELECT
-            product_id,
-            SUM(yearly_qty) / %s AS avg_annual_sold_qty
-        FROM yearly_sales
-        GROUP BY product_id
-    ),
-    current_setup AS (
-        SELECT
-            product_id,
-            units_per_package,
-            supplier_price,
-            ROW_NUMBER() OVER (
-                PARTITION BY product_id
-                ORDER BY created_at DESC, product_supplier_id DESC
-            ) AS rn
-        FROM product_supplier
+          {product_filter_sql}
+        GROUP BY product_id, YEAR(sold_date)
     )
     SELECT
-        COALESCE(ays.avg_annual_sold_qty, 0) AS annual_demand,
-        COALESCE(cs.supplier_price, 0) AS setup_cost,
-        COALESCE(cs.units_per_package, 1) AS box_conversion
-    FROM product p
-    LEFT JOIN avg_yearly_sales ays
-        ON p.product_id = ays.product_id
-    LEFT JOIN current_setup cs
-        ON p.product_id = cs.product_id
-       AND cs.rn = 1
-    WHERE p.product_id = %s;
+        product_id,
+        COALESCE(SUM(yearly_qty), 0) / NULLIF(%s, 0) AS annual_demand
+    FROM yearly_sales
+    GROUP BY product_id
     """
+    eoq_rows = db.query_all(
+        eoq_sql, (historical_years, *product_filter_params, historical_years)
+    )
+    eoq_lookup = {
+        int(r["product_id"]): float(r["annual_demand"] or 0.0) for r in eoq_rows
+    }
 
-    ss_sql = """
-    WITH target_product AS (
-        SELECT %s AS product_id
-    ),
-    filtered_po AS (
-        SELECT
+    lt_filter_sql = "AND poi.product_id = %s" if single_mode else ""
+    lt_sql = f"""
+    WITH filtered_po AS (
+        SELECT DISTINCT
             po.order_id,
+            poi.product_id,
             po.order_date
         FROM purchase_order po
         JOIN purchase_order_item poi
             ON po.order_id = poi.order_id
-        CROSS JOIN target_product tp
         WHERE po.order_status = 'Received'
-          AND poi.product_id = tp.product_id
           AND po.order_date >= MAKEDATE(YEAR(CURDATE()) - %s, 1)
           AND po.order_date < MAKEDATE(YEAR(CURDATE()), 1)
-        GROUP BY po.order_id, po.order_date
+          {lt_filter_sql}
     ),
     receipt_dates AS (
         SELECT
-            order_id,
-            MAX(DATE(update_date)) AS receipt_date
-        FROM inventory_update
-        WHERE order_id IS NOT NULL
-        GROUP BY order_id
-    ),
-    lead_time_metrics AS (
-        SELECT
-            AVG(DATEDIFF(rd.receipt_date, fpo.order_date)) AS avg_lt,
-            STDDEV_SAMP(DATEDIFF(rd.receipt_date, fpo.order_date)) AS std_lt
-        FROM filtered_po fpo
-        JOIN receipt_dates rd
-            ON fpo.order_id = rd.order_id
-        WHERE rd.receipt_date >= fpo.order_date
-    ),
-    daily_sales AS (
-        SELECT
-            DATE(s.sold_date) AS sale_day,
-            SUM(s.sold_qty) AS daily_qty
-        FROM sale s
-        CROSS JOIN target_product tp
-        WHERE s.product_id = tp.product_id
-          AND s.sold_date >= MAKEDATE(YEAR(CURDATE()) - %s, 1)
-          AND s.sold_date < MAKEDATE(YEAR(CURDATE()), 1)
-        GROUP BY DATE(s.sold_date)
-    ),
-    demand_metrics AS (
-        SELECT
-            AVG(daily_qty) AS avg_daily_demand,
-            STDDEV_SAMP(daily_qty) AS std_d
-        FROM daily_sales
+            iu.order_id,
+            MAX(DATE(iu.update_date)) AS receipt_date
+        FROM inventory_update iu
+        JOIN filtered_po fpo
+            ON iu.order_id = fpo.order_id
+        GROUP BY iu.order_id
     )
     SELECT
-        tp.product_id AS id,
-        lt.avg_lt,
-        lt.std_lt,
-        dm.avg_daily_demand,
-        dm.std_d
-    FROM target_product tp
-    CROSS JOIN lead_time_metrics lt
-    CROSS JOIN demand_metrics dm;
+        fpo.product_id,
+        AVG(DATEDIFF(rd.receipt_date, fpo.order_date)) AS avg_lt,
+        COALESCE(STDDEV_SAMP(DATEDIFF(rd.receipt_date, fpo.order_date)), 0) AS std_lt
+    FROM filtered_po fpo
+    JOIN receipt_dates rd
+        ON fpo.order_id = rd.order_id
+    WHERE rd.receipt_date >= fpo.order_date
+    GROUP BY fpo.product_id
     """
+    lt_rows = db.query_all(lt_sql, (historical_years, *product_filter_params))
+    lt_lookup = {int(r["product_id"]): r for r in lt_rows}
 
-    current_inv_sql = """
+    demand_sql = f"""
+    WITH daily_sales AS (
+        SELECT
+            product_id,
+            DATE(sold_date) AS sale_day,
+            SUM(sold_qty) AS daily_qty
+        FROM sale
+        WHERE sold_date >= MAKEDATE(YEAR(CURDATE()) - %s, 1)
+          AND sold_date < MAKEDATE(YEAR(CURDATE()), 1)
+          {product_filter_sql}
+        GROUP BY product_id, DATE(sold_date)
+    )
+    SELECT
+        product_id,
+        COALESCE(AVG(daily_qty), 0) AS avg_daily_demand,
+        COALESCE(STDDEV_SAMP(daily_qty), 0) AS std_d
+    FROM daily_sales
+    GROUP BY product_id
+    """
+    demand_rows = db.query_all(demand_sql, (historical_years, *product_filter_params))
+    demand_lookup = {int(r["product_id"]): r for r in demand_rows}
+
+    inv_product_where = "WHERE p.product_id = %s" if single_mode else ""
+    inv_sql = f"""
     WITH sales_agg AS (
         SELECT
-            s.product_id AS id,
-            SUM(s.sold_qty) AS sales
-        FROM sale s
-        WHERE s.sold_date >= MAKEDATE(YEAR(CURDATE()), 1)
-        GROUP BY s.product_id
+            product_id AS id,
+            SUM(sold_qty) AS sales
+        FROM sale
+        WHERE sold_date >= MAKEDATE(YEAR(CURDATE()), 1)
+          {product_filter_sql}
+        GROUP BY product_id
     ),
     updates_agg AS (
         SELECT
@@ -403,6 +345,7 @@ def get_products(product_id=None):
         JOIN inventory_update iu
             ON iu.update_id = iui.update_id
         WHERE iu.update_date >= MAKEDATE(YEAR(CURDATE()), 1)
+          {"AND iui.product_id = %s" if single_mode else ""}
         GROUP BY iui.product_id
     )
     SELECT
@@ -417,112 +360,123 @@ def get_products(product_id=None):
         ON sa.id = p.product_id
     LEFT JOIN updates_agg ua
         ON ua.id = p.product_id
-    WHERE p.product_id = %s;
+    {inv_product_where}
     """
+    inv_params = (
+        (*product_filter_params, *product_filter_params, *product_filter_params)
+        if single_mode
+        else ()
+    )
+    inv_rows = db.query_all(inv_sql, inv_params)
+    inv_lookup = {
+        int(r["id"]): int(r["current_inventory"] or 0) for r in inv_rows
+    }
 
-    month_sold_sql = """
+    month_sold_sql = f"""
     SELECT
-        s.product_id AS id,
-        COALESCE(SUM(s.sold_qty), 0) AS sold
-    FROM sale s
-    WHERE s.sold_date >= DATE_FORMAT(CURDATE(), '%%Y-%%m-01')
-      AND s.sold_date < DATE_FORMAT(CURDATE(), '%%Y-%%m-01') + INTERVAL 1 MONTH
-      AND s.product_id = %s
-    GROUP BY s.product_id;
+        product_id AS id,
+        COALESCE(SUM(sold_qty), 0) AS sold
+    FROM sale
+    WHERE sold_date >= DATE_FORMAT(CURDATE(), '%%Y-%%m-01')
+      AND sold_date < DATE_FORMAT(CURDATE(), '%%Y-%%m-01') + INTERVAL 1 MONTH
+      {product_filter_sql}
+    GROUP BY product_id
     """
+    month_rows = db.query_all(month_sold_sql, product_filter_params)
+    month_lookup = {int(r["id"]): int(r["sold"] or 0) for r in month_rows}
 
+    output_products = []
     for p in products_to_process:
         p_id = p["id"]
-        data_eoq = db.query_one(eoq_sql, (historical_years, historical_years, p_id))
-        data_ss = db.query_one(ss_sql, (p_id, historical_years, historical_years))
-        data_cur_inv = db.query_one(current_inv_sql, (p_id,))
-        data_sold = db.query_one(month_sold_sql, (p_id,))
 
-        if data_eoq:
-            annual_demand = float(data_eoq["annual_demand"] or 0)
-            setup_cost = float(data_eoq["setup_cost"] or 0)
-            box_conversion = max(int(data_eoq["box_conversion"] or 1), 1)
-            eoq = calculate_eoq(
-                annual_demand, p["holding_cost"], setup_cost, box_conversion
-            )
-        else:
-            eoq = 0
+        annual_demand = eoq_lookup.get(p_id, 0.0)
+        eoq = calculate_eoq(
+            annual_demand,
+            p["holding_cost"],
+            p["cost_price"],
+            p["units_per_package"],
+        )
 
-        if data_ss:
-            service_level = float(_get_config_value("DEFAULT_SERVICE_LEVEL", 0.95))
-            std_lt = float(data_ss["std_lt"] or 0)
-            std_d = float(data_ss["std_d"] or 0)
-            lt = float(data_ss["avg_lt"] or 0)
-            daily_demand = float(data_ss["avg_daily_demand"] or 0)
-            ss = calculate_ss(service_level, std_lt, std_d, lt, daily_demand)
-        else:
-            lt = 0.0
-            ss = 0
-            daily_demand = 0.0
+        lt_info = lt_lookup.get(p_id)
+        demand_info = demand_lookup.get(p_id)
+
+        lt = float(lt_info["avg_lt"] or 0.0) if lt_info else 0.0
+        std_lt = float(lt_info["std_lt"] or 0.0) if lt_info else 0.0
+        daily_demand = (
+            float(demand_info["avg_daily_demand"] or 0.0) if demand_info else 0.0
+        )
+        std_d = float(demand_info["std_d"] or 0.0) if demand_info else 0.0
+
+        ss = calculate_ss(service_level, std_lt, std_d, lt, daily_demand)
 
         if daily_demand > 0 and eoq > 0:
-            t = eoq / daily_demand
-            effective_lt = lt % t
+            cycle_time = eoq / daily_demand
+            effective_lt = lt % cycle_time
             rop = calculate_rop(daily_demand, effective_lt, ss)
         else:
             rop = ss
 
-        p_class = abc_lookup.get(p_id, "C")
-
-        if data_cur_inv and data_cur_inv["current_inventory"] is not None:
-            current_inv = int(data_cur_inv["current_inventory"])
-        else:
-            current_inv = 0
-
-        if data_sold and data_sold["sold"] is not None:
-            sold = int(data_sold["sold"])
-        else:
-            sold = 0
-
-        output_product.append({
-            "id": int(p["id"]),
-            "name": str(p["name"]),
-            "price": float(p["price"]),
-            "holding_cost": float(p["holding_cost"]),
-            "year_starting_inventory": int(p["year_starting_inventory"]),
-            "storage_location": str(p["storage_location"]),
+        output_products.append({
+            "id": p_id,
+            "supplier_id": p["supplier_id"],
+            "name": p["name"],
+            "price": p["sell_price"],
+            "sell_price": p["sell_price"],
+            "cost_price": p["cost_price"],
+            "holding_cost": p["holding_cost"],
+            "year_starting_inventory": p["year_starting_inventory"],
+            "storage_location": p["storage_location"],
             "eoq": int(eoq),
             "ss": int(ss),
             "rop": int(rop),
-            "class": str(p_class),
-            "current_inventory": int(current_inv),
-            "sold": int(sold),
+            "class": abc_lookup.get(p_id, "C"),
+            "current_inventory": inv_lookup.get(p_id, 0),
+            "sold": month_lookup.get(p_id, 0),
         })
 
-    return output_product[0] if product_id is not None else output_product
+    return output_products[0] if single_mode else output_products
 
 
-## Creating a product
 def insert_product(
     name: str = "",
     price: float = 0.0,
     holding_cost: float = 0.0,
     starting_inventory: int = 0,
     storage_location: str = "",
+    supplier_id: int | None = None,
+    supplier_price: float = 0.0,
+    units_per_package: int = 1,
 ):
     sql = """
     INSERT INTO product (
+        supplier_id,
         product_name,
         product_price,
+        supplier_price,
+        units_per_package,
         product_holding_cost,
         year_starting_inventory,
         storage_location
     )
-    VALUES (%s, %s, %s, %s, %s)
+    VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
     """
     product_id = db.execute(
-        sql, (name, price, holding_cost, starting_inventory, storage_location)
+        sql,
+        (
+            supplier_id,
+            name,
+            price,
+            supplier_price,
+            max(int(units_per_package), 1),
+            holding_cost,
+            starting_inventory,
+            storage_location,
+        ),
     )
     db.close_db()
     return product_id
 
 
-## Editing product
 def update_product(
     name: str,
     price: float,
@@ -530,35 +484,97 @@ def update_product(
     starting_inventory: int,
     product_id: int,
     storage_location: str = "",
+    supplier_id: int | None = None,
+    supplier_price: float | None = None,
+    units_per_package: int | None = None,
 ):
-    sql = """
-    UPDATE product
-    SET
-        product_name = %s,
-        product_price = %s,
-        product_holding_cost = %s,
-        year_starting_inventory = %s,
-        storage_location = %s
-    WHERE product_id = %s
-    """
-    rows_affected = db.execute(
-        sql, (name, price, holding_cost, starting_inventory, storage_location, product_id)
+    assignments = [
+        "product_name = %s",
+        "product_price = %s",
+        "product_holding_cost = %s",
+        "year_starting_inventory = %s",
+        "storage_location = %s",
+    ]
+    params: list = [
+        name,
+        price,
+        holding_cost,
+        starting_inventory,
+        storage_location,
+    ]
+
+    if supplier_id is not None:
+        assignments.append("supplier_id = %s")
+        params.append(supplier_id)
+    if supplier_price is not None:
+        assignments.append("supplier_price = %s")
+        params.append(supplier_price)
+    if units_per_package is not None:
+        assignments.append("units_per_package = %s")
+        params.append(max(int(units_per_package), 1))
+
+    params.append(product_id)
+    sql = f"UPDATE product SET {', '.join(assignments)} WHERE product_id = %s"
+    rows_affected = db.execute(sql, tuple(params))
+    db.close_db()
+    return rows_affected
+
+
+def delete_product(product_id: int):
+    rows_affected = db.execute("DELETE FROM product WHERE product_id = %s", (product_id,))
+    db.close_db()
+    return rows_affected
+
+
+# =============================================================================
+# SUPPLIER FUNCTIONS
+# =============================================================================
+
+_BASE_SUPPLIER_SELECT = """
+SELECT
+    s.supplier_id AS id,
+    s.supplier_name AS name,
+    s.supplier_from_date AS from_date,
+    s.reason_for_changing_supplier AS change_reason,
+    s.replaces_supplier_id AS replaces_supplier_id,
+    s.created_at AS created_at,
+    s.updated_at AS updated_at,
+    s.contact_email AS contact_email,
+    s.contact_phone AS contact_phone
+FROM supplier s
+WHERE NOT EXISTS (
+    SELECT 1
+    FROM supplier replaced
+    WHERE replaced.replaces_supplier_id = s.supplier_id
+)
+"""
+
+
+def get_suppliers(supplier_id=None):
+    if supplier_id == "" or supplier_id is None:
+        rows = db.query_all(_BASE_SUPPLIER_SELECT)
+        db.close_db()
+        return [_format_supplier(r) for r in rows]
+
+    row = db.query_one(
+        f"{_BASE_SUPPLIER_SELECT} AND s.supplier_id = %s", (supplier_id,)
     )
     db.close_db()
-    return rows_affected
+    return _format_supplier(row) if row else None
 
 
-## Deleting product
-def delete_product(product_id: int):
-    sql = """
-    DELETE FROM product WHERE product_id = %s
-    """
-    rows_affected = db.execute(sql, (product_id,))
+def get_products_supplier(supplier_id=None):
+    if supplier_id == "" or supplier_id is None:
+        return None
+
+    supplier = get_suppliers(supplier_id)
+    if not supplier:
+        return None
+
+    rows = db.query_all(
+        "SELECT product_id FROM product WHERE supplier_id = %s", (supplier_id,)
+    )
     db.close_db()
-    return rows_affected
-
-
-# SUPPLIER FUNCTIONS
 ## Getting supplier data (with linked products)
 def get_suppliers(supplier_id=None):
     sql = """
@@ -591,45 +607,25 @@ def get_suppliers(supplier_id=None):
         suppliers = db.query_all(sql)
     db.close_db()
 
-    if not suppliers:
-        return None if is_single else []
-      
-    suppliers_map = {}
-    for s in suppliers:
-        s_id = int(s["id"])
-        if s_id not in suppliers_map:
-            suppliers_map[s_id] = {
-                "id": s_id,
-                "name": str(s["name"]),
-                "contact_email": str(s["contact_email"] or ""),
-                "contact_phone": str(s["contact_phone"] or ""),
-                "from_date": str(s["from_date"]) if s["from_date"] else "",
-                "change_reason": str(s["change_reason"] or ""),
-                "replaces_supplier_id": int(s["replaces_supplier_id"]) if s["replaces_supplier_id"] is not None else None,
-                "created_at": str(s["created_at"]) if s["created_at"] else "",
-                "updated_at": str(s["updated_at"]) if s["updated_at"] else "",
-                "products": [],
-            }
-        if s["product_id"] is not None:
-            suppliers_map[s_id]["products"].append({
-                "product_supplier_id": int(s["product_supplier_id"]) if s["product_supplier_id"] is not None else None,
-                "product_id": int(s["product_id"]),
-                "product_name": str(s["product_name"]),
-                "supplier_price": float(s["supplier_price"]),
-                "units_per_package": int(s["units_per_package"]),
-            })
-    result = list(suppliers_map.values())
-    return result[0] if is_single else result
+    products_data = []
+    for row in rows:
+        product = get_products(int(row["product_id"]))
+        if product:
+            products_data.append(product)
+
+    return {
+        "supplier_data": supplier,
+        "products_data": products_data,
+    }
 
 
-## Creating a supplier
 def insert_supplier(
     name: str = "",
-    from_date: str = "",
+    from_date: str | None = None,
     change_reason: str = "",
-    contact_email: str | None = None,
-    contact_phone: str | None = None,
-    replaces_supplier_id: int | None = None
+    contact_email: str = "",
+    contact_phone: str = "",
+    replaces_supplier_id: int | None = None,
 ):
     sql = """
     INSERT INTO supplier (
@@ -637,27 +633,34 @@ def insert_supplier(
         supplier_from_date,
         reason_for_changing_supplier,
         replaces_supplier_id,
-        created_at,
-        updated_at,
         contact_email,
         contact_phone
     )
-    VALUES (%s, %s, %s, %s, NOW(), NOW(), %s, %s)
+    VALUES (%s, COALESCE(%s, CURDATE()), %s, %s, %s, %s)
     """
-    new_id = db.execute(sql, (name, from_date, change_reason, replaces_supplier_id, contact_email, contact_phone))
+    new_id = db.execute(
+        sql,
+        (
+            name,
+            from_date or None,
+            change_reason,
+            replaces_supplier_id,
+            contact_email,
+            contact_phone,
+        ),
+    )
     db.close_db()
     return new_id
 
 
-## Editing a supplier
 def update_supplier(
     name: str,
     from_date: str,
     change_reason: str,
     supplier_id: int,
-    contact_email: str | None = None,
-    contact_phone: str | None = None,
-    replaces_supplier_id: int | None = None
+    contact_email: str = "",
+    contact_phone: str = "",
+    replaces_supplier_id: int | None = None,
 ):
     sql = """
     UPDATE supplier
@@ -667,120 +670,81 @@ def update_supplier(
         reason_for_changing_supplier = %s,
         replaces_supplier_id = %s,
         contact_email = %s,
-        contact_phone = %s,
-        updated_at = NOW()
+        contact_phone = %s
     WHERE supplier_id = %s
     """
     rows_affected = db.execute(
-        sql, (name, from_date, change_reason, replaces_supplier_id, contact_email, contact_phone, supplier_id)
+        sql,
+        (
+            name,
+            from_date,
+            change_reason,
+            replaces_supplier_id,
+            contact_email,
+            contact_phone,
+            supplier_id,
+        ),
     )
     db.close_db()
     return rows_affected
 
 
-## Deleting a supplier
 def delete_supplier(supplier_id: int):
-    sql = """
-    DELETE FROM supplier WHERE supplier_id = %s
-    """
-    rows_affected = db.execute(sql, (supplier_id,))
+    rows_affected = db.execute(
+        "DELETE FROM supplier WHERE supplier_id = %s", (supplier_id,)
+    )
     db.close_db()
     return rows_affected
 
 
+# =============================================================================
 # SALE FUNCTIONS
-## Getting sale data
+# =============================================================================
+
+_BASE_SALE_SELECT = """
+SELECT
+    s.sale_id AS id,
+    s.product_id AS product_id,
+    p.product_name AS product_name,
+    p.product_price AS unit_price,
+    s.sold_qty AS sale_qty,
+    (s.sold_qty * p.product_price) AS total_sale_value,
+    s.sold_date AS sale_date,
+    s.created_at AS created_at,
+    s.updated_at AS updated_at
+FROM sale s
+JOIN product p
+    ON s.product_id = p.product_id
+"""
+
+
 def get_sales(sale_id=None):
     if sale_id == "" or sale_id is None:
-        sql = """
-        SELECT
-            s.sale_id AS id,
-            s.product_id AS product_id,
-            p.product_name AS product_name,
-            p.product_price AS unit_price,
-            s.sold_qty AS sale_qty,
-            (s.sold_qty * p.product_price) AS total_sale_value,
-            s.sold_date AS sale_date,
-            s.created_at AS created_at,
-            s.updated_at AS updated_at
-        FROM sale s
-        JOIN product p ON s.product_id = p.product_id
-        ORDER BY s.sold_date DESC, s.sale_id DESC
-        """
-        sales = db.query_all(sql)
+        rows = db.query_all(
+            f"{_BASE_SALE_SELECT} ORDER BY s.sold_date DESC, s.sale_id DESC"
+        )
         db.close_db()
-        formatted_sales = []
-        for s in sales:
-            formatted_sales.append({
-                "id": int(s["id"]),
-                "product_id": int(s["product_id"]),
-                "product_name": str(s["product_name"]),
-                "unit_price": float(s["unit_price"]),
-                "sale_qty": int(s["sale_qty"]),
-                "total_sale_value": float(s["total_sale_value"]),
-                "sale_date": str(s["sale_date"]) if s["sale_date"] else "",
-                "created_at": str(s["created_at"]) if s["created_at"] else "",
-                "updated_at": str(s["updated_at"]) if s["updated_at"] else "",
-            })
-        return formatted_sales
-    else:
-        sql = """
-        SELECT
-            s.sale_id AS id,
-            s.product_id AS product_id,
-            p.product_name AS product_name,
-            p.product_price AS unit_price,
-            s.sold_qty AS sale_qty,
-            (s.sold_qty * p.product_price) AS total_sale_value,
-            s.sold_date AS sale_date,
-            s.created_at AS created_at,
-            s.updated_at AS updated_at
-        FROM sale s
-        JOIN product p ON s.product_id = p.product_id
-        WHERE s.sale_id = %s
-        """
-        s = db.query_one(sql, (sale_id,))
-        db.close_db()
-        if not s:
-            return None
-        return {
-            "id": int(s["id"]),
-            "product_id": int(s["product_id"]),
-            "product_name": str(s["product_name"]),
-            "unit_price": float(s["unit_price"]),
-            "sale_qty": int(s["sale_qty"]),
-            "total_sale_value": float(s["total_sale_value"]),
-            "sale_date": str(s["sale_date"]) if s["sale_date"] else "",
-            "created_at": str(s["created_at"]) if s["created_at"] else "",
-            "updated_at": str(s["updated_at"]) if s["updated_at"] else "",
-        }
+        return [_format_sale(r) for r in rows]
+
+    row = db.query_one(f"{_BASE_SALE_SELECT} WHERE s.sale_id = %s", (sale_id,))
+    db.close_db()
+    return _format_sale(row) if row else None
 
 
-## Creating a sale
-def insert_sale(
-    product_id: int,
-    sale_qty: int,
-    sale_date: str,
-):
+def insert_sale(product_id: int, sale_qty: int, sale_date: str):
     sql = """
-    INSERT INTO sale (product_id, sold_qty, sold_date, created_at, updated_at)
-    VALUES (%s, %s, %s, NOW(), NOW())
+    INSERT INTO sale (product_id, sold_qty, sold_date)
+    VALUES (%s, %s, %s)
     """
     new_id = db.execute(sql, (product_id, sale_qty, sale_date))
     db.close_db()
     return new_id
 
 
-# Updating a sale
-def update_sale(
-    product_id: int,
-    sale_qty: int,
-    sale_date: str,
-    sale_id: int,
-):
+def update_sale(product_id: int, sale_qty: int, sale_date: str, sale_id: int):
     sql = """
     UPDATE sale
-    SET product_id = %s, sold_qty = %s, sold_date = %s, updated_at = NOW()
+    SET product_id = %s, sold_qty = %s, sold_date = %s
     WHERE sale_id = %s
     """
     rows_affected = db.execute(sql, (product_id, sale_qty, sale_date, sale_id))
@@ -788,11 +752,7 @@ def update_sale(
     return rows_affected
 
 
-# Deleting a sale
 def delete_sale(sale_id: int):
-    sql = """
-    DELETE FROM sale WHERE sale_id = %s
-    """
-    rows_affected = db.execute(sql, (sale_id,))
+    rows_affected = db.execute("DELETE FROM sale WHERE sale_id = %s", (sale_id,))
     db.close_db()
     return rows_affected
