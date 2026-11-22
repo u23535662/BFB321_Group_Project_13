@@ -184,15 +184,46 @@
                   placeholder="Units" />
               </div>
             </div>
-            <div class="est_del_date_select">
-              <p class="est_del_date_text">Estimated Delivery Date</p>
+          </div>
+
+          <!-- NEW PRODUCT ADD START -->
+          <div class="add_prod_hidden" id="add_prod_hidden">
+            <div class="product_select" id="product_select">
+              <select class="product_sel" name="product" id="product">
+                <option
+                  class="option"
+                  id="option"
+                  value=""
+                  disabled
+                  selected
+                  hidden>
+                  Select Product
+                </option>
+                <option value="product1">Product 1</option>
+                <option value="product2">Product 2</option>
+                <option value="product3">Product 3</option>
+              </select>
+            </div>
+            <div class="unit_select">
               <input
-                type="date"
-                class="est_del_date_input"
-                name="est_del_date"
-                id="est_del_date" />
+                type="number"
+                class="unit_input"
+                name="units"
+                id="units"
+                placeholder="Units" />
+            </div>
+            <div class="prod_del" id="prod_del"></div>
+          </div>
+
+          <!-- NEW PRODUCT ADD END -->
+
+          <div class="add_product" id="add_product">
+            <div class="add_prod">
+              <i data-lucide="circle-plus"></i>
+              <p>Add Product</p>
             </div>
           </div>
+
           <div class="confirm_or_cancel_order">
             <div class="cancel" id="cancel">
               <p>Cancel</p>
@@ -310,6 +341,73 @@
       } else if (!confirmCloseBtn) {
         console.log("No popup close");
       }
+
+      // ADD PRODUCT EXPANDING BUTTON START
+      const hiddenProducts = document.getElementById("add_prod_hidden");
+
+      const addProdBtn = document.getElementById("add_product");
+      addProdBtn.addEventListener("click", (event) => {
+        const prod_select = document.createElement("div");
+        prod_select.id = "product_select";
+        prod_select.className = "product_select";
+
+        const product_sel = document.createElement("select");
+        product_sel.className = "product_sel";
+        product_sel.type = "select";
+
+        const option = document.createElement("option");
+        option.className = "option";
+        option.type = "option";
+        option.placeholder = "Select Product";
+
+        const units = document.createElement("input");
+        units.className = "units";
+        units.type = "number";
+        units.placeholder = "Units";
+
+        const prod_del = document.createElement("div");
+        prod_del.className = "prod_del";
+
+        const cancelButton = document.createElement("div");
+        cancelButton.className = "cancelButton";
+        cancelButton.textContent = "Delete";
+        cancelButton.addEventListener("click", () => {
+          hiddenProducts.remove();
+        });
+
+        const childDiv4 = document.createElement("div");
+        childDiv4.className = "delete_item_text";
+
+        cancelButton.appendChild(childDiv4);
+        addProdBtn.appendChild(prod_select);
+        addProdBtn.appendChild(product_sel);
+        addProdBtn.appendChild(option);
+        addProdBtn.appendChild(units);
+        addProdBtn.appendChild(prod_del);
+
+        // parentDiv.appendChild(childDiv1);
+        // parentDiv.appendChild(childDiv2);
+        hiddenProducts.appendChild(prod_select);
+
+        if (!addProdBtn) {
+          console.log("No addProdBtn");
+        } else if (!cancelButton) {
+          console.log("no cancelButton");
+        } else if (!hiddenProducts) {
+          console.log("No hiddenProducts");
+        } else if (!prod_select) {
+          console.log("No prod_select");
+        } else if (!product_sel) {
+          console.log("No product_sel");
+        } else if (!option) {
+          console.log("No option");
+        } else if (!units) {
+          console.log("No units");
+        } else if (!prod_del) {
+          console.log("No prod_del");
+        }
+      });
+      // ADD PRODUCT EXPANDING BUTTON END
     </script>
 
     <!-- SCRIPTS END -->

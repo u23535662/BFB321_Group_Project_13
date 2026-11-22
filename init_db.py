@@ -1,52 +1,44 @@
 import os
-import sys
 from db import connect
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+DB_NAME = "stock_db"
 
-# Children tables before parent tables to respect foreign key constraints
-TABLES_IN_DROP_ORDER = [
-    "inventory_update_item",
-    "inventory_update",
-    "purchase_order_item",
-    "purchase_order",
-    "product_supplier",
-    "sale",
-    "product",
-    "supplier",
-]
 
 def read_statements(filename):
     path = os.path.join(BASE_DIR, filename)
     with open(path, encoding="utf-8") as f:
-        lines = [ln for ln in f.read().splitlines() if not ln.strip().startswith("--")]
+        lines = [
+            ln for ln in f.read().splitlines() if not ln.strip().startswith("--")
+        ]
     return [s.strip() for s in "\n".join(lines).split(";") if s.strip()]
 
-def main(reset=False):
+
+def main():
     conn = connect()
     try:
         with conn.cursor() as cur:
-            if reset:
-                print("Dropping existing tables...")
-                for table in TABLES_IN_DROP_ORDER:
-                    cur.execute(f"DROP TABLE IF EXISTS {table}")
+            print(f"Dropping database `{DB_NAME}` if it exists...")
+            cur.execute(f"DROP DATABASE IF EXISTS `{DB_NAME}`")
+
+            print(f"Creating database `{DB_NAME}`...")
+            cur.execute(
+                f"CREATE DATABASE `{DB_NAME}` "
+                "CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci"
+            )
+            cur.execute(f"USE `{DB_NAME}`")
 
             print("Creating tables from schema.sql ...")
             for stmt in read_statements("schema.sql"):
                 cur.execute(stmt)
 
-            cur.execute("SELECT COUNT(*) AS n FROM Product")
-            if cur.fetchone()["n"] == 0:
-                print("Loading sample data from seed.sql ...")
-                for stmt in read_statements("seed.sql"):
-                    cur.execute(stmt)
-            else:
-                print("Products already exist - sample data NOT loaded")
+            print("Loading sample data from seed.sql ...")
+            for stmt in read_statements("seed.sql"):
+                cur.execute(stmt)
 
-        # Commit transaction successfully
         conn.commit()
-        print("Database initialized successfully.")
-        
+        print("Database recreated and initialized successfully.")
+
     except Exception as e:
         conn.rollback()
         print(f"Error initializing database: {e}")
@@ -54,5 +46,6 @@ def main(reset=False):
     finally:
         conn.close()
 
+
 if __name__ == "__main__":
-    main(reset="--reset" in sys.argv)
+    main()
