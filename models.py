@@ -559,7 +559,7 @@ def delete_product(product_id: int):
 
 
 # SUPPLIER FUNCTIONS
-## Getting supplier data
+## Getting supplier data (with linked products)
 def get_suppliers(supplier_id=None):
     if supplier_id == "" or supplier_id is None:
         sql = """
@@ -571,76 +571,55 @@ def get_suppliers(supplier_id=None):
             s.created_at AS created_at,
             s.updated_at AS updated_at,
             s.contact_email AS contact_email,
-            s.contact_phone AS contact_phone
+            s.contact_phone AS contact_phone,
+            ps.product_supplier_id AS product_supplier_id,
+            p.product_id AS product_id,
+            p.product_name AS product_name,
+            ps.supplier_price AS supplier_price,
+            ps.units_per_package AS units_per_package
         FROM supplier s
+        LEFT JOIN product_supplier ps ON s.supplier_id = ps.supplier_id
+        LEFT JOIN product p ON ps.product_id = p.product_id
         """
-        suppliers = db.query_all(sql)
+        is_single = supplier_id != "" and supplier_id is not None
+
+        if is_single:
+            sql += " WHERE s.supplier_id = %s ORDER BY p.product_name ASC"
+            suppliers = db.query_all(sql, (supplier_id,))
+        else:
+            sql += " ORDER BY s.supplier_id ASC, p.product_name ASC"
+            suppliers = db.query_all(sql)
         db.close_db()
-        formatted_suppliers = []
+
+        if not suppliers:
+            return None if is_single else []
+        
+        suppliers_map = {}
         for s in suppliers:
-            formatted_suppliers.append({
-                "id": int(s["id"]),
-                "name": str(s["name"]),
-                "from_date": str(s["from_date"]) if s["from_date"] else "",
-                "change_reason": str(s["change_reason"] or ""),
-                "created_at": str(s["created_at"]) if s["created_at"] else "",
-                "updated_at": str(s["updated_at"]) if s["updated_at"] else "",
-                "contact_email": str(s["contact_email"] or ""),
-                "contact_phone": str(s["contact_phone"] or ""),
-            })
-        return formatted_suppliers
-    else:
-        sql = """
-        SELECT
-            s.supplier_id AS id,
-            s.supplier_name AS name,
-            s.supplier_from_date AS from_date,
-            s.reason_for_changing_supplier AS change_reason,
-            s.created_at AS created_at,
-            s.updated_at AS updated_at,
-            s.contact_email AS contact_email,
-            s.contact_phone AS contact_phone
-        FROM supplier s
-        WHERE s.supplier_id = %s
-        """
-        s = db.query_one(sql, (supplier_id,))
-        db.close_db()
-        if not s:
-            return None
-        return {
-            "id": int(s["id"]),
-            "name": str(s["name"]),
-            "from_date": str(s["from_date"]) if s["from_date"] else "",
-            "change_reason": str(s["change_reason"] or ""),
-            "created_at": str(s["created_at"]) if s["created_at"] else "",
-            "updated_at": str(s["updated_at"]) if s["updated_at"] else "",
-            "contact_email": str(s["contact_email"] or ""),
-            "contact_phone": str(s["contact_phone"] or ""),
-        }
-
-
-## Getting products for supplier
-def get_products_supplier(supplier_id=None):
-    supplier = get_suppliers(supplier_id)
-    if not supplier:
-        return None
-
-    sql = """
-    SELECT ps.supplier_id, ps.product_id
-    FROM product_supplier ps
-    WHERE ps.supplier_id = %s
-    """
-    products = db.query_all(sql, (supplier_id,))
-    products_dict = []
-    for p in products:
-        product = get_products(int(p["product_id"]))
-        if product:
-            products_dict.append(product)
-    return {
-        "supplier_data": supplier,
-        "products_data": products_dict,
-    }
-
+            s_id = int(s["id"])
+            if s_id not in suppliers_map:
+                suppliers_map[s_id] = {
+                    "id": s_id,
+                    "name": str(s["name"]),
+                    "contact_email": str(s["contact_email"] or ""),
+                    "contact_phone": str(s["contact_phone"] or ""),
+                    "from_date": str(s["from_date"]) if s["from_date"] else "",
+                    "change_reason": str(s["change_reason"] or ""),
+                    "created_at": str(s["created_at"]) if s["created_at"] else "",
+                    "updated_at": str(s["updated_at"]) if s["updated_at"] else "",
+                    "products": [],
+                }
+            if s["product_id"] is not None:
+                suppliers_map[s_id]["products"].append({
+                    "product_supplier_id": int(s["product_supplier_id"]),
+                    "product_id": int(s["product_id"]),
+                    "product_name": str(s["product_name"]),
+                    "supplier_price": float(s["supplier_price"]),
+                    "units_per_package": int(s["units_per_package"]),
+                })
+        result = list(suppliers_map.values())
+        return result[0] if is_single else result
+    
 
 ## Creating a supplier
 def insert_supplier(

@@ -142,11 +142,11 @@ def api_delete_product(product_id):
 def api_get_suppliers():
     try:
         suppliers = models.get_suppliers()
-        return jsonify({'success': True, 'data': suppliers}), 200
+        return jsonify({'success': True, 'count': len(suppliers), 'data': suppliers}), 200
     except Exception as e:
         return jsonify({'success': False, 'error': str(e)}), 500
 
-# Get single supplier
+# Get single supplier (including linked products)
 @app.route("/api/suppliers/<int:supplier_id>", methods=["GET"])
 def api_get_supplier(supplier_id):
     try:
@@ -156,18 +156,7 @@ def api_get_supplier(supplier_id):
         return jsonify({'success': True, 'data': supplier}), 200
     except Exception as e:
         return jsonify({'success': False, 'error': str(e)}), 500
-
-# Get products associated with supplier
-@app.route("/api/suppliers/<int:supplier_id>/products")
-def api_get_products_for_supplier(supplier_id):
-    try:
-        data = models.get_products_supplier(supplier_id)
-        if not data:
-            return jsonify({'success':False, 'error':'Data not found'}), 404
-        return jsonify({'success':True, 'data':data}), 200
-    except Exception as e:
-        return jsonify({'success':False, 'error':str(e)}), 500
-    
+   
 # Create supplier
 @app.route("/api/suppliers", methods=["POST"])
 def api_create_supplier():
@@ -188,14 +177,7 @@ def api_create_supplier():
         new_id = models.insert_supplier(
             name, from_date, change_reason, contact_email, contact_phone
         )
-        new_supplier = {
-            'id': new_id,
-            'name': name,
-            'from_date': from_date,
-            'change_reason': change_reason,
-            'contact_email': contact_email,
-            'contact_phone': contact_phone
-        }
+        new_supplier = models.get_suppliers(new_id)
         return jsonify({'success': True, 'data': new_supplier}), 201
     except Exception as e:
         return jsonify({'success': False, 'error': str(e)}), 500
@@ -227,15 +209,7 @@ def api_update_supplier(supplier_id):
             contact_phone=n_phone
         )
 
-        updated_supplier = {
-            'id': supplier_id,
-            'name': n_name,
-            'from_date': n_date,
-            'change_reason': n_reason,
-            'contact_email': n_email,
-            'contact_phone': n_phone
-        }
-
+        updated_supplier = models.get_suppliers(supplier_id)
         return jsonify({'success': True, 'message': 'Supplier updated successfully', 'data': updated_supplier}), 200
     except Exception as e:
         return jsonify({'success': False, 'error': str(e)}), 500

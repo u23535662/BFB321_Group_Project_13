@@ -654,6 +654,7 @@ li {
 
   gap: 0.5rem;
   margin-left: 0.5rem;
+  width: 10%;
 }
 
 .task_icon {
@@ -668,8 +669,12 @@ li {
 
   border-radius: 1rem;
 }
-.task_block_mid {
-  width: 70%;
+.task_block_mid1 {
+  width: 20%;
+}
+
+.task_mid2 {
+  width: 10%;
 }
 
 .task_title {
