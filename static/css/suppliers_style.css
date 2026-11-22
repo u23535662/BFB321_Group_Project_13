@@ -482,10 +482,16 @@ li {
   width: 100%;
   height: 100%;
   background-color: rgb(169, 217, 208, 0.6);
-  gap: 0.5rem;
   border-radius: 1rem;
-  margin-left: 0.5rem;
   /* border: 1px solid red; */
+}
+.sup_info_textbox {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: flex-start;
+  align-self: stretch;
+  padding: 0.5rem;
 }
 .sup_info_right {
   display: flex;
@@ -528,16 +534,6 @@ li {
 }
 /* Supplier info popup content end */
 /* SUPPLIER INFO POPUP END */
-
-
-
-
-
-
-
-
-
-
 
 
 /* ADD SUPPLIER POPUP START */
@@ -777,5 +773,73 @@ li {
 }
 /* The close and submit button end */
 /* ADD SUPPLIER POPUP END */
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* EDIT SUPPLIER POPUP START */
+
+
+
+/* Add supplier main blocks start */
+.edit_modal {
+  display: none;
+  flex-direction: column;
+  position: fixed;
+  z-index: 1;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  background-color: rgba(0, 0, 0, 0.4);
+  justify-content: center;
+  align-items: center;
+
+  overflow: hidden !important;
+}
+.edit_modal-content {
+  background-color: rgb(84, 147, 136);
+  margin: 6% auto;
+  padding: 20px;
+  border-radius: 1rem;
+  width: 40%;
+  max-height: 70%;
+  gap: 2rem;
+  justify-content: center;
+  align-items: center;
+
+  overflow-y: scroll;
+}
+
+
+
+
+/* EDIT SUPPLIER POPUP END */
+
+
+
+
+
+
+
+
+
 
 /* MODALS END */
