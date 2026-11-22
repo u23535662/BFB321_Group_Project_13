@@ -211,8 +211,8 @@ li {
   grid-area: supplierBtns;
 
   display: flex;
-  flex-direction: row;
-  justify-content: center;
+  flex-direction: row-reverse;
+  justify-content: row-reverse;
   align-items: center;
 
   gap: 1rem;
@@ -257,8 +257,7 @@ li {
 
 /* BODY SUB-BLOCKS START */
 /* supplierBtns BLOCK START */
-.supplierbutton1,
-.supplierbutton2 {
+.supplierbutton1 {
   align-items: center;
   justify-content: left;
   display: flex;
@@ -271,15 +270,13 @@ li {
 
   border-radius: 1rem;
   border: 2px solid rgb(155, 255, 237);
-  gap: 1.5rem;
+  gap: 1rem;
 }
-.supplierbutton1:hover,
-.supplierbutton2:hover {
+.supplierbutton1:hover {
   background-color: rgb(155, 255, 237);
   color: rgb(84, 147, 136);
 }
-.supplierbutton1:active,
-.supplierbutton2:active {
+.supplierbutton1:active {
   background-color: rgb(84, 147, 136);
   color: rgb(155, 255, 237);
 }
@@ -430,6 +427,41 @@ li {
 /* Supplier info popup main blocks end */
 
 /* Supplier info popup content start */
+.editsupplierbutton_block{
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-end;
+  align-items: center;
+  width: 100%;
+  margin-right: 0.5rem;
+}
+.editsupplierbutton {
+  align-items: center;
+  justify-content: left;
+  display: flex;
+  /* flex-direction: row; */
+  align-content: center;
+
+  background-color: rgb(169, 217, 208, 0.6);
+  width: 25%;
+  height: 2rem;
+
+  border-radius: 1rem;
+  border: 2px solid rgb(155, 255, 237);
+  gap: 8%;
+}
+.editsupplierbutton:hover {
+  background-color: rgb(155, 255, 237);
+  color: rgb(84, 147, 136);
+}
+.editsupplierbutton:active {
+  background-color: rgb(84, 147, 136);
+  color: rgb(155, 255, 237);
+}
+
+
+
+
 .sup_product_info {
   display: flex;
   flex-direction: row;
