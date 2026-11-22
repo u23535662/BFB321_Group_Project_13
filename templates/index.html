@@ -98,8 +98,8 @@
           <div class="headingblocktodo">
             <h2>To do</h2>
           </div>
-          <div class="indexBtns">
-            <button id="indexButton1" class="indexbutton1">
+          <div class="orderBtn">
+            <button id="orderButton" class="indexbutton1">
               <div class="index_icon">
                 <i data-lucide="circle-plus"></i>
               </div>
@@ -107,7 +107,7 @@
             </button>
 
             <!-- To DO Popup start -->
-            <div id="myModal" class="todo_popup_background">
+            <div id="todo_popup_background" class="todo_popup_background">
               <!-- To Do Popup content -->
               <div class="totdo_popup_content">
                 <div class="top_of_popup">
@@ -131,9 +131,23 @@
                   </div>
                 </div>
 
-                <span class="submit_popup">Submit</span>
+                <div class="confirm_popup" id="confirm_btn_popup">
+                  <p>Confirm</p>
+                </div>
               </div>
             </div>
+
+            <!-- Confirm button popup -->
+
+            <div class="confirm_btn_background" id="confirm_btn_background">
+              <div class="confirm_btn_message">
+                <div class="confirm_x">
+                  <i class="x_btn" id="x_btn" data-lucide="circle-x"></i>
+                </div>
+                <h3>A new order has been confirmed</h3>
+              </div>
+            </div>
+
             <!-- To do Popup end -->
           </div>
         </div>
@@ -141,9 +155,17 @@
           <div class="task_block">
             <div class="task_block_left">
               <div class="task_icon">
-                <i data-lucide="circle-dollar-sign"></i>
+                <i data-lucide="star"></i>
               </div>
+            </div>
+            <div class="task_block_mid1">
               <h3 class="task_title">Task</h3>
+            </div>
+            <div class="task_block_mid2">
+              <p>class</p>
+            </div>
+            <div class="task_block_right">
+              <p>###</p>
             </div>
           </div>
 
@@ -151,9 +173,68 @@
           <div class="task_block">
             <div class="task_block_left">
               <div class="task_icon">
-                <i data-lucide="circle-dollar-sign"></i>
+                <i data-lucide="star"></i>
               </div>
+            </div>
+            <div class="task_block_mid1">
               <h3 class="task_title">Task</h3>
+            </div>
+            <div class="task_block_mid2">
+              <p>class</p>
+            </div>
+            <div class="task_block_right">
+              <p>###</p>
+            </div>
+          </div>
+
+          <div class="task_block">
+            <div class="task_block_left">
+              <div class="task_icon">
+                <i data-lucide="star"></i>
+              </div>
+            </div>
+            <div class="task_block_mid1">
+              <h3 class="task_title">Task</h3>
+            </div>
+            <div class="task_block_mid2">
+              <p>class</p>
+            </div>
+            <div class="task_block_right">
+              <p>###</p>
+            </div>
+          </div>
+
+          <div class="task_block">
+            <div class="task_block_left">
+              <div class="task_icon">
+                <i data-lucide="star"></i>
+              </div>
+            </div>
+            <div class="task_block_mid1">
+              <h3 class="task_title">Task</h3>
+            </div>
+            <div class="task_block_mid2">
+              <p>class</p>
+            </div>
+            <div class="task_block_right">
+              <p>###</p>
+            </div>
+          </div>
+
+          <div class="task_block">
+            <div class="task_block_left">
+              <div class="task_icon">
+                <i data-lucide="star"></i>
+              </div>
+            </div>
+            <div class="task_block_mid1">
+              <h3 class="task_title">Task</h3>
+            </div>
+            <div class="task_block_mid2">
+              <p>class</p>
+            </div>
+            <div class="task_block_right">
+              <p>###</p>
             </div>
           </div>
           <!-- FILLER END -->
@@ -163,6 +244,68 @@
       <!-- TWO GRAPH BLOCKS -->
 
       <div class="blockgraphs">
+        <div class="graphBtns">
+          <div class="indexBtns">
+            <button id="filter" class="filter">
+              <i data-lucide="filter"></i>
+              <div>Filter</div>
+            </button>
+          </div>
+          <div class="zoom">
+            <div class="zoom_minus">
+              <i data-lucide="zoom-out"></i>
+            </div>
+            <div class="zoom_plus">
+              <i data-lucide="zoom-in"></i>
+            </div>
+          </div>
+        </div>
+
+        <div class="filter_popup_background" id="filter_popup_background">
+          <div class="filter_popup_content" id="filter_popup_content">
+            <div class="filter_button_heading">
+              <div class="filter_title">
+                <h1>Filter by product</h1>
+              </div>
+
+              <div class="close_filter" id="close_filter">
+                <i data-lucide="circle-x"></i>
+              </div>
+            </div>
+            <div class="popup_scroll">
+              <div class="filter_button_prod_sel">
+                <input class="filter_checkbox" type="checkbox" />
+                <p>Product 1</p>
+              </div>
+              <!-- FILLER START -->
+              <div class="filter_button_prod_sel">
+                <input class="filter_checkbox" type="checkbox" />
+                <p>Product 2</p>
+              </div>
+              <div class="filter_button_prod_sel">
+                <input class="filter_checkbox" type="checkbox" />
+                <p>Product 3</p>
+              </div>
+              <div class="filter_button_prod_sel">
+                <input class="filter_checkbox" type="checkbox" />
+                <p>Product 4</p>
+              </div>
+              <div class="filter_button_prod_sel">
+                <input class="filter_checkbox" type="checkbox" />
+                <p>Product 5</p>
+              </div>
+              <div class="filter_button_prod_sel">
+                <input class="filter_checkbox" type="checkbox" />
+                <p>Product 6</p>
+              </div>
+              <!-- FILLER END -->
+            </div>
+
+            <div class="filter_button_confirm" id="filter_button_confirm">
+              <p>Confirm</p>
+            </div>
+          </div>
+        </div>
         <!-- bar chart -->
         <div class="contentblockgraphsBar">
           <div class="headingblockbarchart">
@@ -175,14 +318,6 @@
         <div class="contentblockgraphsEOQ">
           <div class="headingblockeoqgraph">
             <h2>EOQ Graph</h2>
-            <div class="indexBtns">
-              <button id="indexbutton3" class="indexbutton3">
-                <div class="index_icon">
-                  <i data-lucide="circle-plus"></i>
-                </div>
-                <div>Filter</div>
-              </button>
-            </div>
           </div>
           <div class="eoqchart"></div>
         </div>
@@ -198,7 +333,109 @@
     <script>
       lucide.createIcons();
     </script>
-    <script src="../templates/script.js"></script>
+
+    <!-- SCRIPT FOR ORDER POPUP -->
+
+    <script>
+      //Script for order popup
+      const background = document.getElementById("todo_popup_background");
+      const indexOpenBtn = document.getElementById("orderButton");
+      const indexCloseBtn = document.getElementById("close_index_popup");
+
+      if (background && indexOpenBtn && indexCloseBtn) {
+        // Open Popup
+        indexOpenBtn.addEventListener("click", function () {
+          background.style.display = "flex";
+        });
+
+        // Close Popup
+        indexCloseBtn.addEventListener("click", function () {
+          background.style.display = "none";
+        });
+
+        // Close Popup (click outside)
+        background.addEventListener("click", function (event) {
+          if (event.target === background) {
+            background.style.display = "none";
+          }
+        });
+      } else if (!background) {
+        console.log("No open Button");
+      } else if (!indexOpenBtn) {
+        console.log("No popup hold...");
+      } else if (!indexCloseBtn) {
+        console.log("No popup close");
+      }
+
+      // Script for confirm popup
+      const confirmOpenBtn = document.getElementById("confirm_btn_popup");
+      const confirmPopup = document.getElementById("confirm_btn_background");
+      const confirmCloseBtn = document.getElementById("x_btn");
+
+      if (confirmOpenBtn && confirmPopup && confirmCloseBtn) {
+        // Open Popup
+        confirmOpenBtn.addEventListener("click", function () {
+          background.style.display = "none";
+          confirmPopup.style.display = "flex";
+        });
+
+        // Close Popup
+        confirmCloseBtn.addEventListener("click", function () {
+          confirmPopup.style.display = "none";
+        });
+
+        // Close Popup (click outside)
+        confirmPopup.addEventListener("click", function (event) {
+          if (event.target === confirmPopup) {
+            confirmPopup.style.display = "none";
+          }
+        });
+      } else if (!confirmOpenBtn) {
+        console.log("No open Button");
+      } else if (!confirmPopup) {
+        console.log("No popup hold...");
+      } else if (!confirmCloseBtn) {
+        console.log("No popup close");
+      }
+
+      //Script for filter popup
+      const Filter_background = document.getElementById(
+        "filter_popup_background",
+      );
+      const OpenFilterBtn = document.getElementById("filter");
+      const CloseFilterBtn = document.getElementById("close_filter");
+      const ConfirmFilterBtn = document.getElementById("filter_button_confirm");
+
+      if (Filter_background && OpenFilterBtn && CloseFilterBtn) {
+        // Open Popup
+        OpenFilterBtn.addEventListener("click", function () {
+          Filter_background.style.display = "flex";
+        });
+
+        // Close Popup
+        CloseFilterBtn.addEventListener("click", function () {
+          Filter_background.style.display = "none";
+        });
+
+        //Confirm Button
+        ConfirmFilterBtn.addEventListener("click", function () {
+          Filter_background.style.display = "none";
+        });
+
+        // Close Popup (click outside)
+        Filter_background.addEventListener("click", function (event) {
+          if (event.target === Filter_background) {
+            Filter_background.style.display = "none";
+          }
+        });
+      } else if (!Filter_background) {
+        console.log("No open Button");
+      } else if (!OpenFilterBtn) {
+        console.log("No popup hold...");
+      } else if (!CloseFilterBtn) {
+        console.log("No popup close");
+      }
+    </script>
 
     <!-- JSON DATA LOADING FOR PAGE -->
     <script>
