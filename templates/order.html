@@ -164,7 +164,7 @@
                 <option value="supplier3">Supplier 3</option>
               </select>
             </div>
-            <div class="product_and_unit_select">
+            <div class="product_and_unit_select" id="prod_unit_select">
               <div class="product_select">
                 <select class="product_sel" name="product" id="product">
                   <option value="" disabled selected hidden>
@@ -186,50 +186,18 @@
             </div>
           </div>
 
-          <!-- NEW PRODUCT ADD START -->
-          <div class="add_prod_hidden" id="add_prod_hidden">
-            <div class="product_select" id="product_select">
-              <select class="product_sel" name="product" id="product">
-                <option
-                  class="option"
-                  id="option"
-                  value=""
-                  disabled
-                  selected
-                  hidden>
-                  Select Product
-                </option>
-                <option value="product1">Product 1</option>
-                <option value="product2">Product 2</option>
-                <option value="product3">Product 3</option>
-              </select>
-            </div>
-            <div class="unit_select">
-              <input
-                type="number"
-                class="unit_input"
-                name="units"
-                id="units"
-                placeholder="Units" />
-            </div>
-            <div class="prod_del" id="prod_del"></div>
-          </div>
-
-          <!-- NEW PRODUCT ADD END -->
-
-          <div class="add_product" id="add_product">
-            <div class="add_prod">
+          <div class="order_action_btns">
+            <button class="add_prod" id="add_product">
               <i data-lucide="circle-plus"></i>
               <p>Add Product</p>
-            </div>
-          </div>
-
-          <div class="confirm_or_cancel_order">
-            <div class="cancel" id="cancel">
-              <p>Cancel</p>
-            </div>
-            <div class="confirm" id="confirm">
-              <p>Confirm</p>
+            </button>
+            <div class="confirm_or_cancel_order">
+              <div class="cancel" id="cancel">
+                <p>Cancel</p>
+              </div>
+              <div class="confirm" id="confirm">
+                <p>Confirm</p>
+              </div>
             </div>
           </div>
         </div>
@@ -243,7 +211,59 @@
         <div class="top_x">
           <i class="x_confirm" id="x_confirm" data-lucide="circle-x"></i>
         </div>
-        <h3>A new order has been confirmed</h3>
+        <div class="ordnum_heading">
+          <h1>Order ### has been generated</h1>
+        </div>
+        <div class="order_summary">
+          <h2>Order Summary:</h2>
+          <div class="supplier_summary">
+            <i data-lucide="user"></i>
+            <h3>Supplier</h3>
+          </div>
+          <div class="products_summary">
+            <div class="prod_and_units_sum">
+              <i data-lucide="circle-dollar-sign"></i>
+              <h3>Product 1</h3>
+            </div>
+
+            <!-- FILLER START -->
+            <div class="prod_and_units_sum">
+              <i data-lucide="circle-dollar-sign"></i>
+              <h3>Product 2</h3>
+            </div>
+            <div class="prod_and_units_sum">
+              <i data-lucide="circle-dollar-sign"></i>
+              <h3>Product 3</h3>
+            </div>
+            <div class="prod_and_units_sum">
+              <i data-lucide="circle-dollar-sign"></i>
+              <h3>Product 4</h3>
+            </div>
+            <div class="prod_and_units_sum">
+              <i data-lucide="circle-dollar-sign"></i>
+              <h3>Product 5</h3>
+            </div>
+            <!-- FILLER END -->
+          </div>
+
+          <div class="tot_order_cost">
+            <div class="tot_cost_left">
+              <h3>Total Order Cost:</h3>
+            </div>
+            <div class="tot_cost_right">
+              <h3>R ###,###.##</h3>
+            </div>
+          </div>
+          <div class="est_del_date">
+            <div class="est_date_left">
+              <h3>Estimated Delivery Date</h3>
+            </div>
+            <div class="est_date_right">
+              <h3>####/##/##</h3>
+            </div>
+          </div>
+        </div>
+        <div class="buttons"></div>
       </div>
     </div>
 
@@ -294,6 +314,9 @@
 
         // Close Popup
         orderCloseBtn.addEventListener("click", function () {
+          document
+            .querySelectorAll(".product_and_unit_select:not(#prod_unit_select)")
+            .forEach((row) => row.remove());
           orderPopup.style.display = "none";
         });
 
@@ -325,6 +348,9 @@
 
         // Close Popup
         confirmCloseBtn.addEventListener("click", function () {
+          document
+            .querySelectorAll(".product_and_unit_select:not(#prod_unit_select)")
+            .forEach((row) => row.remove());
           confirmPopup.style.display = "none";
         });
 
@@ -343,70 +369,33 @@
       }
 
       // ADD PRODUCT EXPANDING BUTTON START
-      const hiddenProducts = document.getElementById("add_prod_hidden");
-
       const addProdBtn = document.getElementById("add_product");
-      addProdBtn.addEventListener("click", (event) => {
-        const prod_select = document.createElement("div");
-        prod_select.id = "product_select";
-        prod_select.className = "product_select";
+      const productRows = document.querySelector(".selectors");
+      const firstProductRow = document.getElementById("prod_unit_select");
 
-        const product_sel = document.createElement("select");
-        product_sel.className = "product_sel";
-        product_sel.type = "select";
+      if (addProdBtn && productRows && firstProductRow) {
+        addProdBtn.addEventListener("click", () => {
+          const productRow = firstProductRow.cloneNode(true);
+          productRow.removeAttribute("id");
+          productRow.querySelectorAll("[id]").forEach((element) => {
+            element.removeAttribute("id");
+          });
 
-        const option = document.createElement("option");
-        option.className = "option";
-        option.type = "option";
-        option.placeholder = "Select Product";
+          const deleteButton = document.createElement("button");
+          deleteButton.type = "button";
+          deleteButton.className = "prod_del";
+          deleteButton.innerHTML =
+            '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-trash preview-icon"><path d="M10 11v6"/><path d="M14 11v6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>';
+          deleteButton.addEventListener("click", () => {
+            productRow.remove();
+          });
 
-        const units = document.createElement("input");
-        units.className = "units";
-        units.type = "number";
-        units.placeholder = "Units";
-
-        const prod_del = document.createElement("div");
-        prod_del.className = "prod_del";
-
-        const cancelButton = document.createElement("div");
-        cancelButton.className = "cancelButton";
-        cancelButton.textContent = "Delete";
-        cancelButton.addEventListener("click", () => {
-          hiddenProducts.remove();
+          productRow.appendChild(deleteButton);
+          productRows.appendChild(productRow);
         });
-
-        const childDiv4 = document.createElement("div");
-        childDiv4.className = "delete_item_text";
-
-        cancelButton.appendChild(childDiv4);
-        addProdBtn.appendChild(prod_select);
-        addProdBtn.appendChild(product_sel);
-        addProdBtn.appendChild(option);
-        addProdBtn.appendChild(units);
-        addProdBtn.appendChild(prod_del);
-
-        // parentDiv.appendChild(childDiv1);
-        // parentDiv.appendChild(childDiv2);
-        hiddenProducts.appendChild(prod_select);
-
-        if (!addProdBtn) {
-          console.log("No addProdBtn");
-        } else if (!cancelButton) {
-          console.log("no cancelButton");
-        } else if (!hiddenProducts) {
-          console.log("No hiddenProducts");
-        } else if (!prod_select) {
-          console.log("No prod_select");
-        } else if (!product_sel) {
-          console.log("No product_sel");
-        } else if (!option) {
-          console.log("No option");
-        } else if (!units) {
-          console.log("No units");
-        } else if (!prod_del) {
-          console.log("No prod_del");
-        }
-      });
+      } else {
+        console.error("Could not find the add-product button or product row.");
+      }
       // ADD PRODUCT EXPANDING BUTTON END
     </script>
 

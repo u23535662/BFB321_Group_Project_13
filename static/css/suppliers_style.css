@@ -67,7 +67,6 @@ body {
 }
 /* BODY END */
 
-
 /* NAV BAR STYLES START */
 .navbar {
   display: flex;
@@ -123,7 +122,7 @@ li {
   justify-content: flex-end;
   width: 90%;
   height: 100%;
-  border-radius: 1rem; /* background-color: rgb(169, 217, 208); */
+  border-radius: 1rem;
 }
 .logoimg {
   width: auto;
@@ -172,7 +171,6 @@ li {
   color: #e0e0e0;
 }
 /* NAV BAR STYLES END */
-
 
 /* SUPPLIER PAGE STYLES START */
 /* BODY BLOCKS START */
@@ -254,7 +252,6 @@ li {
 }
 /* BODY BLOCKS END */
 
-
 /* BODY SUB-BLOCKS START */
 /* supplierBtns BLOCK START */
 .supplierbutton1 {
@@ -281,7 +278,6 @@ li {
   color: rgb(155, 255, 237);
 }
 /* supplierBtns BLOCK END */
-
 
 /* sup_topblock BLOCK START */
 .sup_searchbar {
@@ -317,7 +313,6 @@ li {
 /* searchbar buttons end */
 /* sup_topblock BLOCK END */
 
-
 /* sup_list BLOCK START */
 .sup_block {
   align-items: center;
@@ -347,7 +342,6 @@ li {
 /* sup_list BLOCK END */
 /* BODY SUB-BLOCKS END */
 
-
 /* COMMON SUPPLIER PAGE STYLES START */
 .sup_icon {
   align-items: center;
@@ -369,7 +363,6 @@ li {
 }
 /* COMMON SUPPLIER PAGE STYLES END */
 /* SUPPLIER PAGE STYLES END */
-
 
 /* MODALS START */
 
@@ -427,7 +420,7 @@ li {
 /* Supplier info popup main blocks end */
 
 /* Supplier info popup content start */
-.editsupplierbutton_block{
+.editsupplierbutton_block {
   display: flex;
   flex-direction: row;
   justify-content: flex-end;
@@ -505,7 +498,7 @@ li {
   display: flex;
   flex-direction: column;
   align-self: stretch;
-  
+
   height: 100%;
   background-color: rgb(169, 217, 208, 0.6);
   padding: 0.5rem;
@@ -528,17 +521,6 @@ li {
 }
 /* Supplier info popup content end */
 /* SUPPLIER INFO POPUP END */
-
-
-
-
-
-
-
-
-
-
-
 
 /* ADD SUPPLIER POPUP START */
 /* Add supplier title start */
@@ -616,7 +598,7 @@ li {
   width: 90%;
   gap: 0.5rem;
 }
-.ul_block{
+.ul_block {
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -625,7 +607,7 @@ li {
   max-height: 11rem;
   width: 100%;
 }
-.add_ul{
+.add_ul {
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
@@ -645,7 +627,7 @@ li {
   width: 100%;
   gap: 0.6rem;
   margin-bottom: 0.4rem;
-  
+
   /* border: 1px solid red; */
 }
 
@@ -660,14 +642,14 @@ li {
   /* border: 1px solid red; */
 }
 
-.add_product_button_block{
+.add_product_button_block {
   display: flex;
   flex-direction: row;
   justify-content: flex-start;
   align-items: flex-start;
   align-self: stretch;
   width: 100%;
-  margin-bottom: 0.3rem
+  margin-bottom: 0.3rem;
 }
 .addProductButton {
   color: #e7dbdb;
@@ -748,13 +730,12 @@ li {
 
   border-radius: 1rem;
   border-style: none;
-
 }
 /* Add supplier data fields end */
 
 /* The close and submit button start */
 .close,
-.submit_popup{
+.submit_popup {
   display: flex;
   justify-content: center;
   align-items: center;
