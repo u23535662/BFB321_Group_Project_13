@@ -439,35 +439,141 @@
 
     <!-- JSON DATA LOADING FOR PAGE -->
     <script>
+      let activeZoom = "month";
+      let selectedProductId = null;
+      let loadedProducts = [];
+
       document.addEventListener("DOMContentLoaded", () => {
+        bindChartControls();
         fetchALLProducts();
       });
 
+      function bindChartControls() {
+        const zoomOutBtn = document.querySelector(".zoom_minus");
+        const zoomInBtn = document.querySelector(".zoom_plus");
+        const confirmFilterBtn = document.getElementById("filter_button_confirm");
+
+        if (zoomOutBtn) {
+          zoomOutBtn.addEventListener("click", () => {
+            activeZoom = "month";
+            if (selectedProductId !== null) {
+              loadEoqChart(selectedProductId, activeZoom);
+            }
+          });
+        }
+
+        if (zoomInBtn) {
+          zoomInBtn.addEventListener("click", () => {
+            activeZoom = "year";
+            if (selectedProductId !== null) {
+              loadEoqChart(selectedProductId, activeZoom);
+            }
+          });
+        }
+
+        if (confirmFilterBtn) {
+          confirmFilterBtn.addEventListener("click", () => {
+            const checked = Array.from(
+              document.querySelectorAll("#filter_popup_background .filter_checkbox:checked")
+            );
+            if (checked.length > 0 && checked[0].dataset.productId) {
+              selectedProductId = Number(checked[0].dataset.productId);
+            } else if (loadedProducts.length > 0) {
+              selectedProductId = Number(loadedProducts[0].id);
+            }
+            loadAllocationChart(selectedProductId);
+            if (selectedProductId !== null) {
+              loadEoqChart(selectedProductId, activeZoom);
+            }
+          });
+        }
+      }
+
+      function populateFilterPopup(products) {
+        const scrollContainer = document.querySelector("#filter_popup_background .popup_scroll");
+        if (!scrollContainer) return;
+
+        scrollContainer.innerHTML = "";
+        products.forEach((product, index) => {
+          const row = document.createElement("div");
+          row.className = "filter_button_prod_sel";
+          row.innerHTML = `
+            <input class="filter_checkbox" type="checkbox" data-product-id="${product.id}" ${index === 0 ? "checked" : ""} />
+            <p>${product.name}</p>
+          `;
+          const cb = row.querySelector(".filter_checkbox");
+          cb.addEventListener("change", () => {
+            if (cb.checked) {
+              scrollContainer.querySelectorAll(".filter_checkbox").forEach((other) => {
+                if (other !== cb) other.checked = false;
+              });
+            }
+          });
+          scrollContainer.appendChild(row);
+        });
+      }
+
+      function loadAllocationChart(productId = null) {
+        const barContainer = document.querySelector(".barchart");
+        if (!barContainer) return;
+
+        const query = productId !== null ? `?product_id=${encodeURIComponent(productId)}` : "";
+        fetch(`/api/allocation-chart${query}`)
+          .then((response) => response.json())
+          .then((payload) => {
+            if (payload.success && payload.svg) {
+              barContainer.innerHTML = payload.svg;
+            }
+          })
+          .catch((error) => {
+            console.error("Error loading allocation chart:", error);
+          });
+      }
+
+      function loadEoqChart(productId, zoom = "month") {
+        const eoqContainer = document.querySelector(".eoqchart");
+        if (!eoqContainer || productId === null) return;
+
+        fetch(`/api/products/${encodeURIComponent(productId)}/eoq-chart?zoom=${encodeURIComponent(zoom)}`)
+          .then((response) => response.json())
+          .then((payload) => {
+            if (payload.success && payload.svg) {
+              eoqContainer.innerHTML = payload.svg;
+            }
+          })
+          .catch((error) => {
+            console.error("Error loading EOQ chart:", error);
+          });
+      }
+
       function fetchALLProducts() {
-        // Calls /api/products
         fetch("/api/products")
           .then((response) => response.json())
           .then((products) => {
             const statusEL = document.getElementById("loading-status");
             const listEL = document.getElementById("product");
 
-            if (
-              !products.success ||
-              !products.data ||
-              products.data.length == 0
-            ) {
-              statusEL.innerText = "No products found";
+            if (!products.success || !products.data || products.data.length === 0) {
+              if (statusEL) statusEL.innerText = "No products found";
+              loadAllocationChart(null);
               return;
             }
 
-            statusEL.style.display = "none";
-            listEL.innerHTML = "";
+            loadedProducts = products.data;
+            selectedProductId = Number(loadedProducts[0].id);
+            populateFilterPopup(loadedProducts);
+            loadAllocationChart(selectedProductId);
+            loadEoqChart(selectedProductId, activeZoom);
 
+            if (statusEL) statusEL.style.display = "none";
+            if (!listEL) return;
+
+            listEL.innerHTML = "";
             products.data.forEach((product) => {
               const li = document.createElement("li");
               li.className = "product-item";
               li.innerHTML = `
-              <div class="productname_block_left">  
+              <div class="productname_block_left">
                 <div class="productname_icon">
                   <i data-lucide="circle-dollar-sign"></i>
                 </div>
@@ -478,8 +584,8 @@
           })
           .catch((error) => {
             console.error("Error fetching data:", error);
-            document.getElementById("loading-status").innerText =
-              "Failed to load products.";
+            const statusEL = document.getElementById("loading-status");
+            if (statusEL) statusEL.innerText = "Failed to load products.";
           });
       }
     </script>
