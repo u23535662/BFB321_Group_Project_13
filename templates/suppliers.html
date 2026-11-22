@@ -127,14 +127,18 @@
       </div>
       <div class="sup_bodyblock">
         <!-- BUTTON FOR PRICELIST - MAIN START -->
+
+        <!-- this is what repeats I think (start) -->
         <button id="sup_Block" class="sup_block">
           <div class="sup_Block_left">
             <div class="sup_icon">
               <i data-lucide="circle-dollar-sign"></i>
             </div>
-            <h3 class="sup_title">Supplier Name</h3>
+            <h3 class="sup_title">Supplier Name</h3> <!-- supplier name here -->
           </div>
         </button>
+        <!-- this is what repeats I think (end) -->
+
       </div>
 
       <!-- SUPPLIER POPUP MODAL -->
@@ -144,7 +148,7 @@
 
           <!-- POPUP HEADING -->
           <div class="sup_popup_top_bar">
-            <div class="sup_popup_title">
+            <div class="sup_popup_title"> <!-- supplier name here -->
               <h3>Supplier Name</h3>
             </div>
             <button id="close_sup" class="close_sup_popup">
@@ -160,14 +164,95 @@
               </div>
               <div class="new_item_text">Edit Supplier</div>
             </button>
-            </div>
 
+
+
+
+
+
+
+            <!-- editSupplierModal start -->
+            <div id="editSupplier" class="edit_modal">
+              <!-- Modal content -->
+              <div class="edit_modal-content">
+                <div class="delete_block">
+                  <button class="deletebutton">Delete Supplier</button>
+                </div>
+                <div class="popup_name">
+                  <h1 class="popup_title">Edit Supplier Name</h1> <!-- supplier name -->
+                </div>
+                <div class="supplier_details_block">
+                  <h3 class="block_title">Supplier Details</h3>
+                  <div class="supplier_details_sub_block">
+                    <input class="addSupplierName" type="text" placeholder="Supplier Name">
+                    <input class="addSupplierEmail" type="text" placeholder="Email Address">
+                  </div>
+                  <input class="addSupplierTelephoneNumber" type="text" placeholder="Telephone Number (optional)" />
+                </div>
+
+                <h3 class="block_title">Products</h3>   
+                <div> <!-- Hannah change this -->
+
+                  <!-- products details for supplier goes here (this is the repeating block) -->
+                  <div class="product_details_block">
+                    <div class="product_details_sub_block">
+                        <input class="addProductName"></input>
+                        <input class="addProductPrice"></input>
+                    </div>
+                    <div class="product_details_sub_block">
+                      <input class="addProductUnits"></input>
+                      <div class="delete_block">
+                        <button class="deletebutton">Delete</button>
+                      </div>
+                    </div>
+                  </div>
+                  <!-- (repeating block ends here) -->
+
+                </div>
+
+
+
+
+                <div>
+                  <div class="add_product_button_block">
+                    <button id="edit_add_product_button" class="addProductButton">
+                      <div class="new_item_text">Add Product</div>
+                    </button>
+                  </div>
+                  </button>
+                  
+                  <div class="ul_block">
+                    <ul class="add_ul" id="edit_add_product_ul">
+                      <li class="add_li" id="edit_add_product_li"></li>
+                    </ul>
+                  </div>
+                </div>
+                <div class="cancel_and_submit_block">
+                  <span class="close" id="close_editSupplier_popup">Cancel</span>
+                  <span class="submit_popup">Submit</span>
+                </div>
+              </div>
+            </div>
+            <!-- editSupplierModal end -->
+
+
+
+
+
+
+
+
+          </div>
           <div class="sup_product_info">
             <div class="sup_info_left">
-              <h4>Email Address</h4>
-              <h4>email@address</h4>
-              <h4>Phone Number</h4>
-              <h4>0123456789</h4>
+              <div class="sup_info_textbox">
+                <h4>Email Address</h4>
+                <!-- email here -->
+                <h4>email@address</h4>
+                <h4>Phone Number</h4>
+                <!-- number here -->
+                <h4>0123456789</h4>
+              </div>
             </div>
 
             <div class="sup_info_right">
@@ -230,6 +315,98 @@
       }
       // SUPPLIERS PRICE LIST END
   
+
+      // EDIT SUPPLIERS POPUP START
+      const editSupplierModal = document.getElementById("editSupplier");
+      const editSupplierOpenBtn = document.getElementById("editsupplierButton");
+      const editSupplierCloseBtn = document.getElementById("close_editSupplier_popup");
+
+      if (editSupplierModal && editSupplierOpenBtn && editSupplierCloseBtn) {
+        // Open Popup
+        editSupplierOpenBtn.addEventListener("click", function () {
+          editSupplierModal.style.display = "block";
+        });
+
+        // Close Popup
+        editSupplierCloseBtn.addEventListener("click", function (event) {
+          event.preventDefault();
+          event.stopPropagation();
+          editSupplierModal.style.display = "none";
+        });
+
+        // Close Popup (click outside)
+        editSupplierModal.addEventListener("click", function (event) {
+          if (event.target === addSupplierModal) {
+            editSupplierModal.style.display = "none";
+          }
+        });
+      }
+
+
+
+
+      // ADD PRODUCT EXPANDING BUTTON START
+      const edit_list = document.getElementById('edit_add_product_li');
+
+      const edit_add_product = document.getElementById('edit_add_product_button');
+      edit_add_product.addEventListener('click', (event) => {
+
+        const parentDiv = document.createElement('div');
+        parentDiv.className = 'product_details_block'
+
+        const childDiv1 = document.createElement('div');
+        childDiv1.className = 'product_details_sub_block'
+
+        const input1 = document.createElement('input');
+        input1.className = 'addProductName'
+        input1.type = 'text';
+        input1.placeholder = "Product Name"
+
+        const input2 = document.createElement('input');
+        input2.className = 'addProductPrice'
+        input2.type = 'text';
+        input2.placeholder = "Product Price"
+
+        const childDiv2 = document.createElement('div');
+        childDiv2.className = 'product_details_sub_block'
+
+        const input3 = document.createElement('input');
+        input3.className = 'addProductUnits'
+        input3.type = 'text';
+        input3.placeholder = "Units Per Box"
+
+        const childDiv3 = document.createElement('div');
+        childDiv3.className = 'delete_block'
+
+        const cancelButton = document.createElement('Button')
+        cancelButton.className = 'deletebutton'
+        cancelButton.textContent = "Delete";
+        cancelButton.addEventListener('click', () => {
+          parentDiv.remove();
+          })
+
+        const childDiv4 = document.createElement('div');
+        childDiv4.className = 'delete_item_text'
+
+        cancelButton.appendChild(childDiv4);
+        childDiv3.appendChild(cancelButton);
+        childDiv2.appendChild(input3);
+        childDiv2.appendChild(childDiv3);
+        childDiv1.appendChild(input1);
+        childDiv1.appendChild(input2);
+        parentDiv.appendChild(childDiv1);
+        parentDiv.appendChild(childDiv2);
+        edit_list.appendChild(parentDiv);
+        })
+      // ADD PRODUCT EXPANDING BUTTON END
+      // EDIT SUPPLIERS POPUP END
+
+
+
+
+
+
+
       // ADD SUPPLIERS POPUP START
       const addSupplierModal = document.getElementById("addSupplier");
       const addSupplierOpenBtn = document.getElementById("supplierButton1");
@@ -255,8 +432,6 @@
           }
         });
       }
-      // ADD SUPPLIERS POPUP END
-
       // ADD PRODUCT EXPANDING BUTTON START
       const list = document.getElementById('add_product_li');
 
@@ -264,7 +439,6 @@
       add_product.addEventListener('click', (event) => {
 
         const parentDiv = document.createElement('div');
-        parentDiv.id = 'container'
         parentDiv.className = 'product_details_block'
 
         const childDiv1 = document.createElement('div');
@@ -312,6 +486,7 @@
         list.appendChild(parentDiv);
         })
       // ADD PRODUCT EXPANDING BUTTON END
+      // ADD SUPPLIERS POPUP END
     </script>
 
     <!-- Script for icons-->
