@@ -395,7 +395,6 @@ li {
   align-items: center;
   align-self: stretch;
 
-  gap: 2rem;
   overflow: hidden;
 
   position: relative;
@@ -406,6 +405,7 @@ li {
   border: 2px solid rgb(155, 255, 237);
   border-radius: 1rem;
   width: 35%;
+  max-height: 70%;
   /* height: 65%; */
 }
 .sup_popup_top_bar {
@@ -432,8 +432,8 @@ li {
   flex-direction: row;
   justify-content: flex-end;
   align-items: center;
-  width: 100%;
-  margin-right: 0.5rem;
+  width: 95%;
+  margin-top: 0.8rem;
 }
 .editsupplierbutton {
   align-items: center;
@@ -443,7 +443,7 @@ li {
   align-content: center;
 
   background-color: rgb(169, 217, 208, 0.6);
-  width: 25%;
+  width: 35%;
   height: 2rem;
 
   border-radius: 1rem;
@@ -459,9 +459,6 @@ li {
   color: rgb(155, 255, 237);
 }
 
-
-
-
 .sup_product_info {
   display: flex;
   flex-direction: row;
@@ -470,7 +467,7 @@ li {
 
   align-self: stretch;
   /* width: 100%; */
-  padding: 1.75rem;
+  padding: 1rem;
   gap: 1rem;
   /* border: 1px solid blue; */
 }
@@ -513,6 +510,10 @@ li {
   display: flex;
   flex-direction: column;
 }
+.productline{
+  color: rgb(155, 255, 237);
+  width: 40%;
+}
 .sup_prod_item {
   display: flex;
   flex-direction: row;
@@ -521,7 +522,8 @@ li {
   align-self: stretch;
 
   padding: 0.5rem;
-  border-bottom: 1px solid rgb(155, 255, 237);
+
+  height: 2rem;
 }
 /* Supplier info popup content end */
 /* SUPPLIER INFO POPUP END */
