@@ -1011,6 +1011,37 @@ def get_products_supplier(supplier_id=None):
         "SELECT product_id FROM product WHERE supplier_id = %s", (supplier_id,)
     )
     db.close_db()
+## Getting supplier data (with linked products)
+def get_suppliers(supplier_id=None):
+    sql = """
+    SELECT
+        s.supplier_id AS id,
+        s.supplier_name AS name,
+        s.supplier_from_date AS from_date,
+        s.reason_for_changing_supplier AS change_reason,
+        s.replaces_supplier_id AS replaces_supplier_id,
+        s.created_at AS created_at,
+        s.updated_at AS updated_at,
+        s.contact_email AS contact_email,
+        s.contact_phone AS contact_phone,
+        ps.product_supplier_id AS product_supplier_id,
+        p.product_id AS product_id,
+        p.product_name AS product_name,
+        ps.supplier_price AS supplier_price,
+        ps.units_per_package AS units_per_package
+     FROM supplier s
+    LEFT JOIN product_supplier ps ON s.supplier_id = ps.supplier_id
+    LEFT JOIN product p ON ps.product_id = p.product_id
+    """
+    is_single = supplier_id != "" and supplier_id is not None
+
+    if is_single:
+        sql += " WHERE s.supplier_id = %s ORDER BY p.product_name ASC"
+        suppliers = db.query_all(sql, (supplier_id,))
+    else:
+        sql += " ORDER BY s.supplier_id ASC, p.product_name ASC"
+        suppliers = db.query_all(sql)
+    db.close_db()
 
     products_data = []
     for row in rows:
