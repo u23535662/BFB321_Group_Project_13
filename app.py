@@ -250,7 +250,7 @@ def create_app() -> Flask:
         if not isinstance(data, dict):
             return jsonify({"success": False, "error": "Invalid or missing JSON payload"}), 400
 
-        required_fields = ("name", "from_date", "change_reason")
+        required_fields = ("name", "from_date", "contact_email")
         missing = [field for field in required_fields if field not in data or data[field] is None]
         if missing:
             return jsonify({
@@ -261,17 +261,17 @@ def create_app() -> Flask:
         try:
             name = str(data["name"]).strip()
             from_date = str(data["from_date"]).strip()
-            change_reason = str(data["change_reason"]).strip()
-            contact_email = str(data.get("contact_email", "")).strip()
-            contact_phone = str(data.get("contact_phone", "")).strip()
+            contact_email = str(data["contact_email"]).strip()
+            change_reason = str(data.get("change_reason") or "").strip()
+            contact_phone = str(data.get("contact_phone") or "").strip()
             replaces_supplier_id = (
                 int(data["replaces_supplier_id"])
                 if data.get("replaces_supplier_id") not in (None, "")
                 else None
             )
 
-            if not name or not from_date:
-                return jsonify({"success": False, "error": "Supplier name and from_date are required"}), 400
+            if not name or not from_date or not contact_email:
+                return jsonify({"success": False, "error": "Supplier name, from_date, and contact email are required"}), 400
 
             new_id = models.insert_supplier(
                 name=name,
@@ -301,19 +301,22 @@ def create_app() -> Flask:
             return jsonify({"success": False, "error": "Invalid or missing JSON payload"}), 400
 
         try:
-            n_name = str(data.get("name", supplier["name"])).strip()
-            n_date = str(data.get("from_date", supplier["from_date"])).strip()
-            n_reason = str(data.get("change_reason", supplier["change_reason"])).strip()
-            n_email = str(data.get("contact_email", supplier["contact_email"])).strip()
-            n_phone = str(data.get("contact_phone", supplier["contact_phone"])).strip()
-            n_replaces = (
-                int(data["replaces_supplier_id"])
-                if "replaces_supplier_id" in data and data["replaces_supplier_id"] not in (None, "")
-                else supplier.get("replaces_supplier_id")
-            )
+            n_name = str(data["name"] if data.get("name") is not None else supplier["name"]).strip()
+            n_date = str(data["from_date"] if data.get("from_date") is not None else supplier["from_date"]).strip()
+            n_email = str(data["contact_email"] if data.get("contact_email") is not None else supplier["contact_email"]).strip()
+            n_reason = str((data["change_reason"] if "change_reason" in data else supplier["change_reason"]) or "").strip()
+            n_phone = str((data["contact_phone"] if "contact_phone" in data else supplier["contact_phone"]) or "").strip()
+            if "replaces_supplier_id" in data:
+                raw_replaces = data["replaces_supplier_id"]
+                n_replaces = int(raw_replaces) if raw_replaces not in (None, "") else None
+            else:
+                n_replaces = supplier.get("replaces_supplier_id")
 
-            if not n_name or not n_date:
-                return jsonify({"success": False, "error": "Supplier name and from_date are required"}), 400
+            if not n_name or not n_date or not n_email:
+                return jsonify({
+                    "success": False, 
+                    "error": "Supplier name, from_date, and contact email are required"
+                }), 400
 
             models.update_supplier(
                 name=n_name,
