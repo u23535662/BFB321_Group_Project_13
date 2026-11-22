@@ -62,67 +62,6 @@ CREATE TABLE `inventory_update_item` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Table structure for table `job`
---
-
-DROP TABLE IF EXISTS `job`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `job` (
-  `job_id` int NOT NULL AUTO_INCREMENT,
-  `job_name` varchar(255) NOT NULL,
-  `job_description` text,
-  `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `updated_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  PRIMARY KEY (`job_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `job_consumables`
---
-
-DROP TABLE IF EXISTS `job_consumables`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `job_consumables` (
-  `job_consumables_id` int NOT NULL AUTO_INCREMENT,
-  `qty_of_product_used` int NOT NULL DEFAULT '0',
-  `product_id` int NOT NULL,
-  `job_id` int NOT NULL,
-  `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `updated_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  PRIMARY KEY (`job_consumables_id`),
-  UNIQUE KEY `uq_job_consumables_job_product` (`job_id`,`product_id`),
-  KEY `fk_job_consumables_product1_idx` (`product_id`),
-  KEY `fk_job_consumables_job1_idx` (`job_id`),
-  CONSTRAINT `fk_job_consumables_job1` FOREIGN KEY (`job_id`) REFERENCES `job` (`job_id`) ON DELETE RESTRICT ON UPDATE CASCADE,
-  CONSTRAINT `fk_job_consumables_product1` FOREIGN KEY (`product_id`) REFERENCES `product` (`product_id`) ON DELETE RESTRICT ON UPDATE CASCADE,
-  CONSTRAINT `chk_job_consumables_qty_pos` CHECK ((`qty_of_product_used` > 0))
-) ENGINE=InnoDB AUTO_INCREMENT=16 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `job_instance`
---
-
-DROP TABLE IF EXISTS `job_instance`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `job_instance` (
-  `job_instance_id` int NOT NULL AUTO_INCREMENT,
-  `job_id` int NOT NULL,
-  `operation_date` datetime NOT NULL,
-  `status` enum('Scheduled','Completed','Cancelled') NOT NULL DEFAULT 'Scheduled',
-  `updated_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (`job_instance_id`),
-  KEY `fk_job_instance_job_idx` (`job_id`),
-  CONSTRAINT `fk_job_instance_job` FOREIGN KEY (`job_id`) REFERENCES `job` (`job_id`) ON DELETE RESTRICT ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=138 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
 -- Table structure for table `product`
 --
 
@@ -135,6 +74,7 @@ CREATE TABLE `product` (
   `product_price` decimal(10,2) NOT NULL DEFAULT '0.00',
   `product_holding_cost` decimal(10,2) NOT NULL DEFAULT '0.00',
   `year_starting_inventory` int NOT NULL DEFAULT '0',
+  `storage_location` varchar(255) NOT NULL,
   `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`product_id`),

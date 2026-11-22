@@ -1,6 +1,8 @@
 import os
 import sys
-from db import BASE_DIR, connect
+from db import connect
+
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 # Children tables before parent tables to respect foreign key constraints
 TABLES_IN_DROP_ORDER = [
@@ -8,11 +10,8 @@ TABLES_IN_DROP_ORDER = [
     "inventory_update",
     "purchase_order_item",
     "purchase_order",
-    "job_consumables",
-    "job_instance",
     "product_supplier",
     "sale",
-    "job",
     "product",
     "supplier",
 ]
