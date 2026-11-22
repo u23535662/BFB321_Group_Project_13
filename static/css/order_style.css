@@ -209,7 +209,7 @@ li {
   align-items: center;
   justify-content: left;
   display: flex;
-  /* flex-direction: row; */
+
   align-content: center;
 
   background-color: rgb(169, 217, 208, 0.6);
@@ -255,7 +255,7 @@ li {
   align-items: center;
 
   width: 35%;
-  height: 60%;
+  max-height: 60%;
   gap: 2rem;
 
   box-sizing: border-box;
@@ -300,20 +300,15 @@ li {
   gap: 2rem;
 }
 
-.supplier_select,
-.est_del_date_select {
+.supplier_select {
   display: flex;
   justify-content: space-between;
   flex-direction: row !important;
-  height: 15%;
+  height: 30%;
   width: 90%;
 
   background-color: rgb(169, 217, 208, 0.6);
   border-radius: 0.5rem;
-}
-
-.est_del_date_text {
-  width: 60%;
 }
 
 .supplier_sel {
@@ -346,7 +341,7 @@ li {
   display: flex;
   justify-content: space-between;
   flex-direction: row;
-  height: 15%;
+  height: 30%;
   width: 90%;
 }
 
@@ -371,6 +366,7 @@ li {
 .unit_select {
   display: flex;
   width: 20%;
+  height: 100%;
   background-color: rgb(169, 217, 208, 0.6);
   border-radius: 0.5rem;
 }
@@ -395,29 +391,41 @@ li {
   font-weight: 300;
 }
 
-.est_del_date_select {
+.add_product {
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
+  flex-direction: row !important;
   align-items: center;
+  height: 30%;
+  width: 90%;
 
-  border-style: solid;
-  border-color: #152d2f;
-  border-width: 1px;
+  border-radius: 0.5rem;
 }
 
-.est_del_date_text {
+.add_prod {
   display: flex;
-  margin-left: 0.5rem;
-}
+  justify-content: center;
+  align-items: center;
+  height: 2rem;
+  width: 35%;
 
-.est_del_date_input {
-  background-color: rgb(169, 217, 208, 0);
+  background-color: #152d2f;
+  border-radius: 0.5rem;
 
   border-style: solid;
   border-color: #152d2f;
   border-width: 1px;
-  border-radius: 0.2rem;
-  margin-right: 0.5rem;
+  gap: 1.5rem;
+
+  color: #e0e0e0;
+}
+
+.add_prod_hidden {
+  display: none;
+  justify-content: space-between;
+  flex-direction: row;
+  height: 30%;
+  width: 90%;
 }
 
 .confirm_or_cancel_order {
@@ -466,7 +474,6 @@ li {
 
 .supplier_select:hover,
 .product_select:hover,
-.est_del_date_input:hover,
 .confirm:hover,
 .cancel:hover {
   cursor: pointer;
