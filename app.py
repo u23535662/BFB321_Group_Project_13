@@ -7,33 +7,79 @@ import models
 
 
 def create_app() -> Flask:
-    flask_app = Flask(__name__)
-    flask_app.config.from_object(get_config())
-    db.init_app(flask_app)
+    app = Flask(__name__)
+    app.config.from_object(get_config())
+    db.init_app(app)
 
     # =========================================================================
     # PAGE ROUTES
     # =========================================================================
 
-    @flask_app.route("/")
-    @flask_app.route("/overview")
+    @app.route("/")
+    @app.route("/overview")
+    @app.route("/index")
     def overview():
         return render_template("index.html")
 
-    @flask_app.route("/stock")
+    @app.route("/stock")
     def stock():
         return render_template("stock.html")
 
-    @flask_app.route("/orders")
-    @flask_app.route("/order")
+    @app.route("/orders")
+    @app.route("/order")
     def orders():
         return render_template("order.html")
+
+    # =========================================================================
+    # CHART & SIMULATION API
+    # =========================================================================
+
+    @app.route("/api/products/<int:product_id>/eoq-chart", methods=["GET"])
+    def api_get_product_eoq_chart(product_id: int):
+        try:
+            zoom = request.args.get("zoom", "month").strip().lower()
+            if zoom not in ("month", "year"):
+                zoom = "month"
+
+            result = models.get_product_eoq_simulation(product_id=product_id, zoom=zoom)
+            if not result.get("product"):
+                return jsonify({"success": False, "error": "Product not found"}), 404
+
+            return jsonify({
+                "success": True,
+                "zoom": zoom,
+                "product": result["product"],
+                "simulation": result["simulation"],
+                "svg": result["svg"],
+            }), 200
+        except Exception as exc:
+            return jsonify({"success": False, "error": str(exc)}), 500
+
+    @app.route("/api/allocation-chart", methods=["GET"])
+    def api_get_allocation_chart():
+        try:
+            raw_product_id = request.args.get("product_id", "").strip()
+            product_id = int(raw_product_id) if raw_product_id else None
+
+            if product_id is not None and not models.get_products(product_id):
+                return jsonify({"success": False, "error": "Product not found"}), 404
+
+            result = models.get_allocation_breakdown(product_id=product_id)
+            return jsonify({
+                "success": True,
+                "data": result["data"],
+                "svg": result["svg"],
+            }), 200
+        except ValueError:
+            return jsonify({"success": False, "error": "Invalid product_id parameter"}), 400
+        except Exception as exc:
+            return jsonify({"success": False, "error": str(exc)}), 500
 
     # =========================================================================
     # PRODUCT API
     # =========================================================================
 
-    @flask_app.route("/api/products", methods=["GET"])
+    @app.route("/api/products", methods=["GET"])
     def api_get_products():
         try:
             products = models.get_products()
@@ -41,7 +87,7 @@ def create_app() -> Flask:
         except Exception as exc:
             return jsonify({"success": False, "error": str(exc)}), 500
 
-    @flask_app.route("/api/products/<int:product_id>", methods=["GET"])
+    @app.route("/api/products/<int:product_id>", methods=["GET"])
     def api_get_product(product_id: int):
         try:
             product = models.get_products(product_id)
@@ -51,7 +97,7 @@ def create_app() -> Flask:
         except Exception as exc:
             return jsonify({"success": False, "error": str(exc)}), 500
 
-    @flask_app.route("/api/products", methods=["POST"])
+    @app.route("/api/products", methods=["POST"])
     def api_create_product():
         data = request.get_json(silent=True)
         if not isinstance(data, dict):
@@ -100,7 +146,7 @@ def create_app() -> Flask:
         except Exception as exc:
             return jsonify({"success": False, "error": str(exc)}), 500
 
-    @flask_app.route("/api/products/<int:product_id>", methods=["PUT"])
+    @app.route("/api/products/<int:product_id>", methods=["PUT"])
     def api_update_product(product_id: int):
         product = models.get_products_raw(product_id)
         if not product:
@@ -149,7 +195,7 @@ def create_app() -> Flask:
         except Exception as exc:
             return jsonify({"success": False, "error": str(exc)}), 500
 
-    @flask_app.route("/api/products/<int:product_id>", methods=["DELETE"])
+    @app.route("/api/products/<int:product_id>", methods=["DELETE"])
     def api_delete_product(product_id: int):
         product = models.get_products_raw(product_id)
         if not product:
@@ -170,7 +216,7 @@ def create_app() -> Flask:
     # SUPPLIER API
     # =========================================================================
 
-    @flask_app.route("/api/suppliers", methods=["GET"])
+    @app.route("/api/suppliers", methods=["GET"])
     def api_get_suppliers():
         try:
             suppliers = models.get_suppliers()
@@ -178,7 +224,7 @@ def create_app() -> Flask:
         except Exception as exc:
             return jsonify({"success": False, "error": str(exc)}), 500
 
-    @flask_app.route("/api/suppliers/<int:supplier_id>", methods=["GET"])
+    @app.route("/api/suppliers/<int:supplier_id>", methods=["GET"])
     def api_get_supplier(supplier_id: int):
         try:
             supplier = models.get_suppliers(supplier_id)
@@ -188,7 +234,7 @@ def create_app() -> Flask:
         except Exception as exc:
             return jsonify({"success": False, "error": str(exc)}), 500
 
-    @flask_app.route("/api/suppliers/<int:supplier_id>/products", methods=["GET"])
+    @app.route("/api/suppliers/<int:supplier_id>/products", methods=["GET"])
     def api_get_products_for_supplier(supplier_id: int):
         try:
             data = models.get_products_supplier(supplier_id)
@@ -198,7 +244,7 @@ def create_app() -> Flask:
         except Exception as exc:
             return jsonify({"success": False, "error": str(exc)}), 500
 
-    @flask_app.route("/api/suppliers", methods=["POST"])
+    @app.route("/api/suppliers", methods=["POST"])
     def api_create_supplier():
         data = request.get_json(silent=True)
         if not isinstance(data, dict):
@@ -244,7 +290,7 @@ def create_app() -> Flask:
         except Exception as exc:
             return jsonify({"success": False, "error": str(exc)}), 500
 
-    @flask_app.route("/api/suppliers/<int:supplier_id>", methods=["PUT"])
+    @app.route("/api/suppliers/<int:supplier_id>", methods=["PUT"])
     def api_update_supplier(supplier_id: int):
         supplier = models.get_suppliers(supplier_id)
         if not supplier:
@@ -291,7 +337,7 @@ def create_app() -> Flask:
         except Exception as exc:
             return jsonify({"success": False, "error": str(exc)}), 500
 
-    @flask_app.route("/api/suppliers/<int:supplier_id>", methods=["DELETE"])
+    @app.route("/api/suppliers/<int:supplier_id>", methods=["DELETE"])
     def api_delete_supplier(supplier_id: int):
         supplier = models.get_suppliers(supplier_id)
         if not supplier:
@@ -312,7 +358,7 @@ def create_app() -> Flask:
     # SALES API
     # =========================================================================
 
-    @flask_app.route("/api/sales", methods=["GET"])
+    @app.route("/api/sales", methods=["GET"])
     def api_get_sales():
         try:
             sales = models.get_sales()
@@ -320,7 +366,7 @@ def create_app() -> Flask:
         except Exception as exc:
             return jsonify({"success": False, "error": str(exc)}), 500
 
-    @flask_app.route("/api/sales/<int:sale_id>", methods=["GET"])
+    @app.route("/api/sales/<int:sale_id>", methods=["GET"])
     def api_get_sale(sale_id: int):
         try:
             sale = models.get_sales(sale_id)
@@ -330,7 +376,7 @@ def create_app() -> Flask:
         except Exception as exc:
             return jsonify({"success": False, "error": str(exc)}), 500
 
-    @flask_app.route("/api/sales", methods=["POST"])
+    @app.route("/api/sales", methods=["POST"])
     def api_create_sale():
         data = request.get_json(silent=True)
         if not isinstance(data, dict):
@@ -367,7 +413,7 @@ def create_app() -> Flask:
         except Exception as exc:
             return jsonify({"success": False, "error": str(exc)}), 500
 
-    @flask_app.route("/api/sales/<int:sale_id>", methods=["PUT"])
+    @app.route("/api/sales/<int:sale_id>", methods=["PUT"])
     def api_update_sale(sale_id: int):
         sale = models.get_sales(sale_id)
         if not sale:
@@ -409,7 +455,7 @@ def create_app() -> Flask:
         except Exception as exc:
             return jsonify({"success": False, "error": str(exc)}), 500
 
-    @flask_app.route("/api/sales/<int:sale_id>", methods=["DELETE"])
+    @app.route("/api/sales/<int:sale_id>", methods=["DELETE"])
     def api_delete_sale(sale_id: int):
         sale = models.get_sales(sale_id)
         if not sale:
@@ -421,7 +467,7 @@ def create_app() -> Flask:
         except Exception as exc:
             return jsonify({"success": False, "error": str(exc)}), 500
 
-    return flask_app
+    return app
 
 
 app = create_app()

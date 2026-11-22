@@ -1,4 +1,5 @@
-from datetime import datetime
+from datetime import date, datetime, timedelta
+import calendar
 import math
 import statistics
 from flask import current_app
@@ -116,6 +117,441 @@ def calculate_abc(products_list: list[dict]) -> list[dict]:
             item["tier"] = "C"
 
     return skus_sorted
+
+
+# =============================================================================
+# SIMULATION & SVG VISUALIZATION
+# =============================================================================
+
+
+def simulation_eoq(
+    starting_inventory: int = 200,
+    open_order_date: str = "",
+    dates: list = None,
+    demands: list = None,
+    rop: int = 0,
+    eoq: int = 0,
+    effective_lt: int = 2,
+) -> list:
+    """
+    Simulates the daily continuous inventory balance trajectory over a date series.
+
+    Formula / Simulation Execution:
+        At each daily time step t:
+            Inventory_t = max(Inventory_{t-1} + Replenish_t - Demand_t, 0)
+        Order Placement Rule:
+            If Inventory_t <= ROP and no replenishment order is currently in transit,
+            schedule a replenishment batch of size EOQ arriving at step (t + effective_lt).
+    """
+    if not dates or not demands:
+        return []
+
+    n_days = min(len(dates), len(demands))
+    if n_days == 0:
+        return []
+
+    sim_records = []
+    replenish_schedule = [0] * n_days
+    lead_time = max(int(round(effective_lt)), 1)
+    order_qty = max(int(eoq), 0)
+
+    if open_order_date and order_qty > 0:
+        open_str = str(open_order_date)[:10]
+        if open_str in dates:
+            open_idx = dates.index(open_str)
+            replenish_schedule[open_idx] += order_qty
+
+    # Initial day 0 balance
+    init_demand = max(int(demands[0] or 0), 0)
+    init_replenish = replenish_schedule[0]
+    init_inv = max(int(starting_inventory) + init_replenish - init_demand, 0)
+    sim_records.append({
+        "date": dates[0],
+        "demand": init_demand,
+        "inventory": init_inv,
+        "replenish": init_replenish,
+    })
+
+    current_inv = init_inv
+
+    for i in range(1, n_days):
+        day_demand = max(int(demands[i] or 0), 0)
+        day_replenish = replenish_schedule[i]
+
+        # Calculate balance after delivery arrival and sales satisfaction
+        current_inv = max(current_inv + day_replenish - day_demand, 0)
+
+        # Trigger reorder if at or below ROP and no batch is currently in transit
+        window_end = min(i + lead_time, n_days)
+        in_transit = sum(replenish_schedule[i:window_end])
+
+        if (
+            current_inv <= rop
+            and in_transit == 0
+            and order_qty > 0
+            and (i + lead_time < n_days)
+        ):
+            replenish_schedule[i + lead_time] += order_qty
+
+        sim_records.append({
+            "date": dates[i],
+            "demand": day_demand,
+            "inventory": current_inv,
+            "replenish": day_replenish,
+        })
+
+    return sim_records
+
+
+def generate_eoq_simulation_svg(
+    sim_data: list,
+    rop: int,
+    ss: int,
+    zoom: str = "month",
+    product_name: str = "Product",
+) -> str:
+    """
+    Generates a clean, modern, pure-SVG line chart of the EOQ inventory sawtooth.
+    """
+    if not sim_data:
+        return (
+            '<svg viewBox="0 0 750 280" class="graph-svg">'
+            '<text x="375" y="140" text-anchor="middle" fill="#64748b">'
+            "No simulation data available</text></svg>"
+        )
+
+    width = 750
+    height = 290
+    pad_left = 55
+    pad_right = 30
+    pad_top = 35
+    pad_bottom = 45
+
+    chart_w = width - pad_left - pad_right
+    chart_h = height - pad_top - pad_bottom
+
+    inv_values = [r["inventory"] for r in sim_data]
+    max_val = max(max(inv_values, default=100), rop * 1.3, ss * 1.5, 50)
+    y_max = math.ceil(max_val / 50.0) * 50  # Round up to clean step
+
+    n = len(sim_data)
+
+    def get_x(idx):
+        if n <= 1:
+            return pad_left + chart_w / 2.0
+        return pad_left + (idx * chart_w / (n - 1))
+
+    def get_y(val):
+        return pad_top + chart_h - (min(max(val, 0), y_max) * chart_h / y_max)
+
+    points = []
+    area_points = [f"{pad_left},{pad_top + chart_h}"]
+    for idx, r in enumerate(sim_data):
+        x = get_x(idx)
+        y = get_y(r["inventory"])
+        points.append(f"{x:.1f},{y:.1f}")
+        area_points.append(f"{x:.1f},{y:.1f}")
+    area_points.append(f"{get_x(n - 1):.1f},{pad_top + chart_h}")
+
+    line_coords = " ".join(points)
+    area_coords = " ".join(area_points)
+
+    rop_y = get_y(rop)
+    ss_y = get_y(ss)
+
+    y_ticks_svg = []
+    for step in range(5):
+        val = int(step * y_max / 4)
+        y_pos = get_y(val)
+        y_ticks_svg.append(
+            f'<line x1="{pad_left}" y1="{y_pos:.1f}" x2="{width - pad_right}" y2="{y_pos:.1f}" stroke="rgba(255,255,255,0.06)" stroke-width="1" />'
+            f'<text x="{pad_left - 8}" y="{y_pos + 4:.1f}" text-anchor="end" fill="#94a3b8" font-size="11" font-family="sans-serif">{val}</text>'
+        )
+
+    today = date.today()
+    current_year = today.year
+    current_month_abbr = today.strftime("%b")
+    current_month_full = today.strftime("%B")
+
+    x_ticks_svg = []
+    if zoom == "month":
+        tick_indices = [0, 4, 9, 14, 19, 24, n - 1]
+        for t_idx in tick_indices:
+            if t_idx < n:
+                x_pos = get_x(t_idx)
+                d_str = str(sim_data[t_idx]["date"])
+                day_lbl = f"{int(d_str.split('-')[-1])} {current_month_abbr}"
+                x_ticks_svg.append(
+                    f'<line x1="{x_pos:.1f}" y1="{pad_top + chart_h}" x2="{x_pos:.1f}" y2="{pad_top + chart_h + 5}" stroke="#64748b" stroke-width="1" />'
+                    f'<text x="{x_pos:.1f}" y="{pad_top + chart_h + 18}" text-anchor="middle" fill="#94a3b8" font-size="11" font-family="sans-serif">{day_lbl}</text>'
+                )
+    else:
+        months_seen = set()
+        m_names = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
+        for idx, r in enumerate(sim_data):
+            d_str = str(r["date"])
+            month_key = d_str[:7]
+            if month_key not in months_seen and d_str.endswith("-01"):
+                months_seen.add(month_key)
+                x_pos = get_x(idx)
+                m_num = int(month_key.split("-")[1])
+                m_lbl = m_names[m_num - 1]
+                x_ticks_svg.append(
+                    f'<line x1="{x_pos:.1f}" y1="{pad_top + chart_h}" x2="{x_pos:.1f}" y2="{pad_top + chart_h + 5}" stroke="#64748b" stroke-width="1" />'
+                    f'<text x="{x_pos:.1f}" y="{pad_top + chart_h + 18}" text-anchor="middle" fill="#94a3b8" font-size="10" font-family="sans-serif">{m_lbl}</text>'
+                )
+
+    period_heading = (
+        f"{current_month_full} {current_year}"
+        if zoom == "month"
+        else f"Calendar Year {current_year}"
+    )
+
+    svg_content = f"""
+    <svg viewBox="0 0 {width} {height}" class="graph-svg" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="eoqGradient" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#10b981" stop-opacity="0.35"/>
+          <stop offset="100%" stop-color="#10b981" stop-opacity="0.02"/>
+        </linearGradient>
+        <linearGradient id="dangerZoneGrad" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#ef4444" stop-opacity="0.12"/>
+          <stop offset="100%" stop-color="#ef4444" stop-opacity="0.02"/>
+        </linearGradient>
+      </defs>
+
+      <!-- Active Product & Period Display Header -->
+      <text x="{pad_left}" y="22" fill="#38bdf8" font-size="13" font-weight="700" font-family="sans-serif">Displaying: {product_name} · Timeline: {period_heading}</text>
+
+      <!-- Background Grid & Ticks -->
+      {"".join(y_ticks_svg)}
+      {"".join(x_ticks_svg)}
+
+      <!-- Safety Stock Shaded Danger Zone -->
+      <rect x="{pad_left}" y="{ss_y:.1f}" width="{chart_w}" height="{max(pad_top + chart_h - ss_y, 0):.1f}" fill="url(#dangerZoneGrad)" />
+
+      <!-- Reorder Point (ROP) Reference Line -->
+      <line x1="{pad_left}" y1="{rop_y:.1f}" x2="{width - pad_right}" y2="{rop_y:.1f}" stroke="#38bdf8" stroke-width="2" stroke-dasharray="6,4" />
+      <text x="{width - pad_right - 4}" y="{rop_y - 6:.1f}" text-anchor="end" fill="#38bdf8" font-size="11" font-weight="600" font-family="sans-serif">Reorder Point (ROP = {rop})</text>
+
+      <!-- Safety Stock (SS) Reference Line -->
+      <line x1="{pad_left}" y1="{ss_y:.1f}" x2="{width - pad_right}" y2="{ss_y:.1f}" stroke="#ef4444" stroke-width="2" stroke-dasharray="5,3" />
+      <text x="{width - pad_right - 4}" y="{ss_y - 6:.1f}" text-anchor="end" fill="#ef4444" font-size="11" font-weight="600" font-family="sans-serif">Safety Stock (SS = {ss})</text>
+
+      <!-- Inventory Area Fill -->
+      <polygon points="{area_coords}" fill="url(#eoqGradient)" />
+
+      <!-- Inventory Continuous Trajectory Polyline -->
+      <polyline fill="none" stroke="#10b981" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round" points="{line_coords}" />
+
+      <!-- Y Axis & X Axis Base Lines -->
+      <line x1="{pad_left}" y1="{pad_top}" x2="{pad_left}" y2="{pad_top + chart_h}" stroke="#64748b" stroke-width="1.5" />
+      <line x1="{pad_left}" y1="{pad_top + chart_h}" x2="{width - pad_right}" y2="{pad_top + chart_h}" stroke="#64748b" stroke-width="1.5" />
+    </svg>
+    """
+    return svg_content
+
+
+def generate_stacked_bar_svg(product_data: dict) -> str:
+    """
+    Generates a horizontal stacked bar chart visualizing Available, Reserved, and Sold allocations.
+    """
+    avail = max(int(product_data.get("available_qty", 0)), 0)
+    res = max(int(product_data.get("reserved_qty", 0)), 0)
+    sold = max(int(product_data.get("sold_qty", 0)), 0)
+    total = max(avail + res + sold, 1)
+
+    width = 780
+    height = 230
+    pad_left = 30
+    pad_right = 30
+    bar_y = 50
+    bar_h = 42
+    bar_w = width - pad_left - pad_right  # 720px
+
+    pct_avail = avail / total
+    pct_res = res / total
+    pct_sold = sold / total
+
+    w_avail = round(pct_avail * bar_w, 1)
+    w_res = round(pct_res * bar_w, 1)
+    w_sold = round(pct_sold * bar_w, 1)
+
+    diff = bar_w - (w_avail + w_res + w_sold)
+    w_avail += diff
+
+    x_avail = pad_left
+    x_res = x_avail + w_avail
+    x_sold = x_res + w_res
+
+    p_name = product_data.get("name", "All Products (Portfolio)")
+    avail_val = float(product_data.get("available_val", 0.0))
+    res_val = float(product_data.get("reserved_val", 0.0))
+    sold_val = float(product_data.get("sold_val", 0.0))
+    total_val = float(product_data.get("total_val", 0.0))
+
+    txt_avail = (
+        f"<text x='{x_avail + w_avail/2:.1f}' y='{bar_y + bar_h/2 + 4:.1f}' fill='#ffffff' font-size='12' font-weight='700' text-anchor='middle' font-family='sans-serif'>{avail:,} u</text>"
+        if w_avail > 42
+        else ""
+    )
+    txt_res = (
+        f"<text x='{x_res + w_res/2:.1f}' y='{bar_y + bar_h/2 + 4:.1f}' fill='#ffffff' font-size='11' font-weight='700' text-anchor='middle' font-family='sans-serif'>{res:,} u</text>"
+        if w_res > 38
+        else ""
+    )
+    txt_sold = (
+        f"<text x='{x_sold + w_sold/2:.1f}' y='{bar_y + bar_h/2 + 4:.1f}' fill='#ffffff' font-size='12' font-weight='700' text-anchor='middle' font-family='sans-serif'>{sold:,} u</text>"
+        if w_sold > 42
+        else ""
+    )
+
+    svg = f"""
+    <svg viewBox="0 0 {width} {height}" class="graph-svg" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg">
+      <!-- Title & Focus -->
+      <text x="{pad_left}" y="24" fill="#38bdf8" font-size="13" font-weight="700" font-family="sans-serif">Focus: {p_name}</text>
+      <text x="{width - pad_right}" y="24" text-anchor="end" fill="#94a3b8" font-size="11" font-family="sans-serif">Total Lifecycle: {total:,} units · R {total_val:,.2f}</text>
+
+      <!-- Track Background -->
+      <rect x="{pad_left}" y="{bar_y}" width="{bar_w}" height="{bar_h}" rx="8" fill="#1e293b" />
+
+      <!-- Horizontal Stacked Segments -->
+      <rect x="{x_avail:.1f}" y="{bar_y}" width="{max(w_avail, 2):.1f}" height="{bar_h}" rx="8" fill="#10b981" />
+      <rect x="{x_res:.1f}" y="{bar_y}" width="{max(w_res, 2):.1f}" height="{bar_h}" fill="#f59e0b" />
+      <rect x="{x_sold:.1f}" y="{bar_y}" width="{max(w_sold, 2):.1f}" height="{bar_h}" rx="8" fill="#ef4444" />
+
+      <!-- In-Segment Text Labels -->
+      {txt_avail}
+      {txt_res}
+      {txt_sold}
+
+      <!-- Detailed Metrics Callout Cards Below the Horizontal Bar -->
+      <g transform="translate({pad_left}, 112)">
+        <rect x="0" y="0" width="225" height="54" rx="6" fill="rgba(16, 185, 129, 0.12)" stroke="rgba(16, 185, 129, 0.3)" />
+        <circle cx="14" cy="18" r="6" fill="#10b981" />
+        <text x="26" y="22" fill="#10b981" font-size="12" font-weight="700" font-family="sans-serif">Available On-Hand</text>
+        <text x="14" y="42" fill="#f8fafc" font-size="12" font-weight="600" font-family="sans-serif">{avail:,} units ({pct_avail*100:.1f}%) · R {avail_val:,.2f}</text>
+      </g>
+
+      <g transform="translate({pad_left + 247}, 112)">
+        <rect x="0" y="0" width="225" height="54" rx="6" fill="rgba(245, 158, 11, 0.12)" stroke="rgba(245, 158, 11, 0.3)" />
+        <circle cx="14" cy="18" r="6" fill="#f59e0b" />
+        <text x="26" y="22" fill="#f59e0b" font-size="12" font-weight="700" font-family="sans-serif">Reserved for Jobs</text>
+        <text x="14" y="42" fill="#f8fafc" font-size="12" font-weight="600" font-family="sans-serif">{res:,} units ({pct_res*100:.1f}%) · R {res_val:,.2f}</text>
+      </g>
+
+      <g transform="translate({pad_left + 495}, 112)">
+        <rect x="0" y="0" width="225" height="54" rx="6" fill="rgba(239, 68, 68, 0.12)" stroke="rgba(239, 68, 68, 0.3)" />
+        <circle cx="14" cy="18" r="6" fill="#ef4444" />
+        <text x="26" y="22" fill="#f43f5e" font-size="12" font-weight="700" font-family="sans-serif">Demand Satisfied (Sold)</text>
+        <text x="14" y="42" fill="#f8fafc" font-size="12" font-weight="600" font-family="sans-serif">{sold:,} units ({pct_sold*100:.1f}%) · R {sold_val:,.2f}</text>
+      </g>
+
+      <!-- Bottom Summary Note -->
+      <text x="{pad_left}" y="195" fill="#64748b" font-size="11" font-family="sans-serif">Horizontal valuation and allocation breakdown across active clinical inventory cycles</text>
+    </svg>
+    """
+    return svg
+
+
+def get_product_eoq_simulation(product_id: int, zoom: str = "month") -> dict:
+    """
+    Builds daily dates/demands and returns simulation records + SVG markup for a product.
+    """
+    product = get_products(product_id)
+    if not product:
+        return {"simulation": [], "svg": generate_eoq_simulation_svg([], 0, 0, zoom=zoom)}
+
+    today = date.today()
+    if zoom == "year":
+        start_dt = date(today.year, 1, 1)
+        end_dt = date(today.year, 12, 31)
+    else:
+        last_day = calendar.monthrange(today.year, today.month)[1]
+        start_dt = date(today.year, today.month, 1)
+        end_dt = date(today.year, today.month, last_day)
+
+    total_days = (end_dt - start_dt).days + 1
+    dates = [(start_dt + timedelta(days=i)).isoformat() for i in range(total_days)]
+
+    sales_rows = db.query_all(
+        """
+        SELECT DATE(sold_date) AS sale_day, COALESCE(SUM(sold_qty), 0) AS qty
+        FROM sale
+        WHERE product_id = %s
+          AND DATE(sold_date) BETWEEN %s AND %s
+        GROUP BY DATE(sold_date)
+        """,
+        (product_id, start_dt.isoformat(), end_dt.isoformat()),
+    )
+    sales_by_day = {str(r["sale_day"]): int(r["qty"] or 0) for r in sales_rows}
+    demands = [sales_by_day.get(d, 0) for d in dates]
+
+    sim_data = simulation_eoq(
+        starting_inventory=product["current_inventory"],
+        dates=dates,
+        demands=demands,
+        rop=product["rop"],
+        eoq=product["eoq"],
+        effective_lt=2,
+    )
+    svg = generate_eoq_simulation_svg(
+        sim_data=sim_data,
+        rop=product["rop"],
+        ss=product["ss"],
+        zoom=zoom,
+        product_name=product["name"],
+    )
+    return {"product": product, "simulation": sim_data, "svg": svg}
+
+
+def get_allocation_breakdown(product_id: int | None = None) -> dict:
+    """
+    Computes Available, Reserved, and Sold quantities/valuations and returns SVG markup.
+    """
+    if product_id is not None:
+        p = get_products(product_id)
+        if not p:
+            return {"data": {}, "svg": generate_stacked_bar_svg({})}
+        avail = max(int(p.get("current_inventory", 0)), 0)
+        sold = max(int(p.get("sold", 0)), 0)
+        res = 0
+        price = float(p.get("sell_price", p.get("price", 0.0)))
+        payload = {
+            "name": p["name"],
+            "available_qty": avail,
+            "reserved_qty": res,
+            "sold_qty": sold,
+            "available_val": avail * price,
+            "reserved_val": res * price,
+            "sold_val": sold * price,
+            "total_val": (avail + res + sold) * price,
+        }
+        return {"data": payload, "svg": generate_stacked_bar_svg(payload)}
+
+    products = get_products()
+    avail = sum(max(int(p.get("current_inventory", 0)), 0) for p in products)
+    sold = sum(max(int(p.get("sold", 0)), 0) for p in products)
+    res = 0
+    avail_val = sum(
+        max(int(p.get("current_inventory", 0)), 0) * float(p.get("sell_price", 0.0))
+        for p in products
+    )
+    sold_val = sum(
+        max(int(p.get("sold", 0)), 0) * float(p.get("sell_price", 0.0))
+        for p in products
+    )
+    payload = {
+        "name": "All Products (Portfolio)",
+        "available_qty": avail,
+        "reserved_qty": res,
+        "sold_qty": sold,
+        "available_val": avail_val,
+        "reserved_val": 0.0,
+        "sold_val": sold_val,
+        "total_val": avail_val + sold_val,
+    }
+    return {"data": payload, "svg": generate_stacked_bar_svg(payload)}
 
 
 # =============================================================================
