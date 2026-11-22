@@ -976,8 +976,13 @@ SELECT
     s.created_at AS created_at,
     s.updated_at AS updated_at,
     s.contact_email AS contact_email,
-    s.contact_phone AS contact_phone
+    s.contact_phone AS contact_phone,
+    p.product_id AS product_id,
+    p.product_name AS product_name,
+    p.supplier_price AS supplier_price,
+    p.units_per_package AS units_per_package
 FROM supplier s
+LEFT JOIN product p ON s.supplier_id = p.supplier_id
 WHERE NOT EXISTS (
     SELECT 1
     FROM supplier replaced
@@ -985,19 +990,38 @@ WHERE NOT EXISTS (
 )
 """
 
-
 def get_suppliers(supplier_id=None):
-    if supplier_id == "" or supplier_id is None:
-        rows = db.query_all(_BASE_SUPPLIER_SELECT)
-        db.close_db()
-        return [_format_supplier(r) for r in rows]
+    is_single = supplier_id != "" and supplier_id is not None
 
-    row = db.query_one(
-        f"{_BASE_SUPPLIER_SELECT} AND s.supplier_id = %s", (supplier_id,)
-    )
+    if is_single:
+        sql = f"{_BASE_SUPPLIER_SELECT} AND s.supplier_id = %s ORDER BY p.product_name ASC"
+        rows = db.query_all(sql, (supplier_id,))   
+    else:
+        sql = f"{_BASE_SUPPLIER_SELECT} ORDER BY s.supplier_id ASC, p.product_name ASC"
+        rows = db.query_all(sql)
     db.close_db()
-    return _format_supplier(row) if row else None
 
+    if not rows:
+        return None if is_single else []
+
+    suppliers_map = {}
+    for r in rows:
+        supplier_id = int(r["id"])
+        if supplier_id not in suppliers_map:
+            suppliers_map[supplier_id] = {
+                **_format_supplier(r),
+                "products": []
+            }
+        if r["product_id"] is not None:
+            suppliers_map[supplier_id]["products"].append({
+                "product_id": int(r["product_id"]),
+                "product_name": str(r["product_name"]),
+                "supplier_price": float(r["supplier_price"]),
+                "units_per_package": int(r["units_per_package"]),
+            })
+
+    result = list(suppliers_map.values())
+    return result[0] if is_single else result
 
 def get_products_supplier(supplier_id=None):
     if supplier_id == "" or supplier_id is None:
@@ -1010,37 +1034,6 @@ def get_products_supplier(supplier_id=None):
     rows = db.query_all(
         "SELECT product_id FROM product WHERE supplier_id = %s", (supplier_id,)
     )
-    db.close_db()
-## Getting supplier data (with linked products)
-def get_suppliers(supplier_id=None):
-    sql = """
-    SELECT
-        s.supplier_id AS id,
-        s.supplier_name AS name,
-        s.supplier_from_date AS from_date,
-        s.reason_for_changing_supplier AS change_reason,
-        s.replaces_supplier_id AS replaces_supplier_id,
-        s.created_at AS created_at,
-        s.updated_at AS updated_at,
-        s.contact_email AS contact_email,
-        s.contact_phone AS contact_phone,
-        ps.product_supplier_id AS product_supplier_id,
-        p.product_id AS product_id,
-        p.product_name AS product_name,
-        ps.supplier_price AS supplier_price,
-        ps.units_per_package AS units_per_package
-     FROM supplier s
-    LEFT JOIN product_supplier ps ON s.supplier_id = ps.supplier_id
-    LEFT JOIN product p ON ps.product_id = p.product_id
-    """
-    is_single = supplier_id != "" and supplier_id is not None
-
-    if is_single:
-        sql += " WHERE s.supplier_id = %s ORDER BY p.product_name ASC"
-        suppliers = db.query_all(sql, (supplier_id,))
-    else:
-        sql += " ORDER BY s.supplier_id ASC, p.product_name ASC"
-        suppliers = db.query_all(sql)
     db.close_db()
 
     products_data = []
