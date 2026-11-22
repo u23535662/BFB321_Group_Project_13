@@ -155,9 +155,14 @@
           <div class="task_block">
             <div class="task_block_left">
               <div class="task_icon">
-                <i data-lucide="circle-dollar-sign"></i>
+                <i data-lucide="star"></i>
               </div>
+            </div>
+            <div class="task_block_mid">
               <h3 class="task_title">Task</h3>
+            </div>
+            <div class="task_block_right">
+              <p>###</p>
             </div>
           </div>
 
@@ -165,9 +170,56 @@
           <div class="task_block">
             <div class="task_block_left">
               <div class="task_icon">
-                <i data-lucide="circle-dollar-sign"></i>
+                <i data-lucide="star"></i>
               </div>
+            </div>
+            <div class="task_block_mid">
               <h3 class="task_title">Task</h3>
+            </div>
+            <div class="task_block_right">
+              <p>###</p>
+            </div>
+          </div>
+
+          <div class="task_block">
+            <div class="task_block_left">
+              <div class="task_icon">
+                <i data-lucide="star"></i>
+              </div>
+            </div>
+            <div class="task_block_mid">
+              <h3 class="task_title">Task</h3>
+            </div>
+            <div class="task_block_right">
+              <p>###</p>
+            </div>
+          </div>
+
+          <div class="task_block">
+            <div class="task_block_left">
+              <div class="task_icon">
+                <i data-lucide="star"></i>
+              </div>
+            </div>
+            <div class="task_block_mid">
+              <h3 class="task_title">Task</h3>
+            </div>
+            <div class="task_block_right">
+              <p>###</p>
+            </div>
+          </div>
+
+          <div class="task_block">
+            <div class="task_block_left">
+              <div class="task_icon">
+                <i data-lucide="star"></i>
+              </div>
+            </div>
+            <div class="task_block_mid">
+              <h3 class="task_title">Task</h3>
+            </div>
+            <div class="task_block_right">
+              <p>###</p>
             </div>
           </div>
           <!-- FILLER END -->
@@ -177,16 +229,67 @@
       <!-- TWO GRAPH BLOCKS -->
 
       <div class="blockgraphs">
-        <div class="filterBtns">
+        <div class="graphBtns">
           <div class="indexBtns">
-            <button id="indexbutton3" class="indexbutton3">
-              <div class="index_icon">
-                <i data-lucide="filter"></i>
-              </div>
+            <button id="filter" class="filter">
+              <i data-lucide="filter"></i>
               <div>Filter</div>
             </button>
           </div>
-          <div class="zoom"></div>
+          <div class="zoom">
+            <div class="zoom_minus">
+              <i data-lucide="zoom-out"></i>
+            </div>
+            <div class="zoom_plus">
+              <i data-lucide="zoom-in"></i>
+            </div>
+          </div>
+        </div>
+
+        <div class="filter_popup_background" id="filter_popup_background">
+          <div class="filter_popup_content" id="filter_popup_content">
+            <div class="filter_button_heading">
+              <div class="filter_title">
+                <h1>Filter by product</h1>
+              </div>
+
+              <div class="close_filter" id="close_filter">
+                <i data-lucide="circle-x"></i>
+              </div>
+            </div>
+            <div class="popup_scroll">
+              <div class="filter_button_prod_sel">
+                <input class="filter_checkbox" type="checkbox" />
+                <p>Product 1</p>
+              </div>
+              <!-- FILLER START -->
+              <div class="filter_button_prod_sel">
+                <input class="filter_checkbox" type="checkbox" />
+                <p>Product 2</p>
+              </div>
+              <div class="filter_button_prod_sel">
+                <input class="filter_checkbox" type="checkbox" />
+                <p>Product 3</p>
+              </div>
+              <div class="filter_button_prod_sel">
+                <input class="filter_checkbox" type="checkbox" />
+                <p>Product 4</p>
+              </div>
+              <div class="filter_button_prod_sel">
+                <input class="filter_checkbox" type="checkbox" />
+                <p>Product 5</p>
+              </div>
+              <div class="filter_button_prod_sel">
+                <input class="filter_checkbox" type="checkbox" />
+                <p>Product 6</p>
+              </div>
+              <!-- FILLER END -->
+            </div>
+
+            <div class="filter_button_confirm" id="filter_button_confirm">
+              <p>Confirm</p>
+            </div>
+          </div>
         </div>
         <!-- bar chart -->
         <div class="contentblockgraphsBar">
@@ -277,6 +380,44 @@
       } else if (!confirmPopup) {
         console.log("No popup hold...");
       } else if (!confirmCloseBtn) {
+        console.log("No popup close");
+      }
+
+      //Script for filter popup
+      const Filter_background = document.getElementById(
+        "filter_popup_background",
+      );
+      const OpenFilterBtn = document.getElementById("filter");
+      const CloseFilterBtn = document.getElementById("close_filter");
+      const ConfirmFilterBtn = document.getElementById("filter_button_confirm");
+
+      if (Filter_background && OpenFilterBtn && CloseFilterBtn) {
+        // Open Popup
+        OpenFilterBtn.addEventListener("click", function () {
+          Filter_background.style.display = "flex";
+        });
+
+        // Close Popup
+        CloseFilterBtn.addEventListener("click", function () {
+          Filter_background.style.display = "none";
+        });
+
+        //Confirm Button
+        ConfirmFilterBtn.addEventListener("click", function () {
+          Filter_background.style.display = "none";
+        });
+
+        // Close Popup (click outside)
+        Filter_background.addEventListener("click", function (event) {
+          if (event.target === Filter_background) {
+            Filter_background.style.display = "none";
+          }
+        });
+      } else if (!Filter_background) {
+        console.log("No open Button");
+      } else if (!OpenFilterBtn) {
+        console.log("No popup hold...");
+      } else if (!CloseFilterBtn) {
         console.log("No popup close");
       }
     </script>
