@@ -14,6 +14,7 @@ def _get_config_value(key: str, default=None):
         return current_app.config.get(key, default)
     return getattr(get_config(), key, default)
 
+
 ## Economic Order Quantity
 def calculate_eoq(annual_demand: float, holding_cost: float, setup_cost: float, conversion: int) -> int:
     """
@@ -51,7 +52,13 @@ def calculate_eoq(annual_demand: float, holding_cost: float, setup_cost: float, 
 
 
 ## Safety Stock
-def calculate_ss(service_level: float,std_lt: float | None,std_demand: float | None,lt: float | int | None,avg_daily_demand: float | None = 0.0,) -> int:
+def calculate_ss(
+    service_level: float,
+    std_lt: float | None,
+    std_demand: float | None,
+    lt: float | int | None,
+    avg_daily_demand: float | None = 0.0,
+) -> int:
     """
     Computes required Safety Stock (SS) under stochastic demand and supplier lead time.
 
@@ -141,6 +148,7 @@ def calculate_abc(products_list: list) -> list:
     """
     A = float(_get_config_value("ABC_A_THRESHOLD", 80.0))
     B = float(_get_config_value("ABC_B_THRESHOLD", 95.0))
+
     def assign_tier(cum_pct: float) -> str:
         if cum_pct <= A:
             return "A"
@@ -183,6 +191,7 @@ def _to_datetime(value):
         return value
     return datetime.fromisoformat(str(value))
 
+
 # PRODUCT FUNCTIONS
 ## Getting raw product data
 def get_products_raw(product_id=None):
@@ -194,6 +203,7 @@ def get_products_raw(product_id=None):
             p.product_price AS price,
             p.year_starting_inventory AS starting_inv,
             p.product_holding_cost AS hc,
+            p.storage_location AS storage_location,
             p.created_at,
             p.updated_at
         FROM product p
@@ -207,6 +217,7 @@ def get_products_raw(product_id=None):
                 "price": float(p["price"]),
                 "year_starting_inventory": int(p["starting_inv"]),
                 "holding_cost": float(p["hc"]),
+                "storage_location": str(p["storage_location"] or ""),
                 "created_at": _to_datetime(p["created_at"]),
                 "updated_at": _to_datetime(p["updated_at"]),
             })
@@ -219,6 +230,7 @@ def get_products_raw(product_id=None):
             p.product_price AS price,
             p.year_starting_inventory AS starting_inv,
             p.product_holding_cost AS hc,
+            p.storage_location AS storage_location,
             p.created_at,
             p.updated_at
         FROM product p
@@ -233,6 +245,7 @@ def get_products_raw(product_id=None):
             "price": float(p["price"]),
             "year_starting_inventory": int(p["starting_inv"]),
             "holding_cost": float(p["hc"]),
+            "storage_location": str(p["storage_location"] or ""),
             "created_at": _to_datetime(p["created_at"]),
             "updated_at": _to_datetime(p["updated_at"]),
         }
@@ -382,22 +395,6 @@ def get_products(product_id=None):
         WHERE s.sold_date >= MAKEDATE(YEAR(CURDATE()), 1)
         GROUP BY s.product_id
     ),
-    matching_jobs AS (
-        SELECT DISTINCT
-            ji.job_id
-        FROM job_instance ji
-        WHERE ji.status != 'Cancelled'
-          AND ji.operation_date >= MAKEDATE(YEAR(CURDATE()), 1)
-    ),
-    consumables_agg AS (
-        SELECT
-            jc.product_id AS id,
-            SUM(jc.qty_of_product_used) AS used
-        FROM job_consumables jc
-        JOIN matching_jobs mj
-            ON mj.job_id = jc.job_id
-        GROUP BY jc.product_id
-    ),
     updates_agg AS (
         SELECT
             iui.product_id AS id,
@@ -413,32 +410,31 @@ def get_products(product_id=None):
         (
             p.year_starting_inventory
             - COALESCE(sa.sales, 0)
-            - COALESCE(ca.used, 0)
             + COALESCE(ua.update_total, 0)
         ) AS current_inventory
     FROM product p
     LEFT JOIN sales_agg sa
         ON sa.id = p.product_id
-    LEFT JOIN consumables_agg ca
-        ON ca.id = p.product_id
     LEFT JOIN updates_agg ua
         ON ua.id = p.product_id
     WHERE p.product_id = %s;
     """
+
     month_sold_sql = """
-    SELECT 
-        s.product_id AS id, 
-        SUM(s.sold_qty) AS sold 
-    FROM sale s 
+    SELECT
+        s.product_id AS id,
+        COALESCE(SUM(s.sold_qty), 0) AS sold
+    FROM sale s
     WHERE s.sold_date >= DATE_FORMAT(CURDATE(), '%%Y-%%m-01')
-        AND s.sold_date < DATE_FORMAT(CURDATE(), '%%Y-%%m-01') + INTERVAL 1 MONTH
-        AND s.product_id = %s;
+      AND s.sold_date < DATE_FORMAT(CURDATE(), '%%Y-%%m-01') + INTERVAL 1 MONTH
+      AND s.product_id = %s
+    GROUP BY s.product_id;
     """
 
     for p in products_to_process:
         p_id = p["id"]
-        data_eoq = db.query_one(eoq_sql, (historical_years,historical_years,p_id,))
-        data_ss = db.query_one(ss_sql, (p_id,historical_years,historical_years,))
+        data_eoq = db.query_one(eoq_sql, (historical_years, historical_years, p_id))
+        data_ss = db.query_one(ss_sql, (p_id, historical_years, historical_years))
         data_cur_inv = db.query_one(current_inv_sql, (p_id,))
         data_sold = db.query_one(month_sold_sql, (p_id,))
 
@@ -473,27 +469,29 @@ def get_products(product_id=None):
 
         p_class = abc_lookup.get(p_id, "C")
 
-        if data_cur_inv:
+        if data_cur_inv and data_cur_inv["current_inventory"] is not None:
             current_inv = int(data_cur_inv["current_inventory"])
         else:
             current_inv = 0
 
-        if data_sold:
+        if data_sold and data_sold["sold"] is not None:
             sold = int(data_sold["sold"])
         else:
-            sold=0
+            sold = 0
 
         output_product.append({
             "id": int(p["id"]),
             "name": str(p["name"]),
             "price": float(p["price"]),
             "holding_cost": float(p["holding_cost"]),
+            "year_starting_inventory": int(p["year_starting_inventory"]),
+            "storage_location": str(p["storage_location"]),
             "eoq": int(eoq),
             "ss": int(ss),
             "rop": int(rop),
             "class": str(p_class),
             "current_inventory": int(current_inv),
-            "sold":int(sold),
+            "sold": int(sold),
         })
 
     return output_product[0] if product_id is not None else output_product
@@ -505,12 +503,21 @@ def insert_product(
     price: float = 0.0,
     holding_cost: float = 0.0,
     starting_inventory: int = 0,
+    storage_location: str = "",
 ):
     sql = """
-    INSERT INTO product (product_name, product_price, product_holding_cost, year_starting_inventory)
-    VALUES (%s, %s, %s, %s)
+    INSERT INTO product (
+        product_name,
+        product_price,
+        product_holding_cost,
+        year_starting_inventory,
+        storage_location
+    )
+    VALUES (%s, %s, %s, %s, %s)
     """
-    product_id = db.execute(sql, (name, price, holding_cost, starting_inventory))
+    product_id = db.execute(
+        sql, (name, price, holding_cost, starting_inventory, storage_location)
+    )
     db.close_db()
     return product_id
 
@@ -522,14 +529,20 @@ def update_product(
     holding_cost: float,
     starting_inventory: int,
     product_id: int,
+    storage_location: str = "",
 ):
     sql = """
     UPDATE product
-    SET product_name = %s, product_price = %s, product_holding_cost = %s, year_starting_inventory = %s
+    SET
+        product_name = %s,
+        product_price = %s,
+        product_holding_cost = %s,
+        year_starting_inventory = %s,
+        storage_location = %s
     WHERE product_id = %s
     """
     rows_affected = db.execute(
-        sql, (name, price, holding_cost, starting_inventory, product_id)
+        sql, (name, price, holding_cost, starting_inventory, storage_location, product_id)
     )
     db.close_db()
     return rows_affected
@@ -544,15 +557,16 @@ def delete_product(product_id: int):
     db.close_db()
     return rows_affected
 
-## SUPPLIER FUNCTIONS
+
+# SUPPLIER FUNCTIONS
 ## Getting supplier data
 def get_suppliers(supplier_id=None):
-    if supplier_id == '' or supplier_id is None:
+    if supplier_id == "" or supplier_id is None:
         sql = """
-        SELECT 
+        SELECT
             s.supplier_id AS id,
             s.supplier_name AS name,
-            s.supplier_from_date AS from_date,   
+            s.supplier_from_date AS from_date,
             s.reason_for_changing_supplier AS change_reason,
             s.created_at AS created_at,
             s.updated_at AS updated_at,
@@ -565,22 +579,22 @@ def get_suppliers(supplier_id=None):
         formatted_suppliers = []
         for s in suppliers:
             formatted_suppliers.append({
-                'id': int(s['id']),
-                'name': str(s['name']),
-                'from_date': str(s['from_date']) if s['from_date'] else '',
-                'change_reason': str(s['change_reason'] or ''),
-                'created_at': str(s['created_at']) if s['created_at'] else '',
-                'updated_at': str(s['updated_at']) if s['updated_at'] else '',
-                'contact_email': str(s['contact_email'] or ''),
-                'contact_phone': str(s['contact_phone'] or '')
+                "id": int(s["id"]),
+                "name": str(s["name"]),
+                "from_date": str(s["from_date"]) if s["from_date"] else "",
+                "change_reason": str(s["change_reason"] or ""),
+                "created_at": str(s["created_at"]) if s["created_at"] else "",
+                "updated_at": str(s["updated_at"]) if s["updated_at"] else "",
+                "contact_email": str(s["contact_email"] or ""),
+                "contact_phone": str(s["contact_phone"] or ""),
             })
         return formatted_suppliers
     else:
         sql = """
-        SELECT 
+        SELECT
             s.supplier_id AS id,
             s.supplier_name AS name,
-            s.supplier_from_date AS from_date,   
+            s.supplier_from_date AS from_date,
             s.reason_for_changing_supplier AS change_reason,
             s.created_at AS created_at,
             s.updated_at AS updated_at,
@@ -594,48 +608,58 @@ def get_suppliers(supplier_id=None):
         if not s:
             return None
         return {
-            'id': int(s['id']),
-            'name': str(s['name']),
-            'from_date': str(s['from_date']) if s['from_date'] else '',
-            'change_reason': str(s['change_reason'] or ''),
-            'created_at': str(s['created_at']) if s['created_at'] else '',
-            'updated_at': str(s['updated_at']) if s['updated_at'] else '',
-            'contact_email': str(s['contact_email'] or ''),
-            'contact_phone': str(s['contact_phone'] or '')
+            "id": int(s["id"]),
+            "name": str(s["name"]),
+            "from_date": str(s["from_date"]) if s["from_date"] else "",
+            "change_reason": str(s["change_reason"] or ""),
+            "created_at": str(s["created_at"]) if s["created_at"] else "",
+            "updated_at": str(s["updated_at"]) if s["updated_at"] else "",
+            "contact_email": str(s["contact_email"] or ""),
+            "contact_phone": str(s["contact_phone"] or ""),
         }
+
 
 ## Getting products for supplier
 def get_products_supplier(supplier_id=None):
     supplier = get_suppliers(supplier_id)
     if not supplier:
         return None
-    
+
     sql = """
     SELECT ps.supplier_id, ps.product_id
     FROM product_supplier ps
     WHERE ps.supplier_id = %s
     """
-    products= db.query_all(sql, (supplier_id,))
+    products = db.query_all(sql, (supplier_id,))
     products_dict = []
     for p in products:
-        product = get_products(int(p['product_id']))
+        product = get_products(int(p["product_id"]))
         if product:
             products_dict.append(product)
-    return{
-        'supplier_data':supplier,
-        'products_data':products_dict
+    return {
+        "supplier_data": supplier,
+        "products_data": products_dict,
     }
+
 
 ## Creating a supplier
 def insert_supplier(
-        name: str = '', 
-        from_date: str = '', 
-        change_reason: str = '', 
-        contact_email: str = '', 
-        contact_phone: str = '',
-    ):
+    name: str = "",
+    from_date: str = "",
+    change_reason: str = "",
+    contact_email: str = "",
+    contact_phone: str = "",
+):
     sql = """
-    INSERT INTO supplier (supplier_name, supplier_from_date, reason_for_changing_supplier, created_at, updated_at, contact_email, contact_phone)
+    INSERT INTO supplier (
+        supplier_name,
+        supplier_from_date,
+        reason_for_changing_supplier,
+        created_at,
+        updated_at,
+        contact_email,
+        contact_phone
+    )
     VALUES (%s, %s, %s, NOW(), NOW(), %s, %s)
     """
     new_id = db.execute(sql, (name, from_date, change_reason, contact_email, contact_phone))
@@ -645,19 +669,27 @@ def insert_supplier(
 
 ## Editing a supplier
 def update_supplier(
-        name: str, 
-        from_date: str, 
-        change_reason: str, 
-        supplier_id: int, 
-        contact_email: str = '', 
-        contact_phone: str = ''
-    ):
+    name: str,
+    from_date: str,
+    change_reason: str,
+    supplier_id: int,
+    contact_email: str = "",
+    contact_phone: str = "",
+):
     sql = """
     UPDATE supplier
-    SET supplier_name = %s, supplier_from_date = %s, reason_for_changing_supplier = %s, contact_email = %s, contact_phone = %s, updated_at = NOW()
+    SET
+        supplier_name = %s,
+        supplier_from_date = %s,
+        reason_for_changing_supplier = %s,
+        contact_email = %s,
+        contact_phone = %s,
+        updated_at = NOW()
     WHERE supplier_id = %s
     """
-    rows_affected = db.execute(sql, (name, from_date, change_reason, contact_email, contact_phone, supplier_id))
+    rows_affected = db.execute(
+        sql, (name, from_date, change_reason, contact_email, contact_phone, supplier_id)
+    )
     db.close_db()
     return rows_affected
 
@@ -672,13 +704,12 @@ def delete_supplier(supplier_id: int):
     return rows_affected
 
 
-
-## SALE FUNCTIONS
+# SALE FUNCTIONS
 ## Getting sale data
 def get_sales(sale_id=None):
-    if sale_id == '' or sale_id is None:
+    if sale_id == "" or sale_id is None:
         sql = """
-        SELECT 
+        SELECT
             s.sale_id AS id,
             s.product_id AS product_id,
             p.product_name AS product_name,
@@ -697,20 +728,20 @@ def get_sales(sale_id=None):
         formatted_sales = []
         for s in sales:
             formatted_sales.append({
-                'id': int(s['id']),
-                'product_id': int(s['product_id']),
-                'product_name': str(s['product_name']),
-                'unit_price': float(s['unit_price']),
-                'sale_qty': int(s['sale_qty']),
-                'total_sale_value': float(s['total_sale_value']),
-                'sale_date': str(s['sale_date']) if s['sale_date'] else '',
-                'created_at': str(s['created_at']) if s['created_at'] else '',
-                'updated_at': str(s['updated_at']) if s['updated_at'] else ''
+                "id": int(s["id"]),
+                "product_id": int(s["product_id"]),
+                "product_name": str(s["product_name"]),
+                "unit_price": float(s["unit_price"]),
+                "sale_qty": int(s["sale_qty"]),
+                "total_sale_value": float(s["total_sale_value"]),
+                "sale_date": str(s["sale_date"]) if s["sale_date"] else "",
+                "created_at": str(s["created_at"]) if s["created_at"] else "",
+                "updated_at": str(s["updated_at"]) if s["updated_at"] else "",
             })
         return formatted_sales
     else:
         sql = """
-        SELECT 
+        SELECT
             s.sale_id AS id,
             s.product_id AS product_id,
             p.product_name AS product_name,
@@ -729,23 +760,24 @@ def get_sales(sale_id=None):
         if not s:
             return None
         return {
-            'id': int(s['id']),
-            'product_id': int(s['product_id']),
-            'product_name': str(s['product_name']),
-            'unit_price': float(s['unit_price']),
-            'sale_qty': int(s['sale_qty']),
-            'total_sale_value': float(s['total_sale_value']),
-            'sale_date': str(s['sale_date']) if s['sale_date'] else '',
-            'created_at': str(s['created_at']) if s['created_at'] else '',
-            'updated_at': str(s['updated_at']) if s['updated_at'] else ''
+            "id": int(s["id"]),
+            "product_id": int(s["product_id"]),
+            "product_name": str(s["product_name"]),
+            "unit_price": float(s["unit_price"]),
+            "sale_qty": int(s["sale_qty"]),
+            "total_sale_value": float(s["total_sale_value"]),
+            "sale_date": str(s["sale_date"]) if s["sale_date"] else "",
+            "created_at": str(s["created_at"]) if s["created_at"] else "",
+            "updated_at": str(s["updated_at"]) if s["updated_at"] else "",
         }
+
 
 ## Creating a sale
 def insert_sale(
-        product_id: int, 
-        sale_qty: int, 
-        sale_date: str
-    ):
+    product_id: int,
+    sale_qty: int,
+    sale_date: str,
+):
     sql = """
     INSERT INTO sale (product_id, sold_qty, sold_date, created_at, updated_at)
     VALUES (%s, %s, %s, NOW(), NOW())
@@ -754,13 +786,14 @@ def insert_sale(
     db.close_db()
     return new_id
 
+
 # Updating a sale
 def update_sale(
-        product_id: int, 
-        sale_qty: int, 
-        sale_date: str, 
-        sale_id: int
-    ):
+    product_id: int,
+    sale_qty: int,
+    sale_date: str,
+    sale_id: int,
+):
     sql = """
     UPDATE sale
     SET product_id = %s, sold_qty = %s, sold_date = %s, updated_at = NOW()
@@ -769,6 +802,7 @@ def update_sale(
     rows_affected = db.execute(sql, (product_id, sale_qty, sale_date, sale_id))
     db.close_db()
     return rows_affected
+
 
 # Deleting a sale
 def delete_sale(sale_id: int):
