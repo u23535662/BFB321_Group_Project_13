@@ -321,7 +321,6 @@
           return;
         }
 
-        // Group low-stock products by supplier; suppliers with zero low-stock items are excluded
         const groupedBySupplier = new Map();
 
         currentLowStockProducts.forEach((product) => {
@@ -471,7 +470,6 @@
       const indexCloseBtn = document.getElementById("close_index_popup");
 
       if (background && indexOpenBtn && indexCloseBtn) {
-        // Open Popup
         indexOpenBtn.addEventListener("click", async function () {
           if (!currentLowStockProducts.length) {
             await loadLowStockProducts();
@@ -480,12 +478,10 @@
           background.style.display = "flex";
         });
 
-        // Close Popup
         indexCloseBtn.addEventListener("click", function () {
           background.style.display = "none";
         });
 
-        // Close Popup (click outside)
         background.addEventListener("click", function (event) {
           if (event.target === background) {
             background.style.display = "none";
@@ -505,7 +501,6 @@
       const confirmCloseBtn = document.getElementById("x_btn");
 
       if (confirmOpenBtn && confirmPopup && confirmCloseBtn) {
-        // Open Popup
         confirmOpenBtn.addEventListener("click", async function () {
           const { createdCount, errors } = await submitSelectedPurchaseOrders();
           const confirmTextEl = document.getElementById("confirm_popup_text");
@@ -531,12 +526,10 @@
           }
         });
 
-        // Close Popup
         confirmCloseBtn.addEventListener("click", function () {
           confirmPopup.style.display = "none";
         });
 
-        // Close Popup (click outside)
         confirmPopup.addEventListener("click", function (event) {
           if (event.target === confirmPopup) {
             confirmPopup.style.display = "none";
@@ -559,22 +552,18 @@
       const ConfirmFilterBtn = document.getElementById("filter_button_confirm");
 
       if (Filter_background && OpenFilterBtn && CloseFilterBtn) {
-        // Open Popup
         OpenFilterBtn.addEventListener("click", function () {
           Filter_background.style.display = "flex";
         });
 
-        // Close Popup
         CloseFilterBtn.addEventListener("click", function () {
           Filter_background.style.display = "none";
         });
 
-        //Confirm Button
         ConfirmFilterBtn.addEventListener("click", function () {
           Filter_background.style.display = "none";
         });
 
-        // Close Popup (click outside)
         Filter_background.addEventListener("click", function (event) {
           if (event.target === Filter_background) {
             Filter_background.style.display = "none";
@@ -621,6 +610,18 @@
         fetchAllFacts();
       });
 
+      function updateRevenueKpi(productId) {
+        const revenueEl = document.querySelector(".revenuetracker p");
+        if (!revenueEl) return;
+
+        const product = loadedProducts.find(
+          (p) => Number(p.id ?? p.product_id) === Number(productId),
+        );
+        if (!product) return;
+
+        revenueEl.textContent = `Revenue: ${formatCurrency(product.revenue)}`;
+      }
+
       async function fetchAllFacts() {
         const listBlock = document.getElementById("facts");
         if (!listBlock) return;
@@ -639,7 +640,6 @@
             throw new Error("One or more requests failed");
           }
 
-          // Parse the response streams into JSON objects
           const [products, suppliers, purchase_orders] = await Promise.all([
             productsRes.json(),
             suppliersRes.json(),
@@ -656,7 +656,7 @@
           listBlock.innerHTML = `
             <div class="topfacts">
               <div class="jobtracker">
-                <p>Jobs</p>
+                <p>KPIs</p>
               </div>
               <div class="producttracker">
                 <p>Products: ${products.count}</p>
@@ -676,6 +676,9 @@
                 <p>Low stock items: ${products.low_stock}</p>
               </div>
             </div>`;
+          if (selectedProductId !== null) {
+            updateRevenueKpi(selectedProductId);
+          }
         } catch (error) {
           console.error("Error loading facts", error);
           listBlock.innerHTML = `<p class="text">Failed to load facts.</p>`;
@@ -783,9 +786,10 @@
           "filter_button_confirm",
         );
 
+        // Swapped signals: zoom_minus zooms out to "year", zoom_plus zooms in to "month"
         if (zoomOutBtn) {
           zoomOutBtn.addEventListener("click", () => {
-            activeZoom = "month";
+            activeZoom = "year";
             if (selectedProductId !== null) {
               loadEoqChart(selectedProductId, activeZoom);
             }
@@ -794,7 +798,7 @@
 
         if (zoomInBtn) {
           zoomInBtn.addEventListener("click", () => {
-            activeZoom = "year";
+            activeZoom = "month";
             if (selectedProductId !== null) {
               loadEoqChart(selectedProductId, activeZoom);
             }
@@ -813,6 +817,7 @@
             } else if (loadedProducts.length > 0) {
               selectedProductId = Number(loadedProducts[0].id);
             }
+            updateRevenueKpi(selectedProductId);
             loadAllocationChart(selectedProductId);
             if (selectedProductId !== null) {
               loadEoqChart(selectedProductId, activeZoom);
@@ -933,6 +938,22 @@
         return `${y}-${m}-${d}`;
       }
 
+      function resolveProductLabel(productId, payload) {
+        const matchedProduct = loadedProducts.find(
+          (p) => String(p.id ?? p.product_id) === String(productId),
+        );
+        const productName =
+          payload?.product?.name ??
+          payload?.product_name ??
+          matchedProduct?.name ??
+          matchedProduct?.product_name;
+
+        if (productName && String(productName).trim() !== "") {
+          return String(productName).trim();
+        }
+        return `Product #${productId}`;
+      }
+
       function renderEoqGoogleChart(productId, zoom, payload) {
         const eoqContainer = document.querySelector(".eoqchart");
         if (!eoqContainer) return;
@@ -958,7 +979,6 @@
           ? payload.current_inventory
           : [];
 
-        // Map dated current inventory entries by YYYY-MM-DD if objects with dates are passed
         const currentInvByDate = new Map();
         currentInvRaw.forEach((entry) => {
           if (typeof entry === "object" && entry !== null) {
@@ -1034,9 +1054,10 @@
           ]);
         }
 
+        const productLabel = resolveProductLabel(productId, payload);
         const data = google.visualization.arrayToDataTable(rows);
         const options = {
-          title: `EOQ Inventory Simulation (Product #${productId})`,
+          title: `EOQ Inventory Simulation (${productLabel})`,
           legend: { position: "bottom" },
           hAxis: {
             title: "Time",
@@ -1094,6 +1115,7 @@
 
             loadedProducts = products.data;
             selectedProductId = Number(loadedProducts[0].id);
+            updateRevenueKpi(selectedProductId);
             populateFilterPopup(loadedProducts);
             loadAllocationChart(selectedProductId);
             loadEoqChart(selectedProductId, activeZoom);

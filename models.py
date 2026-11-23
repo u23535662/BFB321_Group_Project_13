@@ -121,7 +121,7 @@ def calculate_abc(products_list: list[dict]) -> list[dict]:
 
 
 # =============================================================================
-# SIMULATION & SVG VISUALIZATION
+# SIMULATION
 # =============================================================================
 
 
@@ -629,6 +629,7 @@ def get_products(product_id=None):
     )
     SELECT
         p.product_id AS id,
+        COALESCE(sa.sales, 0) AS ytd_sales,
         (
             p.year_starting_inventory
             - COALESCE(sa.sales, 0)
@@ -649,6 +650,9 @@ def get_products(product_id=None):
     inv_rows = db.query_all(inv_sql, inv_params)
     inv_lookup = {
         int(r["id"]): int(r["current_inventory"] or 0) for r in inv_rows
+    }
+    ytd_sold_lookup = {
+        int(r["id"]): int(r["ytd_sales"] or 0) for r in inv_rows
     }
 
     month_sold_sql = f"""
@@ -693,7 +697,12 @@ def get_products(product_id=None):
             effective_lt = lt % cycle_time
             rop = calculate_rop(daily_demand, effective_lt, ss)
         else:
+            effective_lt = 0.0
             rop = ss
+
+        ytd_sold = ytd_sold_lookup.get(p_id, 0)
+        sell_price = float(p["sell_price"] or 0.0)
+        revenue = ytd_sold * sell_price
 
         output_products.append({
             "id": p_id,
@@ -710,7 +719,8 @@ def get_products(product_id=None):
             "class": abc_lookup.get(p_id, "C"),
             "current_inventory": inv_lookup.get(p_id, 0),
             "sold": month_lookup.get(p_id, 0),
-            "effective_lt": int(round(effective_lt,0)),
+            "revenue": revenue,
+            "effective_lt": int(round(effective_lt, 0)),
         })
 
     return output_products[0] if single_mode else output_products
