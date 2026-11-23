@@ -68,7 +68,10 @@
     <!-- OVERVIEW BLOCKS START -->
 
     <div class="overviewblocks">
-      <div class="blockfacts">
+      <div id="facts" class="blockfacts">
+        <p>Loading Facts...</p>
+
+
         <div class="topfacts">
           <div class="jobtracker">
             <p># Jobs</p>
@@ -382,7 +385,14 @@
         bindChartControls();
         fetchALLProducts();
         loadLowStockProducts();
+        fetchAllFacts();
       });
+
+      function fetchAllFacts();
+      const listBlock = document.getElementById("facts");
+      if (!listBlock) return;
+
+      listBlock.innerHTML = `<p class="text">Loading Facts...</p>`;
 
       function escapeHtml(value) {
         return String(value ?? "")

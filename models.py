@@ -1028,3 +1028,39 @@ def delete_sale(sale_id: int):
     rows_affected = db.execute("DELETE FROM sale WHERE sale_id = %s", (sale_id,))
     db.close_db()
     return rows_affected
+
+# =============================================================================
+# PURCHASE ORDER FUNCTIONS
+# =============================================================================
+
+def get_purchase_order(order_id=None):
+    if order_id == "" or order_id is None:
+        rows = db.query_all(
+            """
+            SELECT * FROM purchase_order
+            """
+        )
+        db.close_db()
+        return {
+            'order_id':rows['order_id'],
+            'supplier_id':rows['supplier_id'],
+            'date':rows['order_date'],
+            'status':rows['order_status'],
+            'created_at':rows['created_at'],
+            'updated_at':rows['updated_at'],
+        }
+
+    row = db.query_one(
+        """
+        SELECT * FROM purchase_order po
+        WHERE po.order_id = %s;
+        """, (order_id,))
+    db.close_db()
+    return {
+            'order_id':row['order_id'],
+            'supplier_id':row['supplier_id'],
+            'date':row['order_date'],
+            'status':row['order_status'],
+            'created_at':row['created_at'],
+            'updated_at':row['updated_at'],
+        }
