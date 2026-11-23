@@ -125,9 +125,41 @@
 
                   <div class="update_units">
                     <h3>###</h3>
-                    <button class="edit">
+                    <button class="edit" id="editUnits_open">
                       <i data-lucide="pencil-line"></i>
                     </button>
+                    <!-- update units modal start -->
+                    <div class="modal" id="editUnits">
+                      <div class="modal-content">
+                        <div class="sup_popup_top_bar">
+                          <div class="sup_popup_title"> <!-- supplier name here -->
+                            <h3>Supplier Name</h3>
+                          </div>
+                        </div>
+
+                        <div id="choice-group">
+                          <div class="editUnits_text">
+                            <input type="checkbox" id="checkbox1" name="choice" value="1">
+                            <p>Change product units</p>
+                            <div id="editUnits_box"></div>
+                          </div>
+                          <div class="editUnits_text">
+                            <input type="checkbox" id="checkbox2" name="choice" value="2">
+                            <p>Remove from order</p>
+                          </div> 
+                        </div>                          
+
+                        <div class="conf_and_canc">
+                          <div class="conf" id="editUnits_close_conf">
+                            <p>Confirm</p>
+                          </div>
+                          <div class="canc" id="editUnits_close_canc">
+                            <p>Cancel</p>
+                          </div>                           
+                        </div>
+                      </div>
+                    </div>
+                    <!-- update units modal start -->
                   </div>
                 </div>
 
@@ -601,6 +633,79 @@
         console.error("Could not find the add-product button or product row.");
       }
       // ADD PRODUCT EXPANDING BUTTON END
+
+      // EDIT PRODUCT POPUP START
+      const editUnitsModal = document.getElementById("editUnits");
+      const editUnitsOpenBtn = document.getElementById("editUnits_open");
+      const editUnitsCloseCancBtn = document.getElementById("editUnits_close_canc");
+      const editUnitsCloseConfBtn = document.getElementById("editUnits_close_conf");
+
+      if (editUnitsModal && editUnitsOpenBtn && editUnitsCloseCancBtn && editUnitsCloseConfBtn) {
+        // Open Popup
+        editUnitsOpenBtn.addEventListener("click", function () {
+          editUnitsModal.style.display = "block";
+        });
+
+        // Close Popup
+        editUnitsCloseCancBtn.addEventListener("click", function (event) {
+          event.preventDefault();
+          event.stopPropagation();
+          editUnitsModal.style.display = "none";
+        });
+        editUnitsCloseConfBtn.addEventListener("click", function (event) {
+          event.preventDefault();
+          event.stopPropagation();
+          editUnitsModal.style.display = "none";
+        });        
+
+        // Close Popup (click outside)
+        editUnitsModal.addEventListener("click", function (event) {
+          if (event.target === editUnitsModal) {
+            editUnitsModal.style.display = "none";
+          }
+        });
+      }
+
+      // CHECKBOX CODE START
+      document.querySelectorAll('#choice-group input[type="checkbox"]').forEach((box) => {
+        box.addEventListener('change', () => {
+          if (box.checked) {
+            document.querySelectorAll('#choice-group input[name="' + box.name + '"]').forEach((other) => {
+              if (other !== box) other.checked = false;
+            });
+          }
+        });
+      });
+
+      const checkbox1 = document.getElementById('checkbox1');
+      const editUnits_box = document.getElementById('editUnits_box');
+
+      checkbox1.addEventListener('change', function() {
+        if (checkbox1.checked) {
+          if (!document.getElementById('dynamicUnitsInput')) {
+            const unitsInput = document.createElement('input');
+            unitsInput.type = 'number';
+            unitsInput.id = 'dynamicUnitsInput';
+            editUnits_box.appendChild(unitsInput);
+          }
+        } else {
+          const unitsInput = document.getElementById('dynamicUnitsInput');
+          if (unitsInput) {
+            unitsInput.remove();
+          }
+        }
+      });
+
+      const checkbox2 = document.getElementById('checkbox2');
+
+      checkbox2.addEventListener('change', () => {
+        if (checkbox2.checked) {
+          checkbox1.checked = false;
+          checkbox1.dispatchEvent(new Event('change'));
+        }
+      });
+      // CHECKBOX CODE END
+      // EDIT PRODUCT POPUP END
     </script>
 
     <!-- SCRIPTS END -->
