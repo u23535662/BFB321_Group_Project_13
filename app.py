@@ -658,6 +658,175 @@ def api_delete_purchase_order(order_id: int):
     except Exception as exc:
         return jsonify({"success": False, "error": str(exc)}), 500
 
+# =========================================================================
+# INVENTORY UPDATE API
+# =========================================================================
+
+@app.route("/api/inventory_updates", methods=["GET"])
+def api_get_inventory_updates():
+    try:
+        updates = models.get_inventory_update()
+        return jsonify({"success": True, "count": len(updates), "data": updates}), 200
+    except Exception as exc:
+        return jsonify({"success": False, "error": str(exc)}), 500
+
+
+@app.route("/api/inventory_updates/<int:update_id>", methods=["GET"])
+def api_get_inventory_update(update_id: int):
+    try:
+        update = models.get_inventory_update(update_id)
+        if not update:
+            return jsonify({"success": False, "error": "Inventory update not found"}), 404
+        return jsonify({"success": True, "data": update}), 200
+    except Exception as exc:
+        return jsonify({"success": False, "error": str(exc)}), 500
+
+
+@app.route("/api/inventory_updates", methods=["POST"])
+def api_create_inventory_update():
+    data = request.get_json(silent=True)
+    if not isinstance(data, dict):
+        return jsonify({"success": False, "error": "Invalid or missing JSON payload"}), 400
+
+    required_fields = ("order_id", "items")
+    missing = [field for field in required_fields if field not in data or data[field] is None]
+    if missing:
+        return jsonify({
+            "success": False,
+            "error": f"Missing required fields: {', '.join(missing)}",
+        }), 400
+
+    try:
+        order_id = int(data["order_id"])
+        update_date = str(data.get("update_date") or data.get("date") or "").strip()
+        update_note = str(data.get("update_note") or data.get("note") or "").strip()
+        raw_items = data["items"]
+
+        if not isinstance(raw_items, list) or len(raw_items) == 0:
+            return jsonify({"success": False, "error": "items must be a non-empty list"}), 400
+
+        parsed_items = []
+        for item in raw_items:
+            if not isinstance(item, dict) or item.get("product_id") is None or item.get("update_amount") is None:
+                return jsonify({
+                    "success": False,
+                    "error": "Each item must include product_id and update_amount",
+                }), 400
+            prod_id = int(item["product_id"])
+            qty = int(item["update_amount"])
+            if qty <= 0:
+                return jsonify({"success": False, "error": "update_amount must be greater than 0"}), 400
+            raw_expiry = item.get("expiry_date")
+            expiry_date = str(raw_expiry).strip() if raw_expiry not in (None, "") else None
+            parsed_items.append({
+                "product_id": prod_id,
+                "update_amount": qty,
+                "expiry_date": expiry_date,
+            })
+
+        new_id = models.insert_inventory_update(
+            order_id=order_id,
+            update_date=update_date or None,
+            update_note=update_note,
+            items=parsed_items,
+        )
+        created = models.get_inventory_update(new_id)
+        return jsonify({"success": True, "data": created}), 201
+    except (ValueError, TypeError) as exc:
+        return jsonify({"success": False, "error": f"Invalid field value: {exc}"}), 400
+    except pymysql.err.IntegrityError as exc:
+        return jsonify({
+            "success": False,
+            "error": f"Database constraint error (check order_id, product_id, or non-positive update_amount): {exc}",
+        }), 400
+    except Exception as exc:
+        return jsonify({"success": False, "error": str(exc)}), 500
+
+
+@app.route("/api/inventory_updates/<int:update_id>", methods=["PUT"])
+def api_update_inventory_update(update_id: int):
+    existing = models.get_inventory_update(update_id)
+    if not existing:
+        return jsonify({"success": False, "error": "Inventory update not found"}), 404
+
+    data = request.get_json(silent=True)
+    if not isinstance(data, dict):
+        return jsonify({"success": False, "error": "Invalid or missing JSON payload"}), 400
+
+    try:
+        n_order_id = int(data["order_id"]) if "order_id" in data and data["order_id"] is not None else existing["order_id"]
+        raw_date = data.get("update_date") if "update_date" in data else data.get("date", existing["update_date"])
+        n_update_date = str(raw_date or "").strip()
+        raw_note = data.get("update_note") if "update_note" in data else data.get("note", existing["update_note"])
+        n_update_note = str(raw_note or "").strip()
+
+        if not n_update_date:
+            return jsonify({"success": False, "error": "update_date is required"}), 400
+
+        parsed_items = None
+        if "items" in data and data["items"] is not None:
+            if not isinstance(data["items"], list) or len(data["items"]) == 0:
+                return jsonify({"success": False, "error": "items must be a non-empty list"}), 400
+            parsed_items = []
+            for item in data["items"]:
+                if not isinstance(item, dict) or item.get("product_id") is None or item.get("update_amount") is None:
+                    return jsonify({
+                        "success": False,
+                        "error": "Each item must include product_id and update_amount",
+                    }), 400
+                prod_id = int(item["product_id"])
+                qty = int(item["update_amount"])
+                if qty <= 0:
+                    return jsonify({"success": False, "error": "update_amount must be greater than 0"}), 400
+                raw_expiry = item.get("expiry_date")
+                expiry_date = str(raw_expiry).strip() if raw_expiry not in (None, "") else None
+                parsed_items.append({
+                    "product_id": prod_id,
+                    "update_amount": qty,
+                    "expiry_date": expiry_date,
+                })
+
+        models.update_inventory_update(
+            update_id=update_id,
+            order_id=n_order_id,
+            update_date=n_update_date,
+            update_note=n_update_note,
+            items=parsed_items,
+        )
+        updated = models.get_inventory_update(update_id)
+        return jsonify({
+            "success": True,
+            "message": "Inventory update updated successfully",
+            "data": updated,
+        }), 200
+    except (ValueError, TypeError) as exc:
+        return jsonify({"success": False, "error": f"Invalid field value: {exc}"}), 400
+    except pymysql.err.IntegrityError as exc:
+        return jsonify({
+            "success": False,
+            "error": f"Database constraint error: {exc}",
+        }), 400
+    except Exception as exc:
+        return jsonify({"success": False, "error": str(exc)}), 500
+
+
+@app.route("/api/inventory_updates/<int:update_id>", methods=["DELETE"])
+def api_delete_inventory_update(update_id: int):
+    existing = models.get_inventory_update(update_id)
+    if not existing:
+        return jsonify({"success": False, "error": "Inventory update not found"}), 404
+
+    try:
+        models.delete_inventory_update(update_id)
+        return jsonify({"success": True, "message": "Inventory update deleted successfully"}), 200
+    except pymysql.err.IntegrityError:
+        return jsonify({
+            "success": False,
+            "error": "Cannot delete inventory update due to database references.",
+        }), 400
+    except Exception as exc:
+        return jsonify({"success": False, "error": str(exc)}), 500
+
     
     
 if __name__ == "__main__":

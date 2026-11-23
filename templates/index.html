@@ -407,27 +407,29 @@
           );
           if (checkedBoxes.length === 0) return;
 
-          const supplierId = supplierDiv.dataset.supplierId;
+          const parsedSupplierId = Number(supplierDiv.dataset.supplierId);
           const supplierName = supplierDiv.dataset.supplierName;
 
-          const items = checkedBoxes.map((cb) => ({
-            product_id: cb.dataset.productId,
-            product_name: cb.dataset.productName,
-            quantity: Number(cb.dataset.eoq || 0),
-            eoq: Number(cb.dataset.eoq || 0),
-            unit_cost: Number(cb.dataset.unitCost || 0),
-            total_cost: Number(cb.dataset.lineCost || 0),
-          }));
+          if (!Number.isInteger(parsedSupplierId) || parsedSupplierId <= 0) {
+            console.warn(
+              `Skipping supplier "${supplierName}" due to invalid supplier_id:`,
+              supplierDiv.dataset.supplierId,
+            );
+            return;
+          }
 
-          const orderTotal = items.reduce(
-            (sum, item) => sum + item.total_cost,
-            0,
-          );
+          const items = checkedBoxes.map((cb) => {
+            const qty = Math.max(1, Math.round(Number(cb.dataset.eoq || 1)));
+            return {
+              product_id: Number(cb.dataset.productId),
+              order_amount: qty,
+            };
+          });
 
           ordersToCreate.push({
-            supplier_id: supplierId,
+            supplier_id: parsedSupplierId,
             supplier_name: supplierName,
-            total_cost: orderTotal,
+            status: "Pending",
             items,
           });
         });
@@ -440,10 +442,15 @@
             const res = await fetch("/api/purchase_orders", {
               method: "POST",
               headers: { "Content-Type": "application/json" },
-              body: JSON.stringify(orderPayload),
+              body: JSON.stringify({
+                supplier_id: orderPayload.supplier_id,
+                status: orderPayload.status,
+                items: orderPayload.items,
+              }),
             });
             if (!res.ok) {
-              throw new Error(`HTTP ${res.status}`);
+              const errBody = await res.json().catch(() => ({}));
+              throw new Error(errBody.error || `HTTP ${res.status}`);
             }
             createdCount += 1;
           } catch (err) {
