@@ -68,7 +68,7 @@ def create_app() -> Flask:
     def api_get_allocation_chart():
         try:
             raw_product_id = request.args.get("product_id", "").strip()
-            product_id = int(raw_product_id) if raw_product_id else None
+            product_id = int(raw_product_id) if raw_product_id else 1
 
             if product_id is not None and not models.get_products(product_id):
                 return jsonify({"success": False, "error": "Product not found"}), 404
@@ -76,9 +76,8 @@ def create_app() -> Flask:
             result = models.get_allocation_breakdown(product_id=product_id)
             return jsonify({
                 "success": True,
-                "data": result["data"],
-                "svg": result["svg"],
-            }), 200
+                "data": result,
+                "product_id":product_id,}), 200
         except ValueError:
             return jsonify({"success": False, "error": "Invalid product_id parameter"}), 400
         except Exception as exc:

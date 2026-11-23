@@ -445,6 +445,7 @@
       let loadedProducts = [];
       let googleChartsLoaded = false;
       let pendingEoqRender = null;
+      let pendingAllocationRender = null;
 
       google.charts.load("current", { packages: ["corechart"] });
       google.charts.setOnLoadCallback(() => {
@@ -453,6 +454,11 @@
           const { productId, zoom, payload } = pendingEoqRender;
           pendingEoqRender = null;
           renderEoqGoogleChart(productId, zoom, payload);
+        }
+        if (pendingAllocationRender) {
+          const { allocation } = pendingAllocationRender;
+          pendingAllocationRender = null;
+          renderAllocationBarChart(allocation);
         }
       });
 
@@ -526,6 +532,48 @@
         });
       }
 
+      function renderAllocationBarChart(allocation) {
+        const barContainer = document.querySelector(".barchart");
+        if (!barContainer) return;
+
+        if (!googleChartsLoaded) {
+          pendingAllocationRender = { allocation };
+          return;
+        }
+
+        var availableInv = Number(allocation?.available ?? 0);
+        var soldInv = Number(allocation?.sold ?? 0);
+        var futureInv = Number(allocation?.future ?? 0);
+
+        var data = google.visualization.arrayToDataTable([
+          [
+            '',
+            'Available Inv (' + availableInv + ')',
+            'Sold Inv (' + soldInv + ')',
+            'Future Inv (' + futureInv + ')'
+          ],
+          ['Total Inv', availableInv, soldInv, futureInv]
+        ]);
+
+        var options = {
+          width: 750,
+          height: 200,
+          legend: { position: 'top', maxLines: 1 },
+          bar: { groupWidth: '50%' },
+          isStacked: true,
+          colors: ['#2ecc71', '#DC143C', '#636363'],
+          vAxis: {
+            textPosition: 'none'
+          },
+          hAxis: {
+            title: 'Inventory Units'
+          }
+        };
+
+        var chart = new google.visualization.BarChart(barContainer);
+        chart.draw(data, options);
+      }
+
       function loadAllocationChart(productId = null) {
         const barContainer = document.querySelector(".barchart");
         if (!barContainer) return;
@@ -534,8 +582,8 @@
         fetch(`/api/allocation-chart${query}`)
           .then((response) => response.json())
           .then((payload) => {
-            if (payload.success && payload.svg) {
-              barContainer.innerHTML = payload.svg;
+            if (payload && payload.success && payload.data) {
+              renderAllocationBarChart(payload.data);
             }
           })
           .catch((error) => {
