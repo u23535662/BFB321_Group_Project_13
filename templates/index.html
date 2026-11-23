@@ -70,30 +70,6 @@
     <div class="overviewblocks">
       <div id="facts" class="blockfacts">
         <p>Loading Facts...</p>
-
-
-        <div class="topfacts">
-          <div class="jobtracker">
-            <p># Jobs</p>
-          </div>
-          <div class="producttracker">
-            <p># Products</p>
-          </div>
-          <div class="suppliertracker">
-            <p># Suppliers</p>
-          </div>
-        </div>
-        <div class="bottomfacts">
-          <div class="openordertracker">
-            <p># Open orders</p>
-          </div>
-          <div class="revenuetracker">
-            <p>Revenue</p>
-          </div>
-          <div class="lowstocktracker">
-            <p># Low stock items</p>
-          </div>
-        </div>
       </div>
 
       <div class="blocktodo">
@@ -122,16 +98,12 @@
                   </div>
                 </div>
 
-                <div class="todo_list_item">
-                  <div class="checkbox">
-                    <input class="popup_checkbox" type="checkbox" />
-                  </div>
-                  <div class="product_for_order">
-                    <p>Product Name</p>
-                  </div>
-                  <div class="unit_amount">
-                    <p># Units</p>
-                  </div>
+                <div id="order_suppliers_container" class="order_suppliers_container">
+                  <p class="text">Select Order to load low-stock items...</p>
+                </div>
+
+                <div class="order_grand_total" id="order_grand_total">
+                  <p>Total Cost: R0.00</p>
                 </div>
 
                 <div class="confirm_popup" id="confirm_btn_popup">
@@ -147,7 +119,7 @@
                 <div class="confirm_x">
                   <i class="x_btn" id="x_btn" data-lucide="circle-x"></i>
                 </div>
-                <h3>A new order has been confirmed</h3>
+                <h3 id="confirm_popup_text">A new order has been confirmed</h3>
               </div>
             </div>
 
@@ -256,6 +228,224 @@
     <!-- SCRIPT FOR ORDER POPUP -->
 
     <script>
+      let currentLowStockProducts = [];
+      let suppliersById = new Map();
+
+      function formatCurrency(amount) {
+        const num = Number(amount) || 0;
+        return `R${num.toFixed(2)}`;
+      }
+
+      function getProductEoq(product) {
+        const raw = product.eoq ?? product.EOQ ?? product.order_qty ?? 0;
+        const parsed = Number(raw);
+        return Number.isNaN(parsed) || parsed <= 0 ? 1 : parsed;
+      }
+
+      function getProductUnitCost(product) {
+        const raw =
+          product.unit_cost ??
+          product.cost_price ??
+          product.price ??
+          product.unit_price ??
+          0;
+        const parsed = Number(raw);
+        return Number.isNaN(parsed) || parsed < 0 ? 0 : parsed;
+      }
+
+      function getSupplierInfo(product) {
+        const rawId =
+          product.supplier_id ??
+          product.supplierId ??
+          product.supplier?.id ??
+          "unknown";
+        const supplierId = String(rawId);
+        const supplierMeta = suppliersById.get(supplierId);
+        const supplierName =
+          product.supplier_name ??
+          product.supplierName ??
+          product.supplier?.name ??
+          supplierMeta?.name ??
+          `Supplier #${supplierId}`;
+
+        return { supplierId, supplierName };
+      }
+
+      function recalculateOrderTotals() {
+        const container = document.getElementById("order_suppliers_container");
+        const grandTotalEl = document.getElementById("order_grand_total");
+        if (!container) return;
+
+        let grandTotal = 0;
+
+        container.querySelectorAll(".supplier_order_div").forEach((supplierDiv) => {
+          let supplierTotal = 0;
+          const checkboxes = supplierDiv.querySelectorAll(".popup_checkbox");
+
+          checkboxes.forEach((cb) => {
+            if (cb.checked) {
+              const lineCost = Number(cb.dataset.lineCost || 0);
+              supplierTotal += lineCost;
+            }
+          });
+
+          const totalEl = supplierDiv.querySelector(".supplier_total_cost");
+          if (totalEl) {
+            totalEl.textContent = `Total: ${formatCurrency(supplierTotal)}`;
+          }
+
+          grandTotal += supplierTotal;
+        });
+
+        if (grandTotalEl) {
+          grandTotalEl.innerHTML = `<p>Total Cost: ${formatCurrency(grandTotal)}</p>`;
+        }
+      }
+
+      function populateOrderPopup() {
+        const container = document.getElementById("order_suppliers_container");
+        if (!container) return;
+
+        container.innerHTML = "";
+
+        if (!Array.isArray(currentLowStockProducts) || currentLowStockProducts.length === 0) {
+          container.innerHTML = `<p class="text">No low-stock products to order.</p>`;
+          recalculateOrderTotals();
+          return;
+        }
+
+        // Group low-stock products by supplier; suppliers with zero low-stock items are excluded
+        const groupedBySupplier = new Map();
+
+        currentLowStockProducts.forEach((product) => {
+          const { supplierId, supplierName } = getSupplierInfo(product);
+          if (!groupedBySupplier.has(supplierId)) {
+            groupedBySupplier.set(supplierId, {
+              supplierId,
+              supplierName,
+              items: [],
+            });
+          }
+          groupedBySupplier.get(supplierId).items.push(product);
+        });
+
+        groupedBySupplier.forEach((group) => {
+          if (!group.items.length) return;
+
+          const supplierDiv = document.createElement("div");
+          supplierDiv.className = "supplier_order_div";
+          supplierDiv.dataset.supplierId = group.supplierId;
+          supplierDiv.dataset.supplierName = group.supplierName;
+
+          const headerDiv = document.createElement("div");
+          headerDiv.className = "supplier_order_header";
+          headerDiv.innerHTML = `
+            <h3>${escapeHtml(group.supplierName)}</h3>
+            <span class="supplier_total_cost">Total: ${formatCurrency(0)}</span>
+          `;
+          supplierDiv.appendChild(headerDiv);
+
+          group.items.forEach((product, idx) => {
+            const eoq = getProductEoq(product);
+            const unitCost = getProductUnitCost(product);
+            const lineCost = eoq * unitCost;
+            const productId = product.id ?? product.product_id ?? idx;
+
+            const itemDiv = document.createElement("div");
+            itemDiv.className = "todo_list_item";
+            itemDiv.innerHTML = `
+              <div class="checkbox">
+                <input
+                  class="popup_checkbox"
+                  type="checkbox"
+                  data-product-id="${escapeHtml(productId)}"
+                  data-product-name="${escapeHtml(product.name)}"
+                  data-eoq="${escapeHtml(eoq)}"
+                  data-unit-cost="${escapeHtml(unitCost)}"
+                  data-line-cost="${escapeHtml(lineCost)}"
+                />
+              </div>
+              <div class="product_for_order">
+                <p>${escapeHtml(product.name)}</p>
+              </div>
+              <div class="unit_amount">
+                <p>EOQ: ${escapeHtml(eoq)} (${formatCurrency(lineCost)})</p>
+              </div>
+            `;
+
+            const checkbox = itemDiv.querySelector(".popup_checkbox");
+            checkbox.addEventListener("change", recalculateOrderTotals);
+
+            supplierDiv.appendChild(itemDiv);
+          });
+
+          container.appendChild(supplierDiv);
+        });
+
+        recalculateOrderTotals();
+      }
+
+      async function submitSelectedPurchaseOrders() {
+        const container = document.getElementById("order_suppliers_container");
+        if (!container) return { createdCount: 0, errors: [] };
+
+        const supplierDivs = Array.from(container.querySelectorAll(".supplier_order_div"));
+        const ordersToCreate = [];
+
+        supplierDivs.forEach((supplierDiv) => {
+          const checkedBoxes = Array.from(
+            supplierDiv.querySelectorAll(".popup_checkbox:checked")
+          );
+          if (checkedBoxes.length === 0) return;
+
+          const supplierId = supplierDiv.dataset.supplierId;
+          const supplierName = supplierDiv.dataset.supplierName;
+
+          const items = checkedBoxes.map((cb) => ({
+            product_id: cb.dataset.productId,
+            product_name: cb.dataset.productName,
+            quantity: Number(cb.dataset.eoq || 0),
+            eoq: Number(cb.dataset.eoq || 0),
+            unit_cost: Number(cb.dataset.unitCost || 0),
+            total_cost: Number(cb.dataset.lineCost || 0),
+          }));
+
+          const orderTotal = items.reduce((sum, item) => sum + item.total_cost, 0);
+
+          ordersToCreate.push({
+            supplier_id: supplierId,
+            supplier_name: supplierName,
+            total_cost: orderTotal,
+            items,
+          });
+        });
+
+        let createdCount = 0;
+        const errors = [];
+
+        for (const orderPayload of ordersToCreate) {
+          try {
+            const res = await fetch("/api/purchase_orders", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(orderPayload),
+            });
+            if (!res.ok) {
+              throw new Error(`HTTP ${res.status}`);
+            }
+            createdCount += 1;
+          } catch (err) {
+            console.error(
+              `Failed to create purchase order for supplier ${orderPayload.supplier_name}:`,
+              err
+            );
+            errors.push(orderPayload.supplier_name);
+          }
+        }
+
+        return { createdCount, errors };
+      }
+
       //Script for order popup
       const background = document.getElementById("todo_popup_background");
       const indexOpenBtn = document.getElementById("orderButton");
@@ -263,7 +453,11 @@
 
       if (background && indexOpenBtn && indexCloseBtn) {
         // Open Popup
-        indexOpenBtn.addEventListener("click", function () {
+        indexOpenBtn.addEventListener("click", async function () {
+          if (!currentLowStockProducts.length) {
+            await loadLowStockProducts();
+          }
+          populateOrderPopup();
           background.style.display = "flex";
         });
 
@@ -293,9 +487,28 @@
 
       if (confirmOpenBtn && confirmPopup && confirmCloseBtn) {
         // Open Popup
-        confirmOpenBtn.addEventListener("click", function () {
+        confirmOpenBtn.addEventListener("click", async function () {
+          const { createdCount, errors } = await submitSelectedPurchaseOrders();
+          const confirmTextEl = document.getElementById("confirm_popup_text");
+
+          if (createdCount === 0 && errors.length === 0) {
+            if (confirmTextEl) {
+              confirmTextEl.textContent = "No products selected. No purchase order created.";
+            }
+          } else if (errors.length > 0) {
+            if (confirmTextEl) {
+              confirmTextEl.textContent = `Created ${createdCount} order(s), but failed for: ${errors.join(", ")}`;
+            }
+          } else if (confirmTextEl) {
+            confirmTextEl.textContent = `A new order has been confirmed (${createdCount} purchase order${createdCount > 1 ? "s" : ""} created)`;
+          }
+
           background.style.display = "none";
           confirmPopup.style.display = "flex";
+
+          if (createdCount > 0 && typeof fetchAllFacts === "function") {
+            fetchAllFacts();
+          }
         });
 
         // Close Popup
@@ -388,11 +601,63 @@
         fetchAllFacts();
       });
 
-      function fetchAllFacts();
-      const listBlock = document.getElementById("facts");
-      if (!listBlock) return;
+      async function fetchAllFacts() {
+        const listBlock = document.getElementById("facts");
+        if (!listBlock) return;
+        
+        listBlock.innerHTML = `<p class="text">Loading Facts...</p>`;
+        
+        try {
+          const [productsRes, suppliersRes, purchaseOrdersRes] = await Promise.all([
+            fetch("/api/products"),
+            fetch("/api/suppliers"),
+            fetch("/api/purchase_orders")
+          ]);
 
-      listBlock.innerHTML = `<p class="text">Loading Facts...</p>`;
+          if (!productsRes.ok || !suppliersRes.ok || !purchaseOrdersRes.ok) {
+            throw new Error("One or more requests failed");
+          }
+
+          // Parse the response streams into JSON objects
+          const [products, suppliers, purchase_orders] = await Promise.all([
+            productsRes.json(),
+            suppliersRes.json(),
+            purchaseOrdersRes.json()
+          ]);
+
+          const supplierList = Array.isArray(suppliers) ? suppliers : suppliers.data || [];
+          suppliersById = new Map(
+            supplierList.map((s) => [String(s.id ?? s.supplier_id), s])
+          );
+
+          listBlock.innerHTML = `
+            <div class="topfacts">
+              <div class="jobtracker">
+                <p>Jobs</p>
+              </div>
+              <div class="producttracker">
+                <p>Products: ${products.count}</p>
+              </div>
+              <div class="suppliertracker">
+                <p>Suppliers: ${suppliers.count}</p>
+              </div>
+            </div>
+            <div class="bottomfacts">
+              <div class="openordertracker">
+                <p>Open orders: ${purchase_orders.open_orders}</p>
+              </div>
+              <div class="revenuetracker">
+                <p>Revenue</p>
+              </div>
+              <div class="lowstocktracker">
+                <p>Low stock items: ${products.low_stock}</p>
+              </div>
+            </div>`;
+        } catch (error) {
+          console.error("Error loading facts", error);
+          listBlock.innerHTML = `<p class="text">Failed to load facts.</p>`;
+        }
+      }
 
       function escapeHtml(value) {
         return String(value ?? "")
@@ -436,6 +701,7 @@
               return rankA - rankB;
             });
 
+          currentLowStockProducts = lowStockProducts;
           listBlock.innerHTML = "";
 
           if (lowStockProducts.length === 0) {

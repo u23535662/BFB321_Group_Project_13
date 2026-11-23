@@ -1041,14 +1041,18 @@ def get_purchase_order(order_id=None):
             """
         )
         db.close_db()
-        return {
-            'order_id':rows['order_id'],
-            'supplier_id':rows['supplier_id'],
-            'date':rows['order_date'],
-            'status':rows['order_status'],
-            'created_at':rows['created_at'],
-            'updated_at':rows['updated_at'],
-        }
+
+        output = []
+        for r in rows:
+            output.append({
+            'order_id':r['order_id'],
+            'supplier_id':r['supplier_id'],
+            'date':r['order_date'],
+            'status':r['order_status'],
+            'created_at':r['created_at'],
+            'updated_at':r['updated_at'],
+        })
+        return output
 
     row = db.query_one(
         """

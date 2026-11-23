@@ -86,7 +86,13 @@ def api_get_allocation_chart():
 def api_get_products():
     try:
         products = models.get_products()
-        return jsonify({"success": True, "count": len(products), "data": products}), 200
+
+        low_stock= 0
+        for r in products:
+            if r['current_inventory'] <= r['rop']:
+                low_stock += 1
+
+        return jsonify({"success": True, "count": len(products), "low_stock":low_stock, "data": products}), 200
     except Exception as exc:
         return jsonify({"success": False, "error": str(exc)}), 500
 
@@ -473,13 +479,25 @@ def api_delete_sale(sale_id: int):
     except Exception as exc:
         return jsonify({"success": False, "error": str(exc)}), 500
 
-
-
 # =========================================================================
-# SALES API
+# PURCHASE ORDER API
 # =========================================================================
 
+@app.route("/api/purchase_orders", methods=["GET"])
+def api_get_purchase_orders():
+    try:
+        purchase_orders = models.get_purchase_order()
+        open_orders = 0
 
+        for r in purchase_orders:
+            if r['status'] == 'Pending':
+                open_orders += 1
 
+        return jsonify({'success':True, "count": len(purchase_orders), "open_orders":open_orders,"data":purchase_orders}), 200
+    except Exception as e:
+        return jsonify({'success':False, 'error':str(e)}), 500
+
+    
+    
 if __name__ == "__main__":
     app.run(debug=True)
