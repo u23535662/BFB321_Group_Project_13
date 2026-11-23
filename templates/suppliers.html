@@ -92,20 +92,19 @@
               <input class="addSupplierTelephoneNumber" type="text" placeholder="Telephone Number (optional)" />
             </div>
 
-            <div>
-              <div class="add_product_button_block">
-                <button id="add_product_button" class="addProductButton">
-                  <div class="new_item_text">Add Product</div>
-                </button>
-              </div>
+            <div class="add_product_button_block">
+              <button id="add_product_button" class="addProductButton">
+                <div class="new_item_text">Add Product</div>
               </button>
-              
-              <div class="ul_block">
-                <ul class="add_ul" id="add_product_ul">
-                  <li class="add_li" id="add_product_li"></li>
-                </ul>
-              </div>
             </div>
+            </button>
+              
+            <div class="ul_block">
+              <ul class="add_ul" id="add_product_ul">
+                <li class="add_li" id="add_product_li"></li>
+              </ul>
+            </div>
+
             <div class="cancel_and_submit_block">
               <span class="close" id="close_addSupplier_popup">Cancel</span>
               <span class="submit_popup">Submit</span>
@@ -165,18 +164,12 @@
               <div class="new_item_text">Edit Supplier</div>
             </button>
 
-
-
-
-
-
-
             <!-- editSupplierModal start -->
             <div id="editSupplier" class="edit_modal">
               <!-- Modal content -->
               <div class="edit_modal-content">
                 <div class="delete_block">
-                  <button class="deletebutton">Delete Supplier</button>
+                  <button class="deleteSupplierButton">DELETE SUPPLIER</button>
                 </div>
                 <div class="popup_name">
                   <h1 class="popup_title">Edit Supplier Name</h1> <!-- supplier name -->
@@ -202,31 +195,26 @@
                     <div class="product_details_sub_block">
                       <input class="addProductUnits" placeholder="Product Units"></input> <!-- product units here (in placeholder) -->
                       <div class="delete_block">
-                        <button class="deletebutton">Delete</button>
+                        <button class="deleteSupplierButton">Delete</button>
                       </div>
                     </div>
                   </div>
                   <!-- (repeating block ends here) -->
 
                 </div>
-
-
-
-
-                <div>
-                  <div class="add_product_button_block">
-                    <button id="edit_add_product_button" class="addProductButton">
-                      <div class="new_item_text">Add Product</div>
-                    </button>
-                  </div>
+                <div class="add_product_button_block">
+                  <button id="edit_add_product_button" class="addProductButton">
+                    <div class="new_item_text">Add Product</div>
                   </button>
-                  
-                  <div class="ul_block">
-                    <ul class="add_ul" id="edit_add_product_ul">
-                      <li class="add_li" id="edit_add_product_li"></li>
-                    </ul>
-                  </div>
                 </div>
+                </button>
+                  
+                <div class="edit_ul_block">
+                  <ul class="edit_add_ul" id="edit_add_product_ul">
+                    <li class="edit_add_li" id="edit_add_product_li"></li>
+                  </ul>
+                </div>
+
                 <div class="cancel_and_submit_block">
                   <span class="close" id="close_editSupplier_popup">Cancel</span>
                   <span class="submit_popup">Submit</span>
@@ -234,13 +222,6 @@
               </div>
             </div>
             <!-- editSupplierModal end -->
-
-
-
-
-
-
-
 
           </div>
           <div class="sup_product_info">
@@ -341,10 +322,6 @@
           }
         });
       }
-
-
-
-
       // ADD PRODUCT EXPANDING BUTTON START
       const edit_list = document.getElementById('edit_add_product_li');
 
@@ -352,7 +329,7 @@
       edit_add_product.addEventListener('click', (event) => {
 
         const parentDiv = document.createElement('div');
-        parentDiv.className = 'product_details_block'
+        parentDiv.className = 'edit_product_details_block'
 
         const childDiv1 = document.createElement('div');
         childDiv1.className = 'product_details_sub_block'
@@ -379,7 +356,7 @@
         childDiv3.className = 'delete_block'
 
         const cancelButton = document.createElement('Button')
-        cancelButton.className = 'deletebutton'
+        cancelButton.className = 'deleteSupplierButton'
         cancelButton.textContent = "Delete";
         cancelButton.addEventListener('click', () => {
           parentDiv.remove();
@@ -400,11 +377,6 @@
         })
       // ADD PRODUCT EXPANDING BUTTON END
       // EDIT SUPPLIERS POPUP END
-
-
-
-
-
 
 
       // ADD SUPPLIERS POPUP START
