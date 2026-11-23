@@ -453,20 +453,24 @@ def generate_stacked_bar_svg(product_data: dict) -> str:
     """
     return svg
 
+def get_product_eoq_simulation(product_id=None, zoom: str = "month") -> dict:
+    """
+    Builds daily dates/demands and returns simulation records filtered by zoom.
+    """
+    if product_id is None or zoom not in {"month", "year"}:
+        return {
+            "forecast_inventory": [],
+            "current_inventory": [],
+            "product": None,
+        }
 
-def get_product_eoq_simulation(product_id = None, zoom: str = "month") -> dict:
-    """
-    Builds daily dates/demands and returns simulation records
-    """
     historical_years = max(int(_get_config_value("HISTORICAL_YEARS", 5)), 1)
-
     products = get_products(product_id)
-    
-    
+
     today = date.today()
-    start_d = date(today.year, 1, 1).strftime('%Y-%m-%d')
-    end_d = date(today.year, 12, 31).strftime('%Y-%m-%d')
-    dates = pd.date_range(start_d, end_d, freq='D')
+    start_d = date(today.year, 1, 1).strftime("%Y-%m-%d")
+    end_d = date(today.year, 12, 31).strftime("%Y-%m-%d")
+    dates = pd.date_range(start_d, end_d, freq="D")
 
     sql_d = """
     WITH daily_sales AS (
@@ -481,20 +485,53 @@ def get_product_eoq_simulation(product_id = None, zoom: str = "month") -> dict:
         GROUP BY DATE(s.sold_date)
     )
     SELECT 
-        EXTRACT(MONTH FROM sale_date) AS sale_month,
-        EXTRACT(DAY FROM sale_date) AS sale_day,
+        EXTRACT(MONTH FROM sale_date) AS month,
+        EXTRACT(DAY FROM sale_date) AS day,
         AVG(demand) AS demand
     FROM daily_sales
     GROUP BY 
         EXTRACT(MONTH FROM sale_date),
         EXTRACT(DAY FROM sale_date)
     ORDER BY 
-        sale_month, 
-        sale_day;
+        month, 
+        day;
     """
-    demand = db.query_all(sql_d, (historical_years,product_id,))
+    demand = db.query_all(sql_d, (historical_years, product_id))
 
-    sql_o="""
+    sql_s = """
+    SELECT 
+        EXTRACT(MONTH FROM s.sold_date) AS month, 
+        EXTRACT(DAY FROM s.sold_date) AS day, 
+        SUM(s.sold_qty) AS sale 
+    FROM sale s 
+    WHERE EXTRACT(YEAR FROM s.sold_date) = EXTRACT(YEAR FROM CURRENT_DATE) 
+    AND s.product_id = %s 
+    GROUP BY 
+        EXTRACT(MONTH FROM s.sold_date), 
+        EXTRACT(DAY FROM s.sold_date) 
+    ORDER BY month, day;
+    """
+    sales = db.query_all(sql_s, (product_id,))
+    df_sales = pd.DataFrame(sales, columns=["month", "day", "sale"])
+
+    sql_u = """
+    SELECT 
+        EXTRACT(MONTH FROM iu.update_date) AS month, 
+        EXTRACT(DAY FROM iu.update_date) AS day, 
+        SUM(iui.update_amount) AS `update`
+    FROM inventory_update iu 
+    JOIN inventory_update_item iui ON iu.update_id = iui.update_id 
+    WHERE EXTRACT(YEAR FROM iu.update_date) = EXTRACT(YEAR FROM CURRENT_DATE) 
+    AND iui.product_id = %s 
+    GROUP BY 
+        EXTRACT(MONTH FROM iu.update_date), 
+        EXTRACT(DAY FROM iu.update_date) 
+    ORDER BY month, day;
+    """
+    updates = db.query_all(sql_u, (product_id,))
+    df_updates = pd.DataFrame(updates, columns=["month", "day", "update"])
+
+    sql_o = """
     SELECT poi.product_id, po.order_date AS date
     FROM purchase_order_item poi
     JOIN purchase_order po
@@ -506,87 +543,70 @@ def get_product_eoq_simulation(product_id = None, zoom: str = "month") -> dict:
     LIMIT 1;
     """
     order = db.query_all(sql_o, (product_id,))
-    order_date = order[0]['date'] if order else None
+    order_date = order[0]["date"] if order else None
 
-    df_dates = pd.DataFrame({'date': dates,
-                                'sale_month': dates.month,
-                                'sale_day':dates.day})
-    df_demand = pd.DataFrame(demand, columns=['sale_month', 'sale_day', 'demand'])
-    df_final = pd.merge(df_dates, df_demand, on=['sale_month','sale_day'], how='left')
-    df_final['demand'] = df_final['demand'].fillna(0)
-    df_final = df_final[['date', 'demand']]
+    df_dates = pd.DataFrame({
+        "date": dates,
+        "month": dates.month,
+        "day": dates.day,
+    })
+    df_demand = pd.DataFrame(demand, columns=["month", "day", "demand"])
 
-    eoq_sim = simulation_eoq(int(products['year_starting_inventory']), 
-                                order_date, 
-                                df_final['date'].tolist(), 
-                                df_final['demand'].tolist(), 
-                                int(products['rop']), 
-                                int(products['eoq']), 
-                                int(products['effective_lt']))
+    df_final = (
+        pd.merge(df_dates, df_demand, on=["month", "day"], how="left")
+        .merge(df_sales, on=["month", "day"], how="left")
+        .merge(df_updates, on=["month", "day"], how="left")
+    )
+    df_final["sale"] = pd.to_numeric(df_final["sale"], errors="coerce").fillna(0)
+    df_final["update"] = pd.to_numeric(df_final["update"], errors="coerce").fillna(0)
+    df_final["demand"] = pd.to_numeric(df_final["demand"], errors="coerce").fillna(0)
 
-    if zoom == 'month' and product_id is not None:  
-        df_eoq_sim = pd.DataFrame(eoq_sim)
-        sim_dates = pd.to_datetime(df_eoq_sim["date"])
-        monthly_sim = df_eoq_sim[
-            (sim_dates.dt.year == today.year) & (sim_dates.dt.month == today.month)
-        ]
-        return {
-            "inventory": monthly_sim.to_dict(orient="records"),
-            "product": products,}
+    df_final["c_inv"] = 0
+    df_final.loc[0, "c_inv"] = int(products["year_starting_inventory"])
+    for i in range(1, len(df_final)):
+        df_final.loc[i, "c_inv"] = (
+            df_final.loc[i - 1, "c_inv"]
+            - df_final.loc[i, "sale"]
+            + df_final.loc[i, "update"]
+        )
 
-    elif zoom == 'year' and product_id is not None:   
-        return {'inventory':eoq_sim,
-                'product':products}
-    
-    else:
-        return {'inventory': []}
+    df_final = df_final[["date", "demand", "c_inv"]]
+
+    eoq_sim = simulation_eoq(
+        int(products["year_starting_inventory"]),
+        order_date,
+        df_final["date"].tolist(),
+        df_final["demand"].tolist(),
+        int(products["rop"]),
+        int(products["eoq"]),
+        int(products["effective_lt"]),
+    )
+
+    df_eoq_sim = pd.DataFrame(eoq_sim)
+    sim_dates = pd.to_datetime(df_eoq_sim["date"])
+    final_dates = pd.to_datetime(df_final["date"])
+
+    if zoom == "month":
+        month_mask_sim = (sim_dates.dt.year == today.year) & (sim_dates.dt.month == today.month)
+        month_mask_final = (final_dates.dt.year == today.year) & (final_dates.dt.month == today.month)
+
+        forecast_inventory = df_eoq_sim[month_mask_sim].to_dict(orient="records")
+        current_inventory = df_final.loc[month_mask_final, "c_inv"].tolist()
+    else:  # zoom == "year"
+        forecast_inventory = eoq_sim
+        current_inventory = df_final["c_inv"].tolist()
+
+    return {
+        "forecast_inventory": forecast_inventory,
+        "current_inventory": current_inventory,
+        "product": products,
+    }
 
 def get_allocation_breakdown(product_id: int | None = None) -> dict:
     """
-    Computes Available, Reserved, and Sold quantities/valuations and returns SVG markup.
+    Computes Available, Sold and future quantities/valuations.
     """
-    if product_id is not None:
-        p = get_products(product_id)
-        if not p:
-            return {"data": {}, "svg": generate_stacked_bar_svg({})}
-        avail = max(int(p.get("current_inventory", 0)), 0)
-        sold = max(int(p.get("sold", 0)), 0)
-        res = 0
-        price = float(p.get("sell_price", p.get("price", 0.0)))
-        payload = {
-            "name": p["name"],
-            "available_qty": avail,
-            "reserved_qty": res,
-            "sold_qty": sold,
-            "available_val": avail * price,
-            "reserved_val": res * price,
-            "sold_val": sold * price,
-            "total_val": (avail + res + sold) * price,
-        }
-        return {"data": payload, "svg": generate_stacked_bar_svg(payload)}
 
-    products = get_products()
-    avail = sum(max(int(p.get("current_inventory", 0)), 0) for p in products)
-    sold = sum(max(int(p.get("sold", 0)), 0) for p in products)
-    res = 0
-    avail_val = sum(
-        max(int(p.get("current_inventory", 0)), 0) * float(p.get("sell_price", 0.0))
-        for p in products
-    )
-    sold_val = sum(
-        max(int(p.get("sold", 0)), 0) * float(p.get("sell_price", 0.0))
-        for p in products
-    )
-    payload = {
-        "name": "All Products (Portfolio)",
-        "available_qty": avail,
-        "reserved_qty": res,
-        "sold_qty": sold,
-        "available_val": avail_val,
-        "reserved_val": 0.0,
-        "sold_val": sold_val,
-        "total_val": avail_val + sold_val,
-    }
     return {"data": payload, "svg": generate_stacked_bar_svg(payload)}
 
 

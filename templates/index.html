@@ -554,6 +554,14 @@
         return Number.isNaN(parsed.getTime()) ? null : parsed;
       }
 
+      function toDateKey(dateObj) {
+        if (!(dateObj instanceof Date) || Number.isNaN(dateObj.getTime())) return null;
+        const y = dateObj.getFullYear();
+        const m = String(dateObj.getMonth() + 1).padStart(2, "0");
+        const d = String(dateObj.getDate()).padStart(2, "0");
+        return `${y}-${m}-${d}`;
+      }
+
       function renderEoqGoogleChart(productId, zoom, payload) {
         const eoqContainer = document.querySelector(".eoqchart");
         if (!eoqContainer) return;
@@ -569,32 +577,71 @@
         }
 
         const effectiveZoom = payload.zoom || zoom || "month";
+        const currentInvRaw = Array.isArray(payload.current_inventory) ? payload.current_inventory : [];
+
+        // Map dated current inventory entries by YYYY-MM-DD if objects with dates are passed
+        const currentInvByDate = new Map();
+        currentInvRaw.forEach((entry) => {
+          if (typeof entry === "object" && entry !== null) {
+            const parsed = parseLocalDate(entry.date);
+            const key = toDateKey(parsed);
+            if (key) {
+              const val = entry.c_inv ?? entry.current_inventory ?? entry.value ?? null;
+              if (val !== null && val !== undefined) {
+                currentInvByDate.set(key, Number(val));
+              }
+            }
+          }
+        });
+
         const points = payload.simulation.map((item, idx) => {
           const isObj = typeof item === "object" && item !== null;
           const rawVal = isObj ? (item.inventory ?? item.value ?? 0) : item;
           const parsedDate = isObj ? parseLocalDate(item.date) : null;
+          const dateObj =
+            parsedDate instanceof Date && !Number.isNaN(parsedDate.getTime())
+              ? parsedDate
+              : new Date(2026, 0, 1 + idx);
+
+          let currentVal = null;
+          const dateKey = toDateKey(dateObj);
+          if (dateKey && currentInvByDate.has(dateKey)) {
+            currentVal = currentInvByDate.get(dateKey);
+          } else if (idx < currentInvRaw.length) {
+            const cItem = currentInvRaw[idx];
+            if (typeof cItem === "object" && cItem !== null) {
+              const extracted = cItem.c_inv ?? cItem.current_inventory ?? cItem.value ?? null;
+              currentVal = extracted !== null && extracted !== undefined ? Number(extracted) : null;
+            } else if (cItem !== null && cItem !== undefined) {
+              currentVal = Number(cItem);
+            }
+          }
 
           return {
-            dateObj: parsedDate || new Date(2026, 0, 1 + idx),
-            value: Number(rawVal)
+            dateObj,
+            forecastValue: Number(rawVal ?? 0),
+            currentValue: currentVal !== null && !Number.isNaN(currentVal) ? currentVal : null,
           };
         });
 
         const ss = Number(payload.product?.ss ?? 0);
         const rop = Number(payload.product?.rop ?? 0);
 
-        const rows = [["Date", "Inventory Level", "Reorder Point (ROP)", "Safety Stock (SS)"]];
-        for (let i = 0; i < points.length; i++) {
-          const dateVal =
-            points[i].dateObj instanceof Date && !Number.isNaN(points[i].dateObj.getTime())
-              ? points[i].dateObj
-              : new Date(2026, 0, 1 + i);
+        const rows = [[
+          "Date",
+          "Forecast Inventory (EOQ)",
+          "Current Inventory",
+          "Reorder Point (ROP)",
+          "Safety Stock (SS)",
+        ]];
 
+        for (let i = 0; i < points.length; i++) {
           rows.push([
-            dateVal,
-            Number(points[i].value ?? 0),
+            points[i].dateObj,
+            points[i].forecastValue,
+            points[i].currentValue,
             rop,
-            ss
+            ss,
           ]);
         }
 
@@ -604,14 +651,15 @@
           legend: { position: "bottom" },
           hAxis: {
             title: "Time",
-            format: effectiveZoom === "year" ? "MMM yyyy" : "MMM d"
+            format: effectiveZoom === "year" ? "MMM yyyy" : "MMM d",
           },
           vAxis: { title: "Units", viewWindow: { min: 0 } },
           series: {
             0: { color: "#1a73e8", lineWidth: 2 },
-            1: { color: "#f9ab00", lineDashStyle: [6, 4], lineWidth: 2 },
-            2: { color: "#d93025", lineDashStyle: [3, 3], lineWidth: 2 }
-          }
+            1: { color: "#0f9d58", lineWidth: 2 },
+            2: { color: "#f9ab00", lineDashStyle: [6, 4], lineWidth: 2 },
+            3: { color: "#d93025", lineDashStyle: [3, 3], lineWidth: 2 },
+          },
         };
 
         const chart = new google.visualization.LineChart(eoqContainer);

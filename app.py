@@ -35,6 +35,10 @@ def create_app() -> Flask:
     def orders():
         return render_template("order.html")
 
+    @app.route("/suppliers")
+    def suppliers():
+        return render_template("suppliers.html")
+
     # =========================================================================
     # CHART & SIMULATION API
     # =========================================================================
@@ -54,7 +58,8 @@ def create_app() -> Flask:
                 "success": True,
                 "zoom": zoom,
                 "product": result["product"],
-                "simulation": result["inventory"],
+                "simulation": result["forecast_inventory"],
+                "current_inventory": result['current_inventory'],
             }), 200
         except Exception as exc:
             return jsonify({"success": False, "error": str(exc)}), 500
