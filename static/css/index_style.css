@@ -58,7 +58,9 @@ body {
 
   width: calc(100vw - 1rem - 1.5rem);
 
-  height: calc(100vh - 1rem);
+  height: calc(100vh - 2rem);
+
+  overflow-y: hidden;
 
   margin: 0.5rem;
 
@@ -183,7 +185,7 @@ li {
   column-gap: 2rem;
   row-gap: 1rem;
 
-  grid-template-columns: 30rem 1fr;
+  grid-template-columns: 27rem 1fr;
   grid-template-rows: 8rem 10rem 1fr;
   grid-template-areas:
     "blockfacts blockgraphs"

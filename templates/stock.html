@@ -9,8 +9,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
       href="https://fonts.googleapis.com/css2?family=Gelasio:ital,wght@0,400..700;1,400..700&display=swap"
-      rel="stylesheet"
-    />
+      rel="stylesheet" />
     <link rel="stylesheet" href="../static/css/stock_style.css" />
   </head>
 
@@ -22,8 +21,7 @@
           <img
             src="../static/images/Stanway-Logo-picture.png"
             alt="Stanway Logo"
-            class="logoimg"
-          />
+            class="logoimg" />
         </div>
         <i class="fa-solid fa-grip-lines"></i>
       </div>
@@ -72,7 +70,7 @@
     <div class="stockblocks">
       <div class="stockBtns">
         <!-- Add Item Button -->
-        <button type="button" id="stockButton1" class="stockbutton1">
+        <button id="stockButton1" class="stockbutton1">
           <div class="new_item_icon">
             <i data-lucide="circle-plus"></i>
           </div>
@@ -89,57 +87,101 @@
       </div>
 
       <!-- Add Product Modal -->
-      <div id="addProductModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="addModalTitle">
+      <div
+        id="addProductModal"
+        class="modal"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="addModalTitle">
         <div class="modal-content">
-          <span class="close" id="close_stock_popup" role="button" tabindex="0" aria-label="Close modal">
+          <span
+            class="close"
+            id="close_stock_popup"
+            role="button"
+            tabindex="0"
+            aria-label="Close modal">
             <i data-lucide="circle-x"></i>
           </span>
           <div class="popup_name">
-            <p id="addModalTitle" class="popup_title">Add New Product</p>
+            <h1>Add New Product</h1>
           </div>
 
           <form id="addProductForm" novalidate>
-            <label class="block_title" for="addProdName">Product Name</label>
-            <input id="addProdName" class="addProd" type="text" placeholder="Product name..." required />
+            <input
+              id="addProdName"
+              class="addProd"
+              type="text"
+              placeholder="Product name..."
+              required />
 
-            <label class="block_title" for="addSuppSelect">Supplier Name</label>
             <select id="addSuppSelect" class="addSupp" required>
               <option value="">Select a supplier...</option>
             </select>
 
-            <label class="block_title" for="addProdUnits">Units in Stock</label>
-            <input id="addProdUnits" class="addUnits" type="number" min="0" step="1" placeholder="Units in Stock..." required />
+            <input
+              id="addProdUnits"
+              class="addUnits"
+              type="number"
+              min="0"
+              step="1"
+              placeholder="Units in Stock..."
+              required />
 
-            <label class="block_title" for="addProdPrice">Unit Price</label>
-            <input id="addProdPrice" class="addUnits" type="number" min="0" step="0.01" placeholder="0.00" value="0" />
+            <input
+              id="addProdPrice"
+              class="addUnits"
+              type="number"
+              min="0"
+              step="0.01"
+              placeholder="Unit Price" />
 
-            <label class="block_title" for="addProdHoldingCost">Holding Cost</label>
-            <input id="addProdHoldingCost" class="addUnits" type="number" min="0" step="0.01" placeholder="0.00" value="0" />
+            <input
+              id="addProdHoldingCost"
+              class="addUnits"
+              type="number"
+              min="0"
+              step="0.01"
+              placeholder="Holding Cost" />
 
-            <p class="popup-status text" style="display: none;"></p>
+            <p class="popup-status text" style="display: none"></p>
             <button type="submit" class="submit_popup">Submit</button>
           </form>
         </div>
       </div>
 
       <!-- Delete Product Modal -->
-      <div id="deleteProductModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="deleteModalTitle">
+      <div
+        id="deleteProductModal"
+        class="modal"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="deleteModalTitle">
         <div class="modal-content">
-          <span class="close" id="close_delete_popup" role="button" tabindex="0" aria-label="Close modal">
+          <span
+            class="close"
+            id="close_delete_popup"
+            role="button"
+            tabindex="0"
+            aria-label="Close modal">
             <i data-lucide="circle-x"></i>
           </span>
           <div class="popup_name">
-            <p id="deleteModalTitle" class="popup_title">Delete Product</p>
+            <h1 id="deleteModalTitle" class="popup_title">Delete Product</h1>
           </div>
 
           <form id="deleteProductForm" novalidate>
-            <label class="block_title" for="deleteProdSelect">Select Product to Remove</label>
+            <h3>Select Product To remove</h3>
             <select id="deleteProdSelect" class="addSupp" required>
               <option value="">Loading products...</option>
             </select>
 
-            <p class="popup-status text" style="display: none;"></p>
-            <button type="submit" class="submit_popup" style="background-color: #c0392b;">Delete Product</button>
+            <p class="popup-status text" style="display: none"></p>
+            <button
+              type="submit"
+              class="submit_popup"
+              style="background-color: #c0392b">
+              Delete Product
+            </button>
           </form>
         </div>
       </div>
@@ -164,7 +206,9 @@
     <!-- STOCK BLOCKS END -->
 
     <!-- Icon & Base Scripts -->
-    <script src="https://kit.fontawesome.com/3000704a08.js" crossorigin="anonymous"></script>
+    <script
+      src="https://kit.fontawesome.com/3000704a08.js"
+      crossorigin="anonymous"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="../templates/script.js"></script>
 
@@ -242,13 +286,16 @@
             if (!response.ok) throw new Error(`HTTP ${response.status}`);
 
             const payload = await response.json();
-            const suppliers = Array.isArray(payload) ? payload : payload.data || [];
+            const suppliers = Array.isArray(payload)
+              ? payload
+              : payload.data || [];
 
             suppSelect.innerHTML = `<option value="">Select a supplier...</option>`;
             suppliers.forEach((supplier) => {
               const option = document.createElement("option");
               option.value = supplier.id ?? supplier.supplier_id ?? "";
-              option.textContent = supplier.name ?? supplier.supplier_name ?? "Unnamed Supplier";
+              option.textContent =
+                supplier.name ?? supplier.supplier_name ?? "Unnamed Supplier";
               suppSelect.appendChild(option);
             });
 
@@ -288,27 +335,37 @@
           if (unitsInput.value === "" || Number.isNaN(units) || units < 0) {
             return setStatus("Please enter a valid number of units.", true);
           }
-          if (Number.isNaN(price) || price < 0 || Number.isNaN(holdingCost) || holdingCost < 0) {
-            return setStatus("Price and holding cost must be 0 or greater.", true);
+          if (
+            Number.isNaN(price) ||
+            price < 0 ||
+            Number.isNaN(holdingCost) ||
+            holdingCost < 0
+          ) {
+            return setStatus(
+              "Price and holding cost must be 0 or greater.",
+              true,
+            );
           }
 
           submitBtn.disabled = true;
           setStatus("Saving product...", false);
 
           try {
-            const normalizedSupplierId = Number.isNaN(Number(supplierId)) ? supplierId : Number(supplierId);
+            const normalizedSupplierId = Number.isNaN(Number(supplierId))
+              ? supplierId
+              : Number(supplierId);
             const body = {
               name,
               supplier_id: normalizedSupplierId,
               year_starting_inventory: Math.trunc(units),
               price,
-              holding_cost: holdingCost
+              holding_cost: holdingCost,
             };
 
             const response = await fetch("/api/products", {
               method: "POST",
               headers: { "Content-Type": "application/json" },
-              body: JSON.stringify(body)
+              body: JSON.stringify(body),
             });
 
             const result = await response.json();
@@ -320,7 +377,9 @@
 
             // Refresh low stock list and the affected supplier's product list
             loadLowStockProducts();
-            const controller = supplierCardControllers.get(String(normalizedSupplierId));
+            const controller = supplierCardControllers.get(
+              String(normalizedSupplierId),
+            );
             if (controller) {
               controller.refresh();
             }
@@ -368,7 +427,9 @@
             if (!response.ok) throw new Error(`HTTP ${response.status}`);
 
             const payload = await response.json();
-            const products = Array.isArray(payload) ? payload : payload.data || [];
+            const products = Array.isArray(payload)
+              ? payload
+              : payload.data || [];
 
             prodSelect.innerHTML = `<option value="">Select a product...</option>`;
             products.forEach((product) => {
@@ -404,15 +465,19 @@
           const selectedOption = prodSelect.options[prodSelect.selectedIndex];
           const supplierId = selectedOption?.dataset.supplierId;
 
-          if (!productId) return setStatus("Please select a product to delete.", true);
+          if (!productId)
+            return setStatus("Please select a product to delete.", true);
 
           submitBtn.disabled = true;
           setStatus("Deleting product...", false);
 
           try {
-            const response = await fetch(`/api/products/${encodeURIComponent(productId)}`, {
-              method: "DELETE"
-            });
+            const response = await fetch(
+              `/api/products/${encodeURIComponent(productId)}`,
+              {
+                method: "DELETE",
+              },
+            );
 
             const result = await response.json().catch(() => ({}));
             if (!response.ok || result.success === false) {
@@ -452,7 +517,9 @@
           if (!response.ok) throw new Error(`HTTP ${response.status}`);
 
           const payload = await response.json();
-          const suppliers = Array.isArray(payload) ? payload : payload.data || [];
+          const suppliers = Array.isArray(payload)
+            ? payload
+            : payload.data || [];
 
           if (suppliers.length === 0) {
             container.innerHTML = `<p class="text">No suppliers found.</p>`;
@@ -474,7 +541,8 @@
 
       function createSupplierCard(supplier) {
         const supplierId = supplier.id ?? supplier.supplier_id;
-        const supplierName = supplier.name ?? supplier.supplier_name ?? "Unnamed Supplier";
+        const supplierName =
+          supplier.name ?? supplier.supplier_name ?? "Unnamed Supplier";
 
         const itemEl = document.createElement("div");
         itemEl.className = "supp_list_item";
@@ -524,7 +592,9 @@
         itemEl.querySelector(".list_item_title").textContent = supplierName;
 
         const toggleBtn = itemEl.querySelector(".list_item_button");
-        const expandedContent = itemEl.querySelector(".supplier_item_expanded_content");
+        const expandedContent = itemEl.querySelector(
+          ".supplier_item_expanded_content",
+        );
         const openListIcon = itemEl.querySelector(".open_list");
         const closeListIcon = itemEl.querySelector(".close_list");
         const searchInput = itemEl.querySelector(".searchbar");
@@ -560,7 +630,9 @@
             return;
           }
           const filtered = cachedProducts.filter((product) =>
-            String(product.name ?? "").toLowerCase().includes(term)
+            String(product.name ?? "")
+              .toLowerCase()
+              .includes(term),
           );
           renderSupplierProducts(itemEl, filtered);
         }
@@ -595,7 +667,7 @@
               } else {
                 hasLoaded = false;
               }
-            }
+            },
           });
         }
 
@@ -677,7 +749,10 @@
           renderSupplierProducts(itemEl, products);
           return products;
         } catch (error) {
-          console.error(`Error fetching products for supplier ${supplierId}:`, error);
+          console.error(
+            `Error fetching products for supplier ${supplierId}:`,
+            error,
+          );
           statusEl.style.display = "";
           statusEl.textContent = "Failed to load products.";
           return [];
@@ -696,12 +771,18 @@
           if (!response.ok) throw new Error(`HTTP ${response.status}`);
 
           const payload = await response.json();
-          const products = Array.isArray(payload) ? payload : payload.data || [];
+          const products = Array.isArray(payload)
+            ? payload
+            : payload.data || [];
 
           const lowStockProducts = products.filter((item) => {
             const currentInv = Number(item.current_inventory);
             const rop = Number(item.rop);
-            return !Number.isNaN(currentInv) && !Number.isNaN(rop) && currentInv <= rop;
+            return (
+              !Number.isNaN(currentInv) &&
+              !Number.isNaN(rop) &&
+              currentInv <= rop
+            );
           });
 
           listBlock.innerHTML = "";
