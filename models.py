@@ -3,6 +3,7 @@ import calendar
 import math
 import statistics
 from flask import current_app
+import pandas as pd
 
 from config import get_config
 import db
@@ -124,15 +125,7 @@ def calculate_abc(products_list: list[dict]) -> list[dict]:
 # =============================================================================
 
 
-def simulation_eoq(
-    starting_inventory: int = 200,
-    open_order_date: str = "",
-    dates: list = None,
-    demands: list = None,
-    rop: int = 0,
-    eoq: int = 0,
-    effective_lt: int = 2,
-) -> list:
+def simulation_eoq(starting_inventory: int = 200, open_order_date: str = "", dates: list = None, demands: list = None, rop: int = 0, eoq: int = 0, effective_lt: int = 2,) -> list:
     """
     Simulates the daily continuous inventory balance trajectory over a date series.
 
@@ -156,10 +149,17 @@ def simulation_eoq(
     order_qty = max(int(eoq), 0)
 
     if open_order_date and order_qty > 0:
-        open_str = str(open_order_date)[:10]
-        if open_str in dates:
-            open_idx = dates.index(open_str)
-            replenish_schedule[open_idx] += order_qty
+        if isinstance(open_order_date, datetime):
+            open_date = open_order_date.date()
+        elif isinstance(open_order_date, date):
+            open_date = open_order_date
+        else:
+            open_date = datetime.strptime(str(open_order_date).strip(), "%Y-%m-%d").date()
+
+        days_in_last_year = max(0, (date(date.today().year, 1, 1) - open_date).days)
+        days_in_cur_year = int(round(effective_lt)) - days_in_last_year
+        if 0 <= days_in_cur_year < n_days:
+            replenish_schedule[days_in_cur_year] += order_qty
 
     # Initial day 0 balance
     init_demand = max(int(demands[0] or 0), 0)
@@ -454,56 +454,92 @@ def generate_stacked_bar_svg(product_data: dict) -> str:
     return svg
 
 
-def get_product_eoq_simulation(product_id: int, zoom: str = "month") -> dict:
+def get_product_eoq_simulation(product_id = None, zoom: str = "month") -> dict:
     """
-    Builds daily dates/demands and returns simulation records + SVG markup for a product.
+    Builds daily dates/demands and returns simulation records
     """
-    product = get_products(product_id)
-    if not product:
-        return {"simulation": [], "svg": generate_eoq_simulation_svg([], 0, 0, zoom=zoom)}
+    historical_years = max(int(_get_config_value("HISTORICAL_YEARS", 5)), 1)
 
+    products = get_products(product_id)
+    
+    
     today = date.today()
-    if zoom == "year":
-        start_dt = date(today.year, 1, 1)
-        end_dt = date(today.year, 12, 31)
+    start_d = date(today.year, 1, 1).strftime('%Y-%m-%d')
+    end_d = date(today.year, 12, 31).strftime('%Y-%m-%d')
+    dates = pd.date_range(start_d, end_d, freq='D')
+
+    sql_d = """
+    WITH daily_sales AS (
+        SELECT 
+            DATE(s.sold_date) AS sale_date, 
+            SUM(s.sold_qty) AS demand 
+        FROM sale s 
+        WHERE EXTRACT(YEAR FROM s.sold_date) BETWEEN 
+            EXTRACT(YEAR FROM CURRENT_DATE) - %s
+            AND EXTRACT(YEAR FROM CURRENT_DATE) - 1
+            AND s.product_id = %s
+        GROUP BY DATE(s.sold_date)
+    )
+    SELECT 
+        EXTRACT(MONTH FROM sale_date) AS sale_month,
+        EXTRACT(DAY FROM sale_date) AS sale_day,
+        AVG(demand) AS demand
+    FROM daily_sales
+    GROUP BY 
+        EXTRACT(MONTH FROM sale_date),
+        EXTRACT(DAY FROM sale_date)
+    ORDER BY 
+        sale_month, 
+        sale_day;
+    """
+    demand = db.query_all(sql_d, (historical_years,product_id,))
+
+    sql_o="""
+    SELECT poi.product_id, po.order_date AS date
+    FROM purchase_order_item poi
+    JOIN purchase_order po
+        ON poi.order_id = po.order_id
+    WHERE EXTRACT(YEAR FROM po.order_date) = EXTRACT(YEAR FROM CURRENT_DATE) - 1
+    AND po.order_status != 'Cancelled'
+    AND poi.product_id = %s
+    ORDER BY po.order_date DESC
+    LIMIT 1;
+    """
+    order = db.query_all(sql_o, (product_id,))
+    order_date = order[0]['date'] if order else None
+
+    df_dates = pd.DataFrame({'date': dates,
+                                'sale_month': dates.month,
+                                'sale_day':dates.day})
+    df_demand = pd.DataFrame(demand, columns=['sale_month', 'sale_day', 'demand'])
+    df_final = pd.merge(df_dates, df_demand, on=['sale_month','sale_day'], how='left')
+    df_final['demand'] = df_final['demand'].fillna(0)
+    df_final = df_final[['date', 'demand']]
+
+    eoq_sim = simulation_eoq(int(products['year_starting_inventory']), 
+                                order_date, 
+                                df_final['date'].tolist(), 
+                                df_final['demand'].tolist(), 
+                                int(products['rop']), 
+                                int(products['eoq']), 
+                                int(products['effective_lt']))
+
+    if zoom == 'month' and product_id is not None:  
+        df_eoq_sim = pd.DataFrame(eoq_sim)
+        sim_dates = pd.to_datetime(df_eoq_sim["date"])
+        monthly_sim = df_eoq_sim[
+            (sim_dates.dt.year == today.year) & (sim_dates.dt.month == today.month)
+        ]
+        return {
+            "inventory": monthly_sim.to_dict(orient="records"),
+            "product": products,}
+
+    elif zoom == 'year' and product_id is not None:   
+        return {'inventory':eoq_sim,
+                'product':products}
+    
     else:
-        last_day = calendar.monthrange(today.year, today.month)[1]
-        start_dt = date(today.year, today.month, 1)
-        end_dt = date(today.year, today.month, last_day)
-
-    total_days = (end_dt - start_dt).days + 1
-    dates = [(start_dt + timedelta(days=i)).isoformat() for i in range(total_days)]
-
-    sales_rows = db.query_all(
-        """
-        SELECT DATE(sold_date) AS sale_day, COALESCE(SUM(sold_qty), 0) AS qty
-        FROM sale
-        WHERE product_id = %s
-          AND DATE(sold_date) BETWEEN %s AND %s
-        GROUP BY DATE(sold_date)
-        """,
-        (product_id, start_dt.isoformat(), end_dt.isoformat()),
-    )
-    sales_by_day = {str(r["sale_day"]): int(r["qty"] or 0) for r in sales_rows}
-    demands = [sales_by_day.get(d, 0) for d in dates]
-
-    sim_data = simulation_eoq(
-        starting_inventory=product["current_inventory"],
-        dates=dates,
-        demands=demands,
-        rop=product["rop"],
-        eoq=product["eoq"],
-        effective_lt=2,
-    )
-    svg = generate_eoq_simulation_svg(
-        sim_data=sim_data,
-        rop=product["rop"],
-        ss=product["ss"],
-        zoom=zoom,
-        product_name=product["name"],
-    )
-    return {"product": product, "simulation": sim_data, "svg": svg}
-
+        return {'inventory': []}
 
 def get_allocation_breakdown(product_id: int | None = None) -> dict:
     """
@@ -868,6 +904,7 @@ def get_products(product_id=None):
             "class": abc_lookup.get(p_id, "C"),
             "current_inventory": inv_lookup.get(p_id, 0),
             "sold": month_lookup.get(p_id, 0),
+            "effective_lt": int(round(effective_lt,0)),
         })
 
     return output_products[0] if single_mode else output_products

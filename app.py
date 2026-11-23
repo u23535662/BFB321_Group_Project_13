@@ -21,6 +21,11 @@ def create_app() -> Flask:
     def overview():
         return render_template("index.html")
 
+    # DELETE
+    @app.route("/test")
+    def test():
+        return render_template("test.html")
+
     @app.route("/stock")
     def stock():
         return render_template("stock.html")
@@ -37,7 +42,7 @@ def create_app() -> Flask:
     @app.route("/api/products/<int:product_id>/eoq-chart", methods=["GET"])
     def api_get_product_eoq_chart(product_id: int):
         try:
-            zoom = request.args.get("zoom", "month").strip().lower()
+            zoom = request.args.get("zoom", "year").strip().lower()
             if zoom not in ("month", "year"):
                 zoom = "month"
 
@@ -49,8 +54,7 @@ def create_app() -> Flask:
                 "success": True,
                 "zoom": zoom,
                 "product": result["product"],
-                "simulation": result["simulation"],
-                "svg": result["svg"],
+                "simulation": result["inventory"],
             }), 200
         except Exception as exc:
             return jsonify({"success": False, "error": str(exc)}), 500

@@ -438,10 +438,23 @@
     </script>
 
     <!-- JSON DATA LOADING FOR PAGE -->
+    <script src="https://www.gstatic.com/charts/loader.js"></script>
     <script>
       let activeZoom = "month";
       let selectedProductId = null;
       let loadedProducts = [];
+      let googleChartsLoaded = false;
+      let pendingEoqRender = null;
+
+      google.charts.load("current", { packages: ["corechart"] });
+      google.charts.setOnLoadCallback(() => {
+        googleChartsLoaded = true;
+        if (pendingEoqRender) {
+          const { productId, zoom, payload } = pendingEoqRender;
+          pendingEoqRender = null;
+          renderEoqGoogleChart(productId, zoom, payload);
+        }
+      });
 
       document.addEventListener("DOMContentLoaded", () => {
         bindChartControls();
@@ -530,19 +543,96 @@
           });
       }
 
+      function parseLocalDate(dateStr) {
+        if (!dateStr) return null;
+        const dateOnlyMatch = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(dateStr).trim());
+        if (dateOnlyMatch) {
+          const [, y, m, d] = dateOnlyMatch.map(Number);
+          return new Date(y, m - 1, d);
+        }
+        const parsed = new Date(dateStr);
+        return Number.isNaN(parsed.getTime()) ? null : parsed;
+      }
+
+      function renderEoqGoogleChart(productId, zoom, payload) {
+        const eoqContainer = document.querySelector(".eoqchart");
+        if (!eoqContainer) return;
+
+        if (!googleChartsLoaded) {
+          pendingEoqRender = { productId, zoom, payload };
+          return;
+        }
+
+        if (!payload || !payload.success || !Array.isArray(payload.simulation) || !payload.simulation.length) {
+          eoqContainer.innerHTML = '<p style="font-family: sans-serif; color: #666;">No EOQ simulation data available.</p>';
+          return;
+        }
+
+        const effectiveZoom = payload.zoom || zoom || "month";
+        const points = payload.simulation.map((item, idx) => {
+          const isObj = typeof item === "object" && item !== null;
+          const rawVal = isObj ? (item.inventory ?? item.value ?? 0) : item;
+          const parsedDate = isObj ? parseLocalDate(item.date) : null;
+
+          return {
+            dateObj: parsedDate || new Date(2026, 0, 1 + idx),
+            value: Number(rawVal)
+          };
+        });
+
+        const ss = Number(payload.product?.ss ?? 0);
+        const rop = Number(payload.product?.rop ?? 0);
+
+        const rows = [["Date", "Inventory Level", "Reorder Point (ROP)", "Safety Stock (SS)"]];
+        for (let i = 0; i < points.length; i++) {
+          const dateVal =
+            points[i].dateObj instanceof Date && !Number.isNaN(points[i].dateObj.getTime())
+              ? points[i].dateObj
+              : new Date(2026, 0, 1 + i);
+
+          rows.push([
+            dateVal,
+            Number(points[i].value ?? 0),
+            rop,
+            ss
+          ]);
+        }
+
+        const data = google.visualization.arrayToDataTable(rows);
+        const options = {
+          title: `EOQ Inventory Simulation (Product #${productId})`,
+          legend: { position: "bottom" },
+          hAxis: {
+            title: "Time",
+            format: effectiveZoom === "year" ? "MMM yyyy" : "MMM d"
+          },
+          vAxis: { title: "Units", viewWindow: { min: 0 } },
+          series: {
+            0: { color: "#1a73e8", lineWidth: 2 },
+            1: { color: "#f9ab00", lineDashStyle: [6, 4], lineWidth: 2 },
+            2: { color: "#d93025", lineDashStyle: [3, 3], lineWidth: 2 }
+          }
+        };
+
+        const chart = new google.visualization.LineChart(eoqContainer);
+        chart.draw(data, options);
+      }
+
       function loadEoqChart(productId, zoom = "month") {
         const eoqContainer = document.querySelector(".eoqchart");
         if (!eoqContainer || productId === null) return;
 
         fetch(`/api/products/${encodeURIComponent(productId)}/eoq-chart?zoom=${encodeURIComponent(zoom)}`)
-          .then((response) => response.json())
+          .then((response) => {
+            if (!response.ok) throw new Error(`HTTP ${response.status}`);
+            return response.json();
+          })
           .then((payload) => {
-            if (payload.success && payload.svg) {
-              eoqContainer.innerHTML = payload.svg;
-            }
+            renderEoqGoogleChart(productId, zoom, payload);
           })
           .catch((error) => {
             console.error("Error loading EOQ chart:", error);
+            renderEoqGoogleChart(productId, zoom, null);
           });
       }
 
