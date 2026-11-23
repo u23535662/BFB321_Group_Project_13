@@ -106,7 +106,7 @@
               <div>Order</div>
             </button>
 
-            <!-- To DO Popup start -->
+            <!-- To Do Popup start -->
             <div id="todo_popup_background" class="todo_popup_background">
               <!-- To Do Popup content -->
               <div class="totdo_popup_content">
@@ -151,93 +151,9 @@
             <!-- To do Popup end -->
           </div>
         </div>
-        <div class="contentblocktodo">
-          <div class="task_block">
-            <div class="task_block_left">
-              <div class="task_icon">
-                <i data-lucide="star"></i>
-              </div>
-            </div>
-            <div class="task_block_mid1">
-              <h3 class="task_title">Task</h3>
-            </div>
-            <div class="task_block_mid2">
-              <p>class</p>
-            </div>
-            <div class="task_block_right">
-              <p>###</p>
-            </div>
-          </div>
-
-          <!-- FILLER START -->
-          <div class="task_block">
-            <div class="task_block_left">
-              <div class="task_icon">
-                <i data-lucide="star"></i>
-              </div>
-            </div>
-            <div class="task_block_mid1">
-              <h3 class="task_title">Task</h3>
-            </div>
-            <div class="task_block_mid2">
-              <p>class</p>
-            </div>
-            <div class="task_block_right">
-              <p>###</p>
-            </div>
-          </div>
-
-          <div class="task_block">
-            <div class="task_block_left">
-              <div class="task_icon">
-                <i data-lucide="star"></i>
-              </div>
-            </div>
-            <div class="task_block_mid1">
-              <h3 class="task_title">Task</h3>
-            </div>
-            <div class="task_block_mid2">
-              <p>class</p>
-            </div>
-            <div class="task_block_right">
-              <p>###</p>
-            </div>
-          </div>
-
-          <div class="task_block">
-            <div class="task_block_left">
-              <div class="task_icon">
-                <i data-lucide="star"></i>
-              </div>
-            </div>
-            <div class="task_block_mid1">
-              <h3 class="task_title">Task</h3>
-            </div>
-            <div class="task_block_mid2">
-              <p>class</p>
-            </div>
-            <div class="task_block_right">
-              <p>###</p>
-            </div>
-          </div>
-
-          <div class="task_block">
-            <div class="task_block_left">
-              <div class="task_icon">
-                <i data-lucide="star"></i>
-              </div>
-            </div>
-            <div class="task_block_mid1">
-              <h3 class="task_title">Task</h3>
-            </div>
-            <div class="task_block_mid2">
-              <p>class</p>
-            </div>
-            <div class="task_block_right">
-              <p>###</p>
-            </div>
-          </div>
-          <!-- FILLER END -->
+        <!-- TO DO DATA -->
+        <div id="todo" class="contentblocktodo">
+          <p class="text">Loading Products...</p>
         </div>
       </div>
 
@@ -465,8 +381,89 @@
       document.addEventListener("DOMContentLoaded", () => {
         bindChartControls();
         fetchALLProducts();
+        loadLowStockProducts();
       });
 
+      function escapeHtml(value) {
+        return String(value ?? "")
+          .replaceAll("&", "&amp;")
+          .replaceAll("<", "&lt;")
+          .replaceAll(">", "&gt;")
+          .replaceAll('"', "&quot;")
+          .replaceAll("'", "&#39;");
+      }
+
+      const CLASS_PRIORITY = {
+        A: 1,
+        B: 2,
+        C: 3,
+      };
+
+      async function loadLowStockProducts() {
+        const listBlock = document.getElementById("todo");
+        if (!listBlock) return;
+
+        listBlock.innerHTML = `<p class="text">Loading Products...</p>`;
+
+        try {
+          const response = await fetch("/api/products");
+          if (!response.ok) throw new Error(`HTTP ${response.status}`);
+
+          const payload = await response.json();
+          const products = Array.isArray(payload) ? payload : payload.data || [];
+
+          const lowStockProducts = products
+            .filter((item) => {
+              const currentInv = Number(item.current_inventory);
+              const rop = Number(item.rop);
+              return !Number.isNaN(currentInv) && !Number.isNaN(rop) && currentInv <= rop;
+            })
+            .sort((a, b) => {
+              const keyA = String(a.class ?? "").trim().toUpperCase();
+              const keyB = String(b.class ?? "").trim().toUpperCase();
+              const rankA = CLASS_PRIORITY[keyA] ?? Number.MAX_SAFE_INTEGER;
+              const rankB = CLASS_PRIORITY[keyB] ?? Number.MAX_SAFE_INTEGER;
+              return rankA - rankB;
+            });
+
+          listBlock.innerHTML = "";
+
+          if (lowStockProducts.length === 0) {
+            const emptyEl = `<p class="text">No Low Stock</p>`;
+            listBlock.insertAdjacentHTML("beforeend", emptyEl);
+            return;
+          }
+
+          lowStockProducts.forEach((product) => {
+            const rowEL = `
+              <div class="task_block">
+                <div class="task_block_left">
+                  <div class="task_icon">
+                    <i data-lucide="star"></i>
+                  </div>
+                </div>
+                <div class="task_block_mid1">
+                  <h3 class="task_title">${escapeHtml(product.name)}</h3>
+                </div>
+                <div class="task_block_mid2">
+                  <p>${escapeHtml(product.class)}</p>
+                </div>
+                <div class="task_block_right">
+                  <p>${escapeHtml(product.current_inventory)}</p>
+                </div>
+              </div>`;
+            listBlock.insertAdjacentHTML("beforeend", rowEL);
+          });
+
+          if (window.lucide && typeof window.lucide.createIcons === "function") {
+            window.lucide.createIcons();
+          }
+        } catch (error) {
+          console.error("Error loading low-stock products:", error);
+          listBlock.innerHTML = `<p class="text">Failed to load stock data.</p>`;
+        }
+      }
+       
       function bindChartControls() {
         const zoomOutBtn = document.querySelector(".zoom_minus");
         const zoomInBtn = document.querySelector(".zoom_plus");
