@@ -532,6 +532,9 @@ li {
   overflow-y: scroll;
   scrollbar-width: thin;
 }
+:root {
+  scrollbar-color: black rgb(169, 217, 208, 0);
+}
 
 .contentblockgraphsBar {
   display: flex;
