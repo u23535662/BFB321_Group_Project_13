@@ -538,7 +538,7 @@ li {
   align-items: center;
 
   height: 3rem;
-  width: 100%;
+  width: 95%;
   padding: 0.5rem;
 }
 .popup_title {
@@ -576,7 +576,7 @@ li {
   justify-content: center;
   align-items: center;
 
-  overflow: hidden !important;
+  overflow-y: scroll;
 }
 .supplier_details_block {
   display: flex;
@@ -610,17 +610,17 @@ li {
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  overflow: hidden !important;
-  max-height: 11rem;
-  width: 100%;
+  width: 90%;
 }
 .add_ul {
   display: flex;
   flex-direction: column;
-  justify-content: flex-start;
+  justify-content: center;
   align-items: center;
-  overflow-y: scroll;
   width: 100%;
+}
+.add_li {
+  width: 90%;
 }
 /* Add supplier main blocks end */
 
@@ -766,30 +766,8 @@ li {
 /* The close and submit button end */
 /* ADD SUPPLIER POPUP END */
 
-/* MODALS END */
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 /* EDIT SUPPLIER POPUP START */
-
-
-
 /* Add supplier main blocks start */
 .edit_modal {
   display: none;
@@ -812,8 +790,8 @@ li {
   margin: 6% auto;
   padding: 20px;
   border-radius: 1rem;
-  width: 40%;
-  max-height: 70%;
+  width: 50%;
+  max-height: 75%;
   gap: 2rem;
   justify-content: center;
   align-items: center;
@@ -821,18 +799,56 @@ li {
   overflow-y: scroll;
 }
 
+.edit_ul_block {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 80%;
 
+  background-color: rgb(21, 45, 47, 0.1);
+  border-radius: 1rem;
+}
+.edit_add_ul {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
 
+  width: 100%;
+}
+.edit_add_li {
 
+  width: 90%;
+}
+.edit_product_details_block {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: flex-start;
+  align-self: stretch;
+
+  background-color: rgb(84, 147, 136);
+  padding: 0.5rem;
+  border-radius: 1rem;
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+  width: 95%;
+  gap: 0.5rem;
+}
+
+.deleteSupplierButton {
+  color: #e7dbdb;
+  float: center;
+  background-color: #c0392b;
+  border-color: #c0392b;
+  border-radius: 1rem;
+  height: 1.5rem;
+}
+.deleteSupplierButton:hover {
+  color: #c0392b;
+  text-decoration: none;
+  cursor: pointer;
+}
 /* EDIT SUPPLIER POPUP END */
-
-
-
-
-
-
-
-
-
-
 /* MODALS END */

@@ -697,6 +697,7 @@ li {
   flex-direction: column;
 
   width: 100%;
+
   background-color: rgb(169, 217, 208, 0.6);
   padding: 0.5rem;
   border-radius: 1rem;
@@ -742,6 +743,43 @@ li {
 }
 
 /* DROP DOWN START */
+
+.supplier_btns {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-direction: row;
+
+  width: 20%;
+}
+
+/* UPDATE ORDER START */
+.update_order {
+  align-items: center;
+  justify-content: center;
+  display: flex;
+  flex-direction: row;
+
+  background-color: rgb(84, 147, 136);
+  width: 65%;
+  height: 2rem;
+
+  border-radius: 1rem;
+  border-style: none;
+  gap: 0.5rem;
+}
+
+.update_order:hover {
+  background-color: rgb(155, 255, 237);
+  color: rgb(84, 147, 136);
+  cursor: pointer;
+}
+
+.update_order:active {
+  background-color: rgb(84, 147, 136);
+  color: rgb(155, 255, 237);
+}
+/* UPDATE ORDER END */
 
 /* CHEVRON START */
 
@@ -792,6 +830,7 @@ li {
   justify-content: center;
 
   width: 100%;
+
   border-radius: 1rem;
   gap: 0.5rem;
 }
@@ -841,7 +880,7 @@ li {
   flex-direction: row;
 
   background-color: rgb(94, 155, 145);
-  width: 90%;
+  width: 98%;
   height: 2.3rem;
 
   border-radius: 1rem;
@@ -863,7 +902,8 @@ li {
 
 .units,
 .products,
-.del_date {
+.del_date,
+.cost {
   display: flex;
   flex-direction: row;
   align-items: center;
@@ -876,17 +916,30 @@ li {
   align-items: center;
   justify-content: space-between;
   display: flex;
-  flex-direction: row;
+  flex-direction: column;
 
   /* background-color: rgb(94, 155, 145); */
-  width: 90%;
-  height: 1.5rem;
+  width: 98%;
+  height: auto;
 
   border-radius: 1rem;
 
-  gap: 1rem;
+  gap: 0.2rem;
 }
 
+.total_cost {
+  align-items: center;
+  justify-content: center;
+  display: flex;
+  flex-direction: row;
+
+  background-color: rgb(94, 155, 145);
+  width: 100%;
+  height: 2.3rem;
+
+  border-radius: 1rem;
+  gap: 66%;
+}
 /* EXPANDED CONTENT END */
 /* DROP DOWN END */
 
