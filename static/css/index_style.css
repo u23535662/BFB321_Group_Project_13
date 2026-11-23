@@ -528,6 +528,9 @@ li {
   height: 80%;
   border-radius: 1rem;
   gap: 0.5rem;
+
+  overflow-y: scroll;
+  scrollbar-width: thin;
 }
 
 .contentblockgraphsBar {

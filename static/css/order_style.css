@@ -753,7 +753,7 @@ li {
   width: 20%;
 }
 
-/* UPDATE ORDER START */
+/* UPDATE ORDER BUTTON START */
 .update_order {
   align-items: center;
   justify-content: center;
@@ -779,7 +779,157 @@ li {
   background-color: rgb(84, 147, 136);
   color: rgb(155, 255, 237);
 }
-/* UPDATE ORDER END */
+/* UPDATE ORDER BUTTON END */
+
+/* UPDATE ORDER POPUP START */
+.update_background {
+  display: flex; /*MAKE NONE */
+  flex-direction: column;
+  position: fixed;
+  z-index: 1000;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 100vw;
+  height: 100vh;
+  overflow: auto;
+  background-color: rgba(0, 0, 0, 0.4);
+}
+
+.update_content {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+
+  width: 35%;
+  max-height: 80%;
+  gap: 2rem;
+
+  padding-bottom: 1rem;
+  padding-top: 1rem;
+
+  box-sizing: border-box;
+  background-color: rgb(84, 147, 136);
+  margin: auto;
+
+  border-radius: 1rem;
+}
+
+.update_supplier {
+  display: flex;
+  justify-content: left;
+  align-items: center;
+
+  width: 90%;
+  height: 10%;
+  background-color: rgb(169, 217, 208, 0.6);
+  border-radius: 1rem;
+
+  padding: 0.5rem;
+  gap: 0.5rem;
+}
+
+.update_prod_and_units {
+  display: flex;
+  flex-direction: column;
+
+  height: 100%;
+  width: 90%;
+
+  padding-bottom: 1rem;
+  padding-top: 1rem;
+  gap: 0.5rem;
+
+  overflow-y: scroll;
+  scrollbar-width: thin;
+}
+
+.prod_and_unit {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-direction: row;
+
+  width: 95%;
+  height: 15%;
+  background-color: rgb(169, 217, 208, 0.6);
+  border-radius: 1rem;
+
+  padding: 0.5rem;
+}
+
+.prod_and_icon {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+
+  width: 40%;
+}
+
+.update_units {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+
+  width: 30%;
+}
+
+.conf_and_canc {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+
+  height: 3rem;
+
+  gap: 1rem;
+}
+
+.conf {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 2rem;
+
+  padding: 0 1rem;
+
+  background-color: rgb(169, 217, 208, 0.6);
+  border-radius: 0.5rem;
+
+  border-style: solid;
+  border-color: #152d2f;
+  border-width: 1px;
+}
+
+.canc {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 2rem;
+
+  padding: 0 1rem;
+
+  background-color: rgb(169, 217, 208, 0.6);
+  border-radius: 0.5rem;
+
+  border-style: solid;
+  border-color: #152d2f;
+  border-width: 1px;
+}
+
+.conf:hover,
+.canc:hover {
+  cursor: pointer;
+}
+
+.conf:active,
+.canc:active {
+  background-color: rgb(84, 147, 136);
+}
+/* UPDATE ORDER POPUP END */
 
 /* CHEVRON START */
 
