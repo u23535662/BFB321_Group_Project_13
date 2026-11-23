@@ -1033,38 +1033,202 @@ def delete_sale(sale_id: int):
 # PURCHASE ORDER FUNCTIONS
 # =============================================================================
 
+
+def _format_purchase_order(row: dict, items: list[dict] | None = None) -> dict:
+    return {
+        "order_id": int(row["order_id"]),
+        "supplier_id": int(row["supplier_id"]),
+        "supplier_name": str(row["supplier_name"]) if row.get("supplier_name") is not None else "",
+        "date": str(row["order_date"]) if row.get("order_date") else "",
+        "status": str(row["order_status"]) if row.get("order_status") else "Pending",
+        "created_at": str(row["created_at"]) if row.get("created_at") else "",
+        "updated_at": str(row["updated_at"]) if row.get("updated_at") else "",
+        "items": items if items is not None else [],
+    }
+
+
+def _get_purchase_order_items(order_ids: list[int]) -> dict[int, list[dict]]:
+    if not order_ids:
+        return {}
+
+    placeholders = ", ".join(["%s"] * len(order_ids))
+    sql = f"""
+    SELECT
+        poi.po_item_id,
+        poi.order_id,
+        poi.product_id,
+        p.product_name,
+        p.supplier_price,
+        poi.order_amount,
+        (poi.order_amount * p.supplier_price) AS line_total,
+        poi.created_at,
+        poi.updated_at
+    FROM purchase_order_item poi
+    JOIN product p
+        ON poi.product_id = p.product_id
+    WHERE poi.order_id IN ({placeholders})
+    ORDER BY poi.po_item_id ASC
+    """
+    rows = db.query_all(sql, tuple(order_ids))
+    items_by_order: dict[int, list[dict]] = {int(oid): [] for oid in order_ids}
+    for r in rows:
+        oid = int(r["order_id"])
+        items_by_order.setdefault(oid, []).append({
+            "po_item_id": int(r["po_item_id"]),
+            "order_id": oid,
+            "product_id": int(r["product_id"]),
+            "product_name": str(r["product_name"]),
+            "unit_cost": float(r["supplier_price"]),
+            "order_amount": int(r["order_amount"]),
+            "line_total": float(r["line_total"]),
+            "created_at": str(r["created_at"]) if r.get("created_at") else "",
+            "updated_at": str(r["updated_at"]) if r.get("updated_at") else "",
+        })
+    return items_by_order
+
+
 def get_purchase_order(order_id=None):
-    if order_id == "" or order_id is None:
-        rows = db.query_all(
+    is_single = order_id != "" and order_id is not None
+
+    if is_single:
+        row = db.query_one(
             """
-            SELECT * FROM purchase_order
-            """
+            SELECT
+                po.order_id,
+                po.supplier_id,
+                s.supplier_name,
+                po.order_date,
+                po.order_status,
+                po.created_at,
+                po.updated_at
+            FROM purchase_order po
+            JOIN supplier s
+                ON po.supplier_id = s.supplier_id
+            WHERE po.order_id = %s
+            """,
+            (order_id,),
         )
         db.close_db()
+        if not row:
+            return None
+        items_map = _get_purchase_order_items([int(row["order_id"])])
+        db.close_db()
+        return _format_purchase_order(row, items_map.get(int(row["order_id"]), []))
 
-        output = []
-        for r in rows:
-            output.append({
-            'order_id':r['order_id'],
-            'supplier_id':r['supplier_id'],
-            'date':r['order_date'],
-            'status':r['order_status'],
-            'created_at':r['created_at'],
-            'updated_at':r['updated_at'],
-        })
-        return output
-
-    row = db.query_one(
+    rows = db.query_all(
         """
-        SELECT * FROM purchase_order po
-        WHERE po.order_id = %s;
-        """, (order_id,))
+        SELECT
+            po.order_id,
+            po.supplier_id,
+            s.supplier_name,
+            po.order_date,
+            po.order_status,
+            po.created_at,
+            po.updated_at
+        FROM purchase_order po
+        JOIN supplier s
+            ON po.supplier_id = s.supplier_id
+        ORDER BY po.order_date DESC, po.order_id DESC
+        """
+    )
     db.close_db()
-    return {
-            'order_id':row['order_id'],
-            'supplier_id':row['supplier_id'],
-            'date':row['order_date'],
-            'status':row['order_status'],
-            'created_at':row['created_at'],
-            'updated_at':row['updated_at'],
-        }
+
+    if not rows:
+        return []
+
+    order_ids = [int(r["order_id"]) for r in rows]
+    items_map = _get_purchase_order_items(order_ids)
+    db.close_db()
+
+    return [
+        _format_purchase_order(r, items_map.get(int(r["order_id"]), []))
+        for r in rows
+    ]
+
+
+def insert_purchase_order(
+    supplier_id: int,
+    order_date: str | None = None,
+    order_status: str = "Pending",
+    items: list[dict] | None = None,
+):
+    po_sql = """
+    INSERT INTO purchase_order (supplier_id, order_date, order_status)
+    VALUES (%s, COALESCE(%s, CURDATE()), %s)
+    """
+    new_order_id = db.execute(
+        po_sql,
+        (
+            supplier_id,
+            order_date or None,
+            order_status,
+        ),
+    )
+
+    if items:
+        item_sql = """
+        INSERT INTO purchase_order_item (order_id, product_id, order_amount)
+        VALUES (%s, %s, %s)
+        """
+        for item in items:
+            db.execute(
+                item_sql,
+                (
+                    new_order_id,
+                    int(item["product_id"]),
+                    int(item["order_amount"]),
+                ),
+            )
+
+    db.close_db()
+    return new_order_id
+
+
+def update_purchase_order(
+    order_id: int,
+    supplier_id: int,
+    order_date: str,
+    order_status: str,
+    items: list[dict] | None = None,
+):
+    po_sql = """
+    UPDATE purchase_order
+    SET supplier_id = %s, order_date = %s, order_status = %s
+    WHERE order_id = %s
+    """
+    rows_affected = db.execute(
+        po_sql,
+        (
+            supplier_id,
+            order_date,
+            order_status,
+            order_id,
+        ),
+    )
+
+    if items is not None:
+        db.execute("DELETE FROM purchase_order_item WHERE order_id = %s", (order_id,))
+        item_sql = """
+        INSERT INTO purchase_order_item (order_id, product_id, order_amount)
+        VALUES (%s, %s, %s)
+        """
+        for item in items:
+            db.execute(
+                item_sql,
+                (
+                    order_id,
+                    int(item["product_id"]),
+                    int(item["order_amount"]),
+                ),
+            )
+
+    db.close_db()
+    return rows_affected
+
+
+def delete_purchase_order(order_id: int):
+    rows_affected = db.execute(
+        "DELETE FROM purchase_order WHERE order_id = %s", (order_id,)
+    )
+    db.close_db()
+    return rows_affected

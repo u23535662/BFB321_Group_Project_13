@@ -490,12 +490,173 @@ def api_get_purchase_orders():
         open_orders = 0
 
         for r in purchase_orders:
-            if r['status'] == 'Pending':
+            if r["status"] == "Pending":
                 open_orders += 1
 
-        return jsonify({'success':True, "count": len(purchase_orders), "open_orders":open_orders,"data":purchase_orders}), 200
-    except Exception as e:
-        return jsonify({'success':False, 'error':str(e)}), 500
+        return jsonify({
+            "success": True,
+            "count": len(purchase_orders),
+            "open_orders": open_orders,
+            "data": purchase_orders,
+        }), 200
+    except Exception as exc:
+        return jsonify({"success": False, "error": str(exc)}), 500
+
+
+@app.route("/api/purchase_orders/<int:order_id>", methods=["GET"])
+def api_get_purchase_order(order_id: int):
+    try:
+        purchase_order = models.get_purchase_order(order_id)
+        if not purchase_order:
+            return jsonify({"success": False, "error": "Purchase order not found"}), 404
+        return jsonify({"success": True, "data": purchase_order}), 200
+    except Exception as exc:
+        return jsonify({"success": False, "error": str(exc)}), 500
+
+
+@app.route("/api/purchase_orders", methods=["POST"])
+def api_create_purchase_order():
+    data = request.get_json(silent=True)
+    if not isinstance(data, dict):
+        return jsonify({"success": False, "error": "Invalid or missing JSON payload"}), 400
+
+    required_fields = ("supplier_id", "items")
+    missing = [field for field in required_fields if field not in data or data[field] is None]
+    if missing:
+        return jsonify({
+            "success": False,
+            "error": f"Missing required fields: {', '.join(missing)}",
+        }), 400
+
+    try:
+        supplier_id = int(data["supplier_id"])
+        order_date = str(data.get("order_date") or data.get("date") or "").strip()
+        order_status = str(data.get("order_status") or data.get("status") or "Pending").strip()
+        raw_items = data["items"]
+
+        if order_status not in ("Pending", "Received", "Cancelled"):
+            return jsonify({
+                "success": False,
+                "error": "Invalid order_status. Must be one of: Pending, Received, Cancelled",
+            }), 400
+
+        if not isinstance(raw_items, list) or len(raw_items) == 0:
+            return jsonify({"success": False, "error": "items must be a non-empty list"}), 400
+
+        parsed_items = []
+        for item in raw_items:
+            if not isinstance(item, dict) or item.get("product_id") is None or item.get("order_amount") is None:
+                return jsonify({
+                    "success": False,
+                    "error": "Each item must include product_id and order_amount",
+                }), 400
+            prod_id = int(item["product_id"])
+            qty = int(item["order_amount"])
+            if qty <= 0:
+                return jsonify({"success": False, "error": "order_amount must be greater than 0"}), 400
+            parsed_items.append({"product_id": prod_id, "order_amount": qty})
+
+        new_id = models.insert_purchase_order(
+            supplier_id=supplier_id,
+            order_date=order_date or None,
+            order_status=order_status,
+            items=parsed_items,
+        )
+        created = models.get_purchase_order(new_id)
+        return jsonify({"success": True, "data": created}), 201
+    except (ValueError, TypeError) as exc:
+        return jsonify({"success": False, "error": f"Invalid field value: {exc}"}), 400
+    except pymysql.err.IntegrityError as exc:
+        return jsonify({
+            "success": False,
+            "error": f"Database constraint error (check supplier_id, product_id, or duplicate products in order): {exc}",
+        }), 400
+    except Exception as exc:
+        return jsonify({"success": False, "error": str(exc)}), 500
+
+
+@app.route("/api/purchase_orders/<int:order_id>", methods=["PUT"])
+def api_update_purchase_order(order_id: int):
+    purchase_order = models.get_purchase_order(order_id)
+    if not purchase_order:
+        return jsonify({"success": False, "error": "Purchase order not found"}), 404
+
+    data = request.get_json(silent=True)
+    if not isinstance(data, dict):
+        return jsonify({"success": False, "error": "Invalid or missing JSON payload"}), 400
+
+    try:
+        n_supplier_id = int(data["supplier_id"]) if "supplier_id" in data and data["supplier_id"] is not None else purchase_order["supplier_id"]
+        raw_date = data.get("order_date") if "order_date" in data else data.get("date", purchase_order["date"])
+        n_order_date = str(raw_date or "").strip()
+        raw_status = data.get("order_status") if "order_status" in data else data.get("status", purchase_order["status"])
+        n_order_status = str(raw_status or "").strip()
+
+        if not n_order_date:
+            return jsonify({"success": False, "error": "order_date is required"}), 400
+        if n_order_status not in ("Pending", "Received", "Cancelled"):
+            return jsonify({
+                "success": False,
+                "error": "Invalid order_status. Must be one of: Pending, Received, Cancelled",
+            }), 400
+
+        parsed_items = None
+        if "items" in data and data["items"] is not None:
+            if not isinstance(data["items"], list) or len(data["items"]) == 0:
+                return jsonify({"success": False, "error": "items must be a non-empty list"}), 400
+            parsed_items = []
+            for item in data["items"]:
+                if not isinstance(item, dict) or item.get("product_id") is None or item.get("order_amount") is None:
+                    return jsonify({
+                        "success": False,
+                        "error": "Each item must include product_id and order_amount",
+                    }), 400
+                prod_id = int(item["product_id"])
+                qty = int(item["order_amount"])
+                if qty <= 0:
+                    return jsonify({"success": False, "error": "order_amount must be greater than 0"}), 400
+                parsed_items.append({"product_id": prod_id, "order_amount": qty})
+
+        models.update_purchase_order(
+            order_id=order_id,
+            supplier_id=n_supplier_id,
+            order_date=n_order_date,
+            order_status=n_order_status,
+            items=parsed_items,
+        )
+        updated = models.get_purchase_order(order_id)
+        return jsonify({
+            "success": True,
+            "message": "Purchase order updated successfully",
+            "data": updated,
+        }), 200
+    except (ValueError, TypeError) as exc:
+        return jsonify({"success": False, "error": f"Invalid field value: {exc}"}), 400
+    except pymysql.err.IntegrityError as exc:
+        return jsonify({
+            "success": False,
+            "error": f"Database constraint error: {exc}",
+        }), 400
+    except Exception as exc:
+        return jsonify({"success": False, "error": str(exc)}), 500
+
+
+@app.route("/api/purchase_orders/<int:order_id>", methods=["DELETE"])
+def api_delete_purchase_order(order_id: int):
+    purchase_order = models.get_purchase_order(order_id)
+    if not purchase_order:
+        return jsonify({"success": False, "error": "Purchase order not found"}), 404
+
+    try:
+        models.delete_purchase_order(order_id)
+        return jsonify({"success": True, "message": "Purchase order deleted successfully"}), 200
+    except pymysql.err.IntegrityError:
+        return jsonify({
+            "success": False,
+            "error": "Cannot delete purchase order because it is referenced by inventory updates.",
+        }), 400
+    except Exception as exc:
+        return jsonify({"success": False, "error": str(exc)}), 500
 
     
     
