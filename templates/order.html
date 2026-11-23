@@ -90,7 +90,7 @@
               <h3 class="order_title">Unique Order Number</h3>
             </div>
             <div class="supplier_btns">
-              <button class="update_order">
+              <button class="update_order" id="update_order">
                 <i data-lucide="circle-plus"></i>
                 <p>Update Order</p>
               </button>
@@ -107,7 +107,7 @@
           <!-- NOT EXPANDED END -->
 
           <!-- UPDATE ORDER POPUP START -->
-          <div class="update_background">
+          <div class="update_background" id="update_background">
             <div class="update_content">
               <div class="update_heading">
                 <h1>Update Order</h1>
@@ -125,7 +125,9 @@
 
                   <div class="update_units">
                     <h3>###</h3>
-                    <i data-lucide="pencil-line"></i>
+                    <button class="edit">
+                      <i data-lucide="pencil-line"></i>
+                    </button>
                   </div>
                 </div>
 
@@ -138,7 +140,9 @@
 
                   <div class="update_units">
                     <h3>###</h3>
-                    <i data-lucide="pencil-line"></i>
+                    <button class="edit">
+                      <i data-lucide="pencil-line"></i>
+                    </button>
                   </div>
                 </div>
                 <div class="prod_and_unit">
@@ -149,7 +153,9 @@
 
                   <div class="update_units">
                     <h3>###</h3>
-                    <i data-lucide="pencil-line"></i>
+                    <button class="edit">
+                      <i data-lucide="pencil-line"></i>
+                    </button>
                   </div>
                 </div>
                 <div class="prod_and_unit">
@@ -160,23 +166,69 @@
 
                   <div class="update_units">
                     <h3>###</h3>
-                    <i data-lucide="pencil-line"></i>
+                    <button class="edit">
+                      <i data-lucide="pencil-line"></i>
+                    </button>
+                  </div>
+                </div>
+
+                <div class="prod_and_unit">
+                  <div class="prod_and_icon">
+                    <i data-lucide="circle-dollar-sign"></i>
+                    <h3>Product 5</h3>
+                  </div>
+
+                  <div class="update_units">
+                    <h3>###</h3>
+                    <button class="edit">
+                      <i data-lucide="pencil-line"></i>
+                    </button>
+                  </div>
+                </div>
+                <div class="prod_and_unit">
+                  <div class="prod_and_icon">
+                    <i data-lucide="circle-dollar-sign"></i>
+                    <h3>Product 6</h3>
+                  </div>
+
+                  <div class="update_units">
+                    <h3>###</h3>
+                    <button class="edit" id="edit">
+                      <i data-lucide="pencil-line"></i>
+                    </button>
                   </div>
                 </div>
                 <!-- FILLLER END -->
               </div>
 
               <div class="conf_and_canc">
-                <button class="conf">
+                <button class="conf" id="conf">
                   <p>Confirm</p>
                 </button>
-                <button class="canc">
+                <button class="canc" id="canc">
                   <p>Cancel</p>
                 </button>
               </div>
             </div>
           </div>
 
+          <!-- CONFIRM UPDATE ORDER POPUP START -->
+          <div class="update_conf_background" id="update_conf_background">
+            <div class="update_conf_popup" id="update_conf_popup">
+              <div class="top_update">
+                <i class="x_conf" id="x_conf" data-lucide="circle-x"></i>
+              </div>
+
+              <div class="update_conf_heading">
+                <h1>Updated order</h1>
+              </div>
+              <div class="update_conf_text">
+                <p>Your order has been updated succesfully!</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- CONFIRM UPDATE ORDER POPUP END -->
           <!-- UPDATE ORDER POPUP END -->
 
           <!-- EXPANDED START -->
@@ -386,6 +438,69 @@
           openListIcon.classList.toggle("hidden");
           closeListIcon.classList.toggle("unhide");
         });
+      }
+    </script>
+
+    <script>
+      // Script for update order popup
+      const updateOpenBtn = document.getElementById("update_order");
+      const updatePopup = document.getElementById("update_background");
+      const updateCloseBtn = document.getElementById("canc");
+
+      if (updateOpenBtn && updatePopup && updateCloseBtn) {
+        // Open Popup
+        updateOpenBtn.addEventListener("click", function () {
+          updatePopup.style.display = "flex";
+        });
+
+        // Close Popup
+        updateCloseBtn.addEventListener("click", function () {
+          updatePopup.style.display = "none";
+        });
+
+        // Close Popup (click outside)
+        updatePopup.addEventListener("click", function (event) {
+          if (event.target === updatePopup) {
+            updatePopup.style.display = "none";
+          }
+        });
+      } else if (!updateOpenBtn) {
+        console.log("No open Button");
+      } else if (!updatePopup) {
+        console.log("No popup hold...");
+      } else if (!updateCloseBtn) {
+        console.log("No popup close");
+      }
+
+      // Confirm button
+      const ConfirmOpenBtn = document.getElementById("conf");
+      const ConfirmPopup = document.getElementById("update_conf_background");
+      const ConfirmCloseBtn = document.getElementById("x_conf");
+
+      if (ConfirmOpenBtn && ConfirmPopup && ConfirmCloseBtn) {
+        // Open Popup
+        ConfirmOpenBtn.addEventListener("click", function () {
+          updatePopup.style.display = "none";
+          ConfirmPopup.style.display = "flex";
+        });
+
+        // Close Popup
+        ConfirmCloseBtn.addEventListener("click", function () {
+          ConfirmPopup.style.display = "none";
+        });
+
+        // Close Popup (click outside)
+        ConfirmPopup.addEventListener("click", function (event) {
+          if (event.target === ConfirmPopup) {
+            ConfirmPopup.style.display = "none";
+          }
+        });
+      } else if (!ConfirmOpenBtn) {
+        console.log("No open Button");
+      } else if (!ConfirmPopup) {
+        console.log("No popup hold...");
+      } else if (!ConfirmCloseBtn) {
+        console.log("No popup close");
       }
     </script>
 

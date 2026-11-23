@@ -98,8 +98,10 @@
                   </div>
                 </div>
 
-                <div id="order_suppliers_container" class="order_suppliers_container">
-                  <p class="text">Select Order to load low-stock items...</p>
+                <div
+                  id="order_suppliers_container"
+                  class="order_suppliers_container">
+                  <h2>Select Order to load low-stock items...</h2>
                 </div>
 
                 <div class="order_grand_total" id="order_grand_total">
@@ -278,24 +280,26 @@
 
         let grandTotal = 0;
 
-        container.querySelectorAll(".supplier_order_div").forEach((supplierDiv) => {
-          let supplierTotal = 0;
-          const checkboxes = supplierDiv.querySelectorAll(".popup_checkbox");
+        container
+          .querySelectorAll(".supplier_order_div")
+          .forEach((supplierDiv) => {
+            let supplierTotal = 0;
+            const checkboxes = supplierDiv.querySelectorAll(".popup_checkbox");
 
-          checkboxes.forEach((cb) => {
-            if (cb.checked) {
-              const lineCost = Number(cb.dataset.lineCost || 0);
-              supplierTotal += lineCost;
+            checkboxes.forEach((cb) => {
+              if (cb.checked) {
+                const lineCost = Number(cb.dataset.lineCost || 0);
+                supplierTotal += lineCost;
+              }
+            });
+
+            const totalEl = supplierDiv.querySelector(".supplier_total_cost");
+            if (totalEl) {
+              totalEl.textContent = `Total: ${formatCurrency(supplierTotal)}`;
             }
+
+            grandTotal += supplierTotal;
           });
-
-          const totalEl = supplierDiv.querySelector(".supplier_total_cost");
-          if (totalEl) {
-            totalEl.textContent = `Total: ${formatCurrency(supplierTotal)}`;
-          }
-
-          grandTotal += supplierTotal;
-        });
 
         if (grandTotalEl) {
           grandTotalEl.innerHTML = `<p>Total Cost: ${formatCurrency(grandTotal)}</p>`;
@@ -308,7 +312,10 @@
 
         container.innerHTML = "";
 
-        if (!Array.isArray(currentLowStockProducts) || currentLowStockProducts.length === 0) {
+        if (
+          !Array.isArray(currentLowStockProducts) ||
+          currentLowStockProducts.length === 0
+        ) {
           container.innerHTML = `<p class="text">No low-stock products to order.</p>`;
           recalculateOrderTotals();
           return;
@@ -389,12 +396,14 @@
         const container = document.getElementById("order_suppliers_container");
         if (!container) return { createdCount: 0, errors: [] };
 
-        const supplierDivs = Array.from(container.querySelectorAll(".supplier_order_div"));
+        const supplierDivs = Array.from(
+          container.querySelectorAll(".supplier_order_div"),
+        );
         const ordersToCreate = [];
 
         supplierDivs.forEach((supplierDiv) => {
           const checkedBoxes = Array.from(
-            supplierDiv.querySelectorAll(".popup_checkbox:checked")
+            supplierDiv.querySelectorAll(".popup_checkbox:checked"),
           );
           if (checkedBoxes.length === 0) return;
 
@@ -410,7 +419,10 @@
             total_cost: Number(cb.dataset.lineCost || 0),
           }));
 
-          const orderTotal = items.reduce((sum, item) => sum + item.total_cost, 0);
+          const orderTotal = items.reduce(
+            (sum, item) => sum + item.total_cost,
+            0,
+          );
 
           ordersToCreate.push({
             supplier_id: supplierId,
@@ -437,7 +449,7 @@
           } catch (err) {
             console.error(
               `Failed to create purchase order for supplier ${orderPayload.supplier_name}:`,
-              err
+              err,
             );
             errors.push(orderPayload.supplier_name);
           }
@@ -493,7 +505,8 @@
 
           if (createdCount === 0 && errors.length === 0) {
             if (confirmTextEl) {
-              confirmTextEl.textContent = "No products selected. No purchase order created.";
+              confirmTextEl.textContent =
+                "No products selected. No purchase order created.";
             }
           } else if (errors.length > 0) {
             if (confirmTextEl) {
@@ -604,15 +617,16 @@
       async function fetchAllFacts() {
         const listBlock = document.getElementById("facts");
         if (!listBlock) return;
-        
+
         listBlock.innerHTML = `<p class="text">Loading Facts...</p>`;
-        
+
         try {
-          const [productsRes, suppliersRes, purchaseOrdersRes] = await Promise.all([
-            fetch("/api/products"),
-            fetch("/api/suppliers"),
-            fetch("/api/purchase_orders")
-          ]);
+          const [productsRes, suppliersRes, purchaseOrdersRes] =
+            await Promise.all([
+              fetch("/api/products"),
+              fetch("/api/suppliers"),
+              fetch("/api/purchase_orders"),
+            ]);
 
           if (!productsRes.ok || !suppliersRes.ok || !purchaseOrdersRes.ok) {
             throw new Error("One or more requests failed");
@@ -622,12 +636,14 @@
           const [products, suppliers, purchase_orders] = await Promise.all([
             productsRes.json(),
             suppliersRes.json(),
-            purchaseOrdersRes.json()
+            purchaseOrdersRes.json(),
           ]);
 
-          const supplierList = Array.isArray(suppliers) ? suppliers : suppliers.data || [];
+          const supplierList = Array.isArray(suppliers)
+            ? suppliers
+            : suppliers.data || [];
           suppliersById = new Map(
-            supplierList.map((s) => [String(s.id ?? s.supplier_id), s])
+            supplierList.map((s) => [String(s.id ?? s.supplier_id), s]),
           );
 
           listBlock.innerHTML = `
@@ -685,17 +701,27 @@
           if (!response.ok) throw new Error(`HTTP ${response.status}`);
 
           const payload = await response.json();
-          const products = Array.isArray(payload) ? payload : payload.data || [];
+          const products = Array.isArray(payload)
+            ? payload
+            : payload.data || [];
 
           const lowStockProducts = products
             .filter((item) => {
               const currentInv = Number(item.current_inventory);
               const rop = Number(item.rop);
-              return !Number.isNaN(currentInv) && !Number.isNaN(rop) && currentInv <= rop;
+              return (
+                !Number.isNaN(currentInv) &&
+                !Number.isNaN(rop) &&
+                currentInv <= rop
+              );
             })
             .sort((a, b) => {
-              const keyA = String(a.class ?? "").trim().toUpperCase();
-              const keyB = String(b.class ?? "").trim().toUpperCase();
+              const keyA = String(a.class ?? "")
+                .trim()
+                .toUpperCase();
+              const keyB = String(b.class ?? "")
+                .trim()
+                .toUpperCase();
               const rankA = CLASS_PRIORITY[keyA] ?? Number.MAX_SAFE_INTEGER;
               const rankB = CLASS_PRIORITY[keyB] ?? Number.MAX_SAFE_INTEGER;
               return rankA - rankB;
@@ -731,7 +757,10 @@
             listBlock.insertAdjacentHTML("beforeend", rowEL);
           });
 
-          if (window.lucide && typeof window.lucide.createIcons === "function") {
+          if (
+            window.lucide &&
+            typeof window.lucide.createIcons === "function"
+          ) {
             window.lucide.createIcons();
           }
         } catch (error) {
@@ -739,11 +768,13 @@
           listBlock.innerHTML = `<p class="text">Failed to load stock data.</p>`;
         }
       }
-       
+
       function bindChartControls() {
         const zoomOutBtn = document.querySelector(".zoom_minus");
         const zoomInBtn = document.querySelector(".zoom_plus");
-        const confirmFilterBtn = document.getElementById("filter_button_confirm");
+        const confirmFilterBtn = document.getElementById(
+          "filter_button_confirm",
+        );
 
         if (zoomOutBtn) {
           zoomOutBtn.addEventListener("click", () => {
@@ -766,7 +797,9 @@
         if (confirmFilterBtn) {
           confirmFilterBtn.addEventListener("click", () => {
             const checked = Array.from(
-              document.querySelectorAll("#filter_popup_background .filter_checkbox:checked")
+              document.querySelectorAll(
+                "#filter_popup_background .filter_checkbox:checked",
+              ),
             );
             if (checked.length > 0 && checked[0].dataset.productId) {
               selectedProductId = Number(checked[0].dataset.productId);
@@ -782,7 +815,9 @@
       }
 
       function populateFilterPopup(products) {
-        const scrollContainer = document.querySelector("#filter_popup_background .popup_scroll");
+        const scrollContainer = document.querySelector(
+          "#filter_popup_background .popup_scroll",
+        );
         if (!scrollContainer) return;
 
         scrollContainer.innerHTML = "";
@@ -796,9 +831,11 @@
           const cb = row.querySelector(".filter_checkbox");
           cb.addEventListener("change", () => {
             if (cb.checked) {
-              scrollContainer.querySelectorAll(".filter_checkbox").forEach((other) => {
-                if (other !== cb) other.checked = false;
-              });
+              scrollContainer
+                .querySelectorAll(".filter_checkbox")
+                .forEach((other) => {
+                  if (other !== cb) other.checked = false;
+                });
             }
           });
           scrollContainer.appendChild(row);
@@ -820,27 +857,27 @@
 
         var data = google.visualization.arrayToDataTable([
           [
-            '',
-            'Available Inv (' + availableInv + ')',
-            'Sold Inv (' + soldInv + ')',
-            'Future Inv (' + futureInv + ')'
+            "",
+            "Available Inv (" + availableInv + ")",
+            "Sold Inv (" + soldInv + ")",
+            "Future Inv (" + futureInv + ")",
           ],
-          ['Total Inv', availableInv, soldInv, futureInv]
+          ["Total Inv", availableInv, soldInv, futureInv],
         ]);
 
         var options = {
           width: 750,
           height: 200,
-          legend: { position: 'top', maxLines: 1 },
-          bar: { groupWidth: '50%' },
+          legend: { position: "top", maxLines: 1 },
+          bar: { groupWidth: "50%" },
           isStacked: true,
-          colors: ['#2ecc71', '#DC143C', '#636363'],
+          colors: ["#2ecc71", "#DC143C", "#636363"],
           vAxis: {
-            textPosition: 'none'
+            textPosition: "none",
           },
           hAxis: {
-            title: 'Inventory Units'
-          }
+            title: "Inventory Units",
+          },
         };
 
         var chart = new google.visualization.BarChart(barContainer);
@@ -851,7 +888,10 @@
         const barContainer = document.querySelector(".barchart");
         if (!barContainer) return;
 
-        const query = productId !== null ? `?product_id=${encodeURIComponent(productId)}` : "";
+        const query =
+          productId !== null
+            ? `?product_id=${encodeURIComponent(productId)}`
+            : "";
         fetch(`/api/allocation-chart${query}`)
           .then((response) => response.json())
           .then((payload) => {
@@ -866,7 +906,9 @@
 
       function parseLocalDate(dateStr) {
         if (!dateStr) return null;
-        const dateOnlyMatch = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(dateStr).trim());
+        const dateOnlyMatch = /^(\d{4})-(\d{2})-(\d{2})$/.exec(
+          String(dateStr).trim(),
+        );
         if (dateOnlyMatch) {
           const [, y, m, d] = dateOnlyMatch.map(Number);
           return new Date(y, m - 1, d);
@@ -876,7 +918,8 @@
       }
 
       function toDateKey(dateObj) {
-        if (!(dateObj instanceof Date) || Number.isNaN(dateObj.getTime())) return null;
+        if (!(dateObj instanceof Date) || Number.isNaN(dateObj.getTime()))
+          return null;
         const y = dateObj.getFullYear();
         const m = String(dateObj.getMonth() + 1).padStart(2, "0");
         const d = String(dateObj.getDate()).padStart(2, "0");
@@ -892,13 +935,21 @@
           return;
         }
 
-        if (!payload || !payload.success || !Array.isArray(payload.simulation) || !payload.simulation.length) {
-          eoqContainer.innerHTML = '<p style="font-family: sans-serif; color: #666;">No EOQ simulation data available.</p>';
+        if (
+          !payload ||
+          !payload.success ||
+          !Array.isArray(payload.simulation) ||
+          !payload.simulation.length
+        ) {
+          eoqContainer.innerHTML =
+            '<p style="font-family: sans-serif; color: #666;">No EOQ simulation data available.</p>';
           return;
         }
 
         const effectiveZoom = payload.zoom || zoom || "month";
-        const currentInvRaw = Array.isArray(payload.current_inventory) ? payload.current_inventory : [];
+        const currentInvRaw = Array.isArray(payload.current_inventory)
+          ? payload.current_inventory
+          : [];
 
         // Map dated current inventory entries by YYYY-MM-DD if objects with dates are passed
         const currentInvByDate = new Map();
@@ -907,7 +958,8 @@
             const parsed = parseLocalDate(entry.date);
             const key = toDateKey(parsed);
             if (key) {
-              const val = entry.c_inv ?? entry.current_inventory ?? entry.value ?? null;
+              const val =
+                entry.c_inv ?? entry.current_inventory ?? entry.value ?? null;
               if (val !== null && val !== undefined) {
                 currentInvByDate.set(key, Number(val));
               }
@@ -931,8 +983,12 @@
           } else if (idx < currentInvRaw.length) {
             const cItem = currentInvRaw[idx];
             if (typeof cItem === "object" && cItem !== null) {
-              const extracted = cItem.c_inv ?? cItem.current_inventory ?? cItem.value ?? null;
-              currentVal = extracted !== null && extracted !== undefined ? Number(extracted) : null;
+              const extracted =
+                cItem.c_inv ?? cItem.current_inventory ?? cItem.value ?? null;
+              currentVal =
+                extracted !== null && extracted !== undefined
+                  ? Number(extracted)
+                  : null;
             } else if (cItem !== null && cItem !== undefined) {
               currentVal = Number(cItem);
             }
@@ -941,20 +997,25 @@
           return {
             dateObj,
             forecastValue: Number(rawVal ?? 0),
-            currentValue: currentVal !== null && !Number.isNaN(currentVal) ? currentVal : null,
+            currentValue:
+              currentVal !== null && !Number.isNaN(currentVal)
+                ? currentVal
+                : null,
           };
         });
 
         const ss = Number(payload.product?.ss ?? 0);
         const rop = Number(payload.product?.rop ?? 0);
 
-        const rows = [[
-          "Date",
-          "Forecast Inventory (EOQ)",
-          "Current Inventory",
-          "Reorder Point (ROP)",
-          "Safety Stock (SS)",
-        ]];
+        const rows = [
+          [
+            "Date",
+            "Forecast Inventory (EOQ)",
+            "Current Inventory",
+            "Reorder Point (ROP)",
+            "Safety Stock (SS)",
+          ],
+        ];
 
         for (let i = 0; i < points.length; i++) {
           rows.push([
@@ -991,7 +1052,9 @@
         const eoqContainer = document.querySelector(".eoqchart");
         if (!eoqContainer || productId === null) return;
 
-        fetch(`/api/products/${encodeURIComponent(productId)}/eoq-chart?zoom=${encodeURIComponent(zoom)}`)
+        fetch(
+          `/api/products/${encodeURIComponent(productId)}/eoq-chart?zoom=${encodeURIComponent(zoom)}`,
+        )
           .then((response) => {
             if (!response.ok) throw new Error(`HTTP ${response.status}`);
             return response.json();
@@ -1012,7 +1075,11 @@
             const statusEL = document.getElementById("loading-status");
             const listEL = document.getElementById("product");
 
-            if (!products.success || !products.data || products.data.length === 0) {
+            if (
+              !products.success ||
+              !products.data ||
+              products.data.length === 0
+            ) {
               if (statusEL) statusEL.innerText = "No products found";
               loadAllocationChart(null);
               return;

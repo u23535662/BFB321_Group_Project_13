@@ -729,14 +729,18 @@ li {
   justify-content: flex-start;
   align-items: center;
 
-  width: 30%;
-  max-height: 60%;
-  gap: 2rem;
+  width: 35%;
+  max-height: 70%;
+  gap: 1rem;
+
+  overflow-y: scroll;
+  scrollbar-width: thin;
+  overflow-x: hidden;
 
   position: fixed;
 
   left: 50%;
-  top: 35%;
+  top: 50%;
   transform: translate(-50%, -50%);
 
   box-sizing: border-box;
@@ -756,6 +760,23 @@ li {
   height: 10%;
 
   margin: 0.5rem;
+}
+
+.supplier_order_div {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+
+  overflow-x: hidden;
+}
+
+.order_suppliers_container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
 }
 
 /* The Close Button */
@@ -793,7 +814,8 @@ li {
   display: flex;
   flex-direction: row;
 
-  width: 90%;
+  width: 100%;
+  gap: 1rem;
 
   background-color: rgb(169, 217, 208, 0.6);
   border-radius: 1rem;
@@ -815,7 +837,7 @@ li {
   width: 70%;
 }
 .unit_amount {
-  width: 15%;
+  width: 20%;
 }
 
 .block_title {
