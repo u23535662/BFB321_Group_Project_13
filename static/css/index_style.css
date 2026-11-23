@@ -242,7 +242,7 @@ li {
 
 .blocktodo {
   align-items: center;
-  justify-content: space-between;
+  justify-content: center;
   display: flex;
   flex-direction: column;
   grid-area: blocktodo;
@@ -251,7 +251,7 @@ li {
   background-color: rgb(84, 147, 136);
   border-radius: 1rem;
   border: 2px solid rgb(155, 255, 237);
-  gap: 0.5rem;
+  gap: 1rem;
   padding: 0.5rem;
 }
 
