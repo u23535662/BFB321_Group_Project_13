@@ -35,6 +35,10 @@ def create_app() -> Flask:
     def orders():
         return render_template("order.html")
 
+    @app.route("/suppliers")
+    def suppliers():
+        return render_template("suppliers.html")
+
     # =========================================================================
     # CHART & SIMULATION API
     # =========================================================================
