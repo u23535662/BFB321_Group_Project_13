@@ -121,7 +121,7 @@ def calculate_abc(products_list: list[dict]) -> list[dict]:
 
 
 # =============================================================================
-# SIMULATION & SVG VISUALIZATION
+# SIMULATION
 # =============================================================================
 
 
@@ -629,6 +629,7 @@ def get_products(product_id=None):
     )
     SELECT
         p.product_id AS id,
+        COALESCE(sa.sales, 0) AS ytd_sales,
         (
             p.year_starting_inventory
             - COALESCE(sa.sales, 0)
@@ -649,6 +650,9 @@ def get_products(product_id=None):
     inv_rows = db.query_all(inv_sql, inv_params)
     inv_lookup = {
         int(r["id"]): int(r["current_inventory"] or 0) for r in inv_rows
+    }
+    ytd_sold_lookup = {
+        int(r["id"]): int(r["ytd_sales"] or 0) for r in inv_rows
     }
 
     month_sold_sql = f"""
@@ -693,7 +697,12 @@ def get_products(product_id=None):
             effective_lt = lt % cycle_time
             rop = calculate_rop(daily_demand, effective_lt, ss)
         else:
+            effective_lt = 0.0
             rop = ss
+
+        ytd_sold = ytd_sold_lookup.get(p_id, 0)
+        sell_price = float(p["sell_price"] or 0.0)
+        revenue = ytd_sold * sell_price
 
         output_products.append({
             "id": p_id,
@@ -710,7 +719,8 @@ def get_products(product_id=None):
             "class": abc_lookup.get(p_id, "C"),
             "current_inventory": inv_lookup.get(p_id, 0),
             "sold": month_lookup.get(p_id, 0),
-            "effective_lt": int(round(effective_lt,0)),
+            "revenue": revenue,
+            "effective_lt": int(round(effective_lt, 0)),
         })
 
     return output_products[0] if single_mode else output_products
@@ -1229,6 +1239,203 @@ def update_purchase_order(
 def delete_purchase_order(order_id: int):
     rows_affected = db.execute(
         "DELETE FROM purchase_order WHERE order_id = %s", (order_id,)
+    )
+    db.close_db()
+    return rows_affected
+
+# =============================================================================
+# INVENTORY UPDATE FUNCTIONS
+# =============================================================================
+
+
+def _format_inventory_update(row: dict, items: list[dict] | None = None) -> dict:
+    return {
+        "update_id": int(row["update_id"]),
+        "order_id": int(row["order_id"]),
+        "update_date": str(row["update_date"]) if row.get("update_date") else "",
+        "update_note": str(row["update_note"]) if row.get("update_note") is not None else "",
+        "created_at": str(row["created_at"]) if row.get("created_at") else "",
+        "updated_at": str(row["updated_at"]) if row.get("updated_at") else "",
+        "items": items if items is not None else [],
+    }
+
+
+def _get_inventory_update_items(update_ids: list[int]) -> dict[int, list[dict]]:
+    if not update_ids:
+        return {}
+
+    placeholders = ", ".join(["%s"] * len(update_ids))
+    sql = f"""
+    SELECT
+        iui.update_item_id,
+        iui.update_id,
+        iui.product_id,
+        p.product_name,
+        iui.update_amount,
+        iui.expiry_date,
+        iui.created_at,
+        iui.updated_at
+    FROM inventory_update_item iui
+    JOIN product p
+        ON iui.product_id = p.product_id
+    WHERE iui.update_id IN ({placeholders})
+    ORDER BY iui.update_item_id ASC
+    """
+    rows = db.query_all(sql, tuple(update_ids))
+    items_by_update: dict[int, list[dict]] = {int(uid): [] for uid in update_ids}
+    for r in rows:
+        uid = int(r["update_id"])
+        items_by_update.setdefault(uid, []).append({
+            "update_item_id": int(r["update_item_id"]),
+            "update_id": uid,
+            "product_id": int(r["product_id"]),
+            "product_name": str(r["product_name"]),
+            "update_amount": int(r["update_amount"]),
+            "expiry_date": str(r["expiry_date"]) if r.get("expiry_date") else "",
+            "created_at": str(r["created_at"]) if r.get("created_at") else "",
+            "updated_at": str(r["updated_at"]) if r.get("updated_at") else "",
+        })
+    return items_by_update
+
+
+def get_inventory_update(update_id=None):
+    is_single = update_id != "" and update_id is not None
+
+    if is_single:
+        row = db.query_one(
+            """
+            SELECT
+                iu.update_id,
+                iu.order_id,
+                iu.update_date,
+                iu.update_note,
+                iu.created_at,
+                iu.updated_at
+            FROM inventory_update iu
+            WHERE iu.update_id = %s
+            """,
+            (update_id,),
+        )
+        db.close_db()
+        if not row:
+            return None
+        items_map = _get_inventory_update_items([int(row["update_id"])])
+        db.close_db()
+        return _format_inventory_update(row, items_map.get(int(row["update_id"]), []))
+
+    rows = db.query_all(
+        """
+        SELECT
+            iu.update_id,
+            iu.order_id,
+            iu.update_date,
+            iu.update_note,
+            iu.created_at,
+            iu.updated_at
+        FROM inventory_update iu
+        ORDER BY iu.update_date DESC, iu.update_id DESC
+        """
+    )
+    db.close_db()
+
+    if not rows:
+        return []
+
+    update_ids = [int(r["update_id"]) for r in rows]
+    items_map = _get_inventory_update_items(update_ids)
+    db.close_db()
+
+    return [
+        _format_inventory_update(r, items_map.get(int(r["update_id"]), []))
+        for r in rows
+    ]
+
+
+def insert_inventory_update(
+    order_id: int,
+    update_date: str | None = None,
+    update_note: str = "",
+    items: list[dict] | None = None,
+):
+    iu_sql = """
+    INSERT INTO inventory_update (order_id, update_date, update_note)
+    VALUES (%s, COALESCE(%s, CURRENT_TIMESTAMP), %s)
+    """
+    new_update_id = db.execute(
+        iu_sql,
+        (
+            order_id,
+            update_date or None,
+            update_note,
+        ),
+    )
+
+    if items:
+        item_sql = """
+        INSERT INTO inventory_update_item (update_id, product_id, update_amount, expiry_date)
+        VALUES (%s, %s, %s, COALESCE(%s, CURDATE()))
+        """
+        for item in items:
+            db.execute(
+                item_sql,
+                (
+                    new_update_id,
+                    int(item["product_id"]),
+                    int(item["update_amount"]),
+                    item.get("expiry_date") or None,
+                ),
+            )
+
+    db.close_db()
+    return new_update_id
+
+
+def update_inventory_update(
+    update_id: int,
+    order_id: int,
+    update_date: str,
+    update_note: str = "",
+    items: list[dict] | None = None,
+):
+    iu_sql = """
+    UPDATE inventory_update
+    SET order_id = %s, update_date = %s, update_note = %s
+    WHERE update_id = %s
+    """
+    rows_affected = db.execute(
+        iu_sql,
+        (
+            order_id,
+            update_date,
+            update_note,
+            update_id,
+        ),
+    )
+
+    if items is not None:
+        db.execute("DELETE FROM inventory_update_item WHERE update_id = %s", (update_id,))
+        item_sql = """
+        INSERT INTO inventory_update_item (update_id, product_id, update_amount, expiry_date)
+        VALUES (%s, %s, %s, COALESCE(%s, CURDATE()))
+        """
+        for item in items:
+            db.execute(
+                item_sql,
+                (
+                    update_id,
+                    int(item["product_id"]),
+                    int(item["update_amount"]),
+                    item.get("expiry_date") or None,
+                ),
+            )
+
+    db.close_db()
+    return rows_affected
+
+
+def delete_inventory_update(update_id: int):
+    rows_affected = db.execute(
+        "DELETE FROM inventory_update WHERE update_id = %s", (update_id,)
     )
     db.close_db()
     return rows_affected
