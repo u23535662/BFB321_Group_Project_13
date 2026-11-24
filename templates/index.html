@@ -346,7 +346,7 @@
           const headerDiv = document.createElement("div");
           headerDiv.className = "supplier_order_header";
           headerDiv.innerHTML = `
-            <h3>${escapeHtml(group.supplierName)}</h3>
+            <h2>${escapeHtml(group.supplierName)}</h3>
             <span class="supplier_total_cost">Total: ${formatCurrency(0)}</span>
           `;
           supplierDiv.appendChild(headerDiv);
@@ -666,15 +666,17 @@
               </div>
             </div>
             <div class="bottomfacts">
-              <div class="openordertracker">
-                <p>Open orders: ${purchase_orders.open_orders}</p>
-              </div>
               <div class="revenuetracker">
                 <p>Revenue</p>
               </div>
               <div class="lowstocktracker">
                 <p>Low stock: ${products.low_stock}</p>
               </div>
+              <div class="openordertracker">
+                <p>Open orders: ${purchase_orders.open_orders}</p>
+              </div>
+              
+              
             </div>`;
           if (selectedProductId !== null) {
             updateRevenueKpi(selectedProductId);
