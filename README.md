@@ -18,6 +18,15 @@
   
 </p>
 
+
+
+<!-- Entity Relationship Diagram -->
+## Entity Relationship Diagram
+
+
+![ERD](Backup/Data/ERD.png)
+
+
 <!--PROJECT DESCRIPTION-->
 ## About the Project
 <!-- header image of project -->
