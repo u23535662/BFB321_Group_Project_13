@@ -830,7 +830,36 @@ def api_delete_inventory_update(update_id: int):
     except Exception as exc:
         return jsonify({"success": False, "error": str(exc)}), 500
 
-    
+@app.route("/api/purchase_orders/<int:order_id>/process_update", methods=["POST"])
+def api_process_purchase_order_update(order_id: int):
+    purchase_order = models.get_purchase_order(order_id)
+    if not purchase_order:
+        return jsonify({"success": False, "error": "Purchase order not found"}), 404
+
+    data = request.get_json(silent=True)
+    if not isinstance(data, dict):
+        return jsonify({"success": False, "error": "Invalid or missing JSON payload"}), 400
+
+    raw_updates = data.get("product_updates")
+    if not isinstance(raw_updates, list):
+        return jsonify({"success": False, "error": "product_updates must be a list"}), 400
+
+    try:
+        update_date = str(data.get("update_date") or "").strip() or None
+        updated_po = models.process_purchase_order_update(
+            order_id=order_id,
+            product_updates=raw_updates,
+            update_date=update_date,
+        )
+        return jsonify({
+            "success": True,
+            "message": "Order update processed successfully",
+            "data": updated_po,
+        }), 200
+    except (ValueError, TypeError) as exc:
+        return jsonify({"success": False, "error": f"Invalid field value: {exc}"}), 400
+    except Exception as exc:
+        return jsonify({"success": False, "error": str(exc)}), 500
     
 if __name__ == "__main__":
     app.run(debug=True)

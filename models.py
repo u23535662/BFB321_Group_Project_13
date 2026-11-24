@@ -456,7 +456,6 @@ def _format_sale(row: dict) -> dict:
         "updated_at": str(row["updated_at"]) if row["updated_at"] else "",
     }
 
-
 # =============================================================================
 # PRODUCT FUNCTIONS
 # =============================================================================
@@ -1524,3 +1523,162 @@ def delete_inventory_update(update_id: int):
     )
     db.close_db()
     return rows_affected
+
+def process_purchase_order_update(
+    order_id: int,
+    product_updates: list[dict],
+    update_date: str | None = None,
+):
+    """
+    Handles full or partial updates for a purchase order:
+    - Deletes products marked `delete = True` and appends `[product] was deleted from order [order_id]` to notes.
+    - If all products are deleted, sets PO status to `Cancelled` and deletes any `inventory_update` for `order_id`.
+    - Loads/preserves previously saved arrived quantities & expiry dates for partially updated orders.
+    - Updates `update_date` until the final product has an inventory value.
+    - Sets note to `inventory updated for order [order_id]` once all remaining products have arrived units.
+    - Marks PO status as `Received` when all remaining products have units.
+    """
+    po = get_purchase_order(order_id)
+    if not po:
+        return None
+
+    existing_items_by_pid = {int(i["product_id"]): i for i in po.get("items", [])}
+
+    existing_iu_row = db.query_one(
+        """
+        SELECT update_id, update_date, update_note
+        FROM inventory_update
+        WHERE order_id = %s
+        ORDER BY update_id DESC
+        LIMIT 1
+        """,
+        (order_id,),
+    )
+
+    existing_iu_items_by_pid: dict[int, dict] = {}
+    existing_note = ""
+    existing_iu_id = None
+    if existing_iu_row:
+        existing_iu_id = int(existing_iu_row["update_id"])
+        existing_note = str(existing_iu_row.get("update_note") or "").strip()
+        iu_details = get_inventory_update(existing_iu_id)
+        if iu_details and iu_details.get("items"):
+            for it in iu_details["items"]:
+                existing_iu_items_by_pid[int(it["product_id"])] = it
+
+    updates_by_pid = {int(u["product_id"]): u for u in product_updates}
+
+    deleted_notes: list[str] = []
+    remaining_po_items: list[dict] = []
+    arrived_iu_items: list[dict] = []
+
+    for pid, po_item in existing_items_by_pid.items():
+        u = updates_by_pid.get(pid, {})
+        should_delete = bool(u.get("delete", False))
+
+        if should_delete:
+            prod_name = str(u.get("product_name") or po_item["product_name"])
+            deleted_notes.append(f"{prod_name} was deleted from order {order_id}")
+            existing_iu_items_by_pid.pop(pid, None)
+            continue
+
+        remaining_po_items.append({
+            "product_id": pid,
+            "order_amount": int(po_item["order_amount"]),
+        })
+
+        prev_iu = existing_iu_items_by_pid.get(pid)
+        has_new_units = "update_amount" in u and u["update_amount"] is not None and int(u["update_amount"]) > 0
+
+        if has_new_units:
+            arrived_iu_items.append({
+                "product_id": pid,
+                "update_amount": int(u["update_amount"]),
+                "expiry_date": (str(u["expiry_date"]).strip() if u.get("expiry_date") else (prev_iu.get("expiry_date") or None if prev_iu else None)),
+            })
+        elif prev_iu and int(prev_iu.get("update_amount", 0)) > 0:
+            arrived_iu_items.append({
+                "product_id": pid,
+                "update_amount": int(prev_iu["update_amount"]),
+                "expiry_date": (str(u["expiry_date"]).strip() if u.get("expiry_date") else (prev_iu.get("expiry_date") or None)),
+            })
+
+    # Case 1: All products were deleted from the order
+    if len(remaining_po_items) == 0:
+        db.execute("DELETE FROM purchase_order_item WHERE order_id = %s", (order_id,))
+        db.execute(
+            "UPDATE purchase_order SET order_status = 'Cancelled' WHERE order_id = %s",
+            (order_id,),
+        )
+        if existing_iu_id is not None:
+            db.execute("DELETE FROM inventory_update WHERE order_id = %s", (order_id,))
+        db.close_db()
+        return get_purchase_order(order_id)
+
+    # Update remaining purchase_order_item rows
+    db.execute("DELETE FROM purchase_order_item WHERE order_id = %s", (order_id,))
+    for item in remaining_po_items:
+        db.execute(
+            "INSERT INTO purchase_order_item (order_id, product_id, order_amount) VALUES (%s, %s, %s)",
+            (order_id, item["product_id"], item["order_amount"]),
+        )
+
+    all_remaining_have_units = all(
+        any(iu_it["product_id"] == r_it["product_id"] and int(iu_it["update_amount"]) > 0 for iu_it in arrived_iu_items)
+        for r_it in remaining_po_items
+    )
+
+    new_status = "Received" if all_remaining_have_units else "Pending"
+    db.execute(
+        "UPDATE purchase_order SET order_status = %s WHERE order_id = %s",
+        (new_status, order_id),
+    )
+
+    # Build notes:
+    # - Add "[product] was deleted from order [order_id]" for every deleted product.
+    # - Do NOT update note when a product is merely updated without completing remaining products.
+    # - When the rest of the order is completed, set/append "inventory updated for order [order_id]".
+    note_parts: list[str] = [existing_note] if existing_note else []
+    for del_msg in deleted_notes:
+        if del_msg not in note_parts:
+            note_parts.append(del_msg)
+
+    completion_msg = f"inventory updated for order {order_id}"
+    if all_remaining_have_units and completion_msg not in " ".join(note_parts):
+        note_parts.append(completion_msg)
+
+    final_note = ". ".join([p for p in note_parts if p]).strip()
+    effective_date = (update_date or "").strip() or datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+    if existing_iu_id is not None:
+        # Keep updating update_date until final product has an inventory value (or when completed)
+        date_to_store = effective_date if not all_remaining_have_units or arrived_iu_items else effective_date
+        db.execute(
+            "UPDATE inventory_update SET update_date = %s, update_note = %s WHERE update_id = %s",
+            (date_to_store, final_note, existing_iu_id),
+        )
+        db.execute("DELETE FROM inventory_update_item WHERE update_id = %s", (existing_iu_id,))
+        for iu_it in arrived_iu_items:
+            db.execute(
+                """
+                INSERT INTO inventory_update_item (update_id, product_id, update_amount, expiry_date)
+                VALUES (%s, %s, %s, COALESCE(%s, CURDATE()))
+                """,
+                (existing_iu_id, iu_it["product_id"], iu_it["update_amount"], iu_it["expiry_date"]),
+            )
+    elif deleted_notes or arrived_iu_items:
+        new_iu_id = db.execute(
+            "INSERT INTO inventory_update (order_id, update_date, update_note) VALUES (%s, %s, %s)",
+            (order_id, effective_date, final_note),
+        )
+        for iu_it in arrived_iu_items:
+            db.execute(
+                """
+                INSERT INTO inventory_update_item (update_id, product_id, update_amount, expiry_date)
+                VALUES (%s, %s, %s, COALESCE(%s, CURDATE()))
+                """,
+                (new_iu_id, iu_it["product_id"], iu_it["update_amount"], iu_it["expiry_date"]),
+            )
+
+    db.close_db()
+    return get_purchase_order(order_id)
