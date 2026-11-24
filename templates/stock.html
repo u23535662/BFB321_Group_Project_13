@@ -68,7 +68,7 @@
 
     <!-- STOCK BLOCKS START -->
     <div class="stockblocks">
-      <div class="salesOrderBtn">
+      <div class="salesOrderBtn" id="salesOrderBtn">
         <i data-lucide="circle-plus"></i>
         <p>New Sales Order</p>
       </div>
@@ -127,6 +127,22 @@
       </div>
 
       <!-- SALES ORDER POPUP END -->
+
+      <!-- SALES ORDER CONFIRM POPUP -->
+      <div class="update_conf_background">
+        <div class="update_conf_popup" id="update_conf_popup">
+          <div class="top_update">
+            <i class="x_conf" id="x_conf" data-lucide="circle-x"></i>
+          </div>
+
+          <div class="update_conf_heading">
+            <h1>Sales order Created</h1>
+          </div>
+          <div class="update_conf_text">
+            <p>Your sales order has been created succesfully!</p>
+          </div>
+        </div>
+      </div>
 
       <!-- Add Product Modal -->
       <div
@@ -667,7 +683,7 @@
                   <p>Location</p>
                 </div>
               </div>
-              <button class="editbutt">
+              <button class="editbutt" id="editbutt">
                 <i data-lucide="pencil"></i>
               </button>
             </div>
@@ -889,9 +905,29 @@
 
     <script>
       //  SALES ORDER POPUP START
+      const openBtn = document.getElementById("salesOrderBtn");
+      const closeBtn = document.getElementById("cancc");
+      const backg = document.getElementById("sales_background");
+
+      // Open popup
+      openBtn.addEventListener("click", () => {
+        backg.style.display = "flex";
+      });
+
+      // Close the popup
+      closeBtn.addEventListener("click", () => {
+        backg.style.display = "none";
+      });
 
       const scroll_sales = document.getElementById("scroll_sales");
       const add_product = document.getElementById("add_product");
+
+      const cancc = document.getElementById("cancc");
+
+      cancc.addEventListener("click", () => {
+        backg.style.display = "none";
+      });
+
       add_product.addEventListener("click", () => {
         const div1 = document.createElement("div");
         div1.className = "prodd_unitt";
@@ -921,6 +957,38 @@
         return scroll_sales;
       });
       // SALES ORDER POPUP
+
+      // SALES ORDER CONFIRM
+      const cBtn = document.getElementById("conff");
+      const ccBtn = document.getElementById("x_conf");
+      const back2 = document.getElementById("update_conf_background");
+
+      // Open popup
+      cBtn.addEventListener("click", () => {
+        backg.style.display = "none";
+        back2.style.display = "flex";
+      });
+
+      // Close the popup
+      ccBtn.addEventListener("click", () => {
+        backg.style.display = "none";
+        back2.style.display = "none";
+      });
+
+      // EDIT BUTTON
+      const editBtn = document.getElementById("editbutt");
+      const closeeBtn = document.getElementById("canc");
+      const back3 = document.getElementById("edit_background");
+
+      // Open popup
+      editBtn.addEventListener("click", () => {
+        back3.style.display = "flex";
+      });
+
+      // Close the popup
+      closeeBtn.addEventListener("click", () => {
+        back3.style.display = "none";
+      });
     </script>
   </body>
 </html>
