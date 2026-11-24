@@ -878,10 +878,18 @@
         ]);
 
         var options = {
-          width: 750,
-          height: 200,
+          width: "100%",
+          height: "100%",
+          chartArea: {
+            left: 20,
+            right: 20,
+            top: 40,
+            bottom: 45,
+            width: "100%",
+            height: "100%",
+          },
           legend: { position: "top", maxLines: 1 },
-          bar: { groupWidth: "50%" },
+          bar: { groupWidth: "70%" },
           isStacked: true,
           colors: ["#2ecc71", "#DC143C", "#636363"],
           vAxis: {
@@ -894,6 +902,10 @@
 
         var chart = new google.visualization.BarChart(barContainer);
         chart.draw(data, options);
+
+        window.onresize = function () {
+          chart.draw(data, options);
+        };
       }
 
       function loadAllocationChart(productId = null) {
