@@ -789,7 +789,21 @@ li {
   justify-content: center;
   gap: 1rem;
 
+  width: 100%;
+
   overflow-x: hidden;
+}
+
+.supplier_order_header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+
+  background-color: rgb(169, 217, 208, 0.6);
+  border-radius: 1rem;
+  width: 80%;
+  margin-top: 1rem;
 }
 
 .order_suppliers_container {
