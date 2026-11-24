@@ -98,20 +98,20 @@
                 <div class="supplier_details_sub_block">
                   <input 
                     id="addSuppName" 
-                    class="addSupplierName"
+                    class="addSupplierDetail"
                     type="text"
                     placeholder="Supplier Name"
                     required />
                   <input 
                     id="addSuppEmail" 
-                    class="addSupplierEmail" 
+                    class="addSupplierDetail" 
                     type="email" 
                     placeholder="Email Address"
                     required />
                 </div>
                 <input 
                   id="addSuppPhone" 
-                  class="addSupplierTelephoneNumber" 
+                  class="addSupplierDetail" 
                   type="text" 
                   placeholder="Telephone Number (optional)" />
               </div>
@@ -121,6 +121,9 @@
                   type="button"
                   id="add_product_button"
                   class="addProductButton">
+                  <div class="sup_icon">
+                    <i data-lucide="circle-plus"></i>
+                  </div>
                   <div class="new_item_text">Add Product</div>
                 </button>
               </div>
@@ -216,8 +219,8 @@
                   <button 
                     type="button"
                     id="deleteSupplierButton"
-                    class="deleteSupplierButton">
-                    DELETE SUPPLIER
+                    class="deleteSupplierBigButton">
+                    <p>Delete Supplier</p>
                   </button>
                 </div>
 
@@ -231,22 +234,23 @@
                   <div class="supplier_details_block">
                     <h3 class="block_title">Supplier Details</h3>
                     <div class="supplier_details_sub_block">
+                      
                       <input 
                         id="editSuppName"  
-                        class="addSupplierName" 
+                        class="addSupplierDetail" 
                         type="text" 
                         placeholder="Supplier Name"
                         required />
                       <input 
                         id="editSuppEmail"
-                        class="addSupplierEmail" 
+                        class="addSupplierDetail" 
                         type="email" 
                         placeholder="Email Address"
                         required />
                     </div>
                     <input 
                       id="editSuppPhone"
-                      class="addSupplierTelephoneNumber" 
+                      class="addSupplierDetail" 
                       type="text" 
                       placeholder="Telephone Number (optional)" />
                   </div>
@@ -259,6 +263,9 @@
                       type="button"
                       id="edit_add_product_button"
                       class="addProductButton">
+                      <div class="sup_icon">
+                         <i data-lucide="circle-plus"></i>
+                      </div>
                       <div class="new_item_text">Add Product</div>
                     </button>
                   </div>
@@ -376,36 +383,82 @@
           parentDiv.dataset.productId = productId;
         }
 
-        const childDiv1 = document.createElement("div");
-        childDiv1.className = "product_details_sub_block";
-
         const inputName = document.createElement("input");
         inputName.className = "addProductName";
         inputName.type = "text";
         inputName.placeholder = "Product Name";
         inputName.value = name;
 
-        const inputPrice = document.createElement("input");
-        inputPrice.className = "addProductPrice";
-        inputPrice.type = "number";
-        inputPrice.step = "0.01";
-        inputPrice.min = "0";
-        inputPrice.placeholder = "Product Price";
-        inputPrice.value = price;
-
-        const childDiv2 = document.createElement("div");
-        childDiv2.className = "product_details_sub_block";
-
         const inputUnits = document.createElement("input");
         inputUnits.className = "addProductUnits";
         inputUnits.type = "number";
         inputUnits.step = "1";
         inputUnits.min = "1";
-        inputUnits.placeholder = "Units Per Box";
         inputUnits.value = units;
 
+        const inputInventory = document.createElement("input");
+        inputInventory.className = "addProductInventory";
+        inputInventory.type = "number";
+        inputInventory.step = "1";
+        inputInventory.min = "0";
+        inputInventory.value = units;
+
+        const inputSupplierPrice = document.createElement("input");
+        inputSupplierPrice.className = "addProductSupplierPrice";
+        inputSupplierPrice.type = "number";
+        inputSupplierPrice.min = "0";
+
+        const inputProductPrice = document.createElement("input");
+        inputProductPrice.className = "addProductPrice";
+        inputProductPrice.type = "number";
+        inputProductPrice.min = "0";
+
+        const inputStorageLocation = document.createElement("input");
+        inputStorageLocation.className = "addProductStorageLocation";
+        inputStorageLocation.type = "text";
+        inputStorageLocation.placeholder = "Storage Location";
+
+        const childDiv1 = document.createElement("div");
+        childDiv1.className = "product_details_sub_block";
+
+        const childDiv2 = document.createElement("div");
+        childDiv2.className = "product_details_sub_block";
+
+        const childDiv2text = document.createElement('div')
+        childDiv2text.textContent = "Units per box";
+
         const childDiv3 = document.createElement("div");
-        childDiv3.className = "delete_block";
+        childDiv3.className = "product_details_sub_block";
+
+        const childDiv3text = document.createElement('div')
+        childDiv3text.textContent = "Amount in inventory";
+    
+        const childDiv4 = document.createElement("div");
+        childDiv4.className = "product_details_sub_block";
+
+        const childDiv4text = document.createElement('div')
+        childDiv4text.textContent = "Supplier Price";        
+
+        const childDiv5 = document.createElement("div");
+        childDiv5.className = "product_details_sub_block";
+
+        const childDiv5text = document.createElement('div')
+        childDiv5text.textContent = "Product Price";        
+
+        const childDiv6 = document.createElement("div");
+        childDiv6.className = "product_details_sub_block";
+
+        const childDiv7 = document.createElement("div");
+        childDiv7.className = "product_details_sub_block";
+
+        const childDiv8 = document.createElement("div");
+        childDiv8.className = "product_details_sub_block";
+
+        const childDiv9 = document.createElement("div");
+        childDiv9.className = "product_details_sub_block";
+
+        const childDiv10 = document.createElement("div");
+        childDiv10.className = "delete_block";
 
         const deleteBtn = document.createElement("button");
         deleteBtn.type = "button";
@@ -420,11 +473,17 @@
           }
         });
 
-        childDiv3.appendChild(deleteBtn);
-        childDiv2.append(inputUnits, childDiv3);
-        childDiv1.append(inputName, inputPrice);
-        parentDiv.append(childDiv1, childDiv2);
-
+        childDiv1.append(inputName);
+        childDiv2.append(childDiv2text, inputUnits);
+        childDiv3.append(childDiv3text, inputInventory);
+        childDiv4.append(childDiv4text, inputProductPrice);
+        childDiv5.append(childDiv5text, inputSupplierPrice);
+        childDiv9.append(childDiv4, childDiv5);
+        childDiv6.append(inputStorageLocation);
+        childDiv10.append(deleteBtn);
+        childDiv7.append(childDiv2, childDiv3);
+        childDiv8.append(childDiv6, childDiv10);
+        parentDiv.append(childDiv1, childDiv7, childDiv9, childDiv8);
         return parentDiv;
       }
 
