@@ -537,7 +537,7 @@ li {
 }
 
 .sales_background {
-  display: flex; /*MAKE NONE */
+  display: none; /*MAKE NONE */
   flex-direction: column;
   position: fixed;
   z-index: 1000;
@@ -580,6 +580,7 @@ li {
   display: flex;
   justify-content: center;
   align-items: center;
+  flex-direction: column;
 
   overflow-y: scroll;
   scrollbar-width: thin;
@@ -594,8 +595,9 @@ li {
   flex-direction: row;
 
   gap: 1rem;
+  margin-bottom: 1rem;
 
-  width: 70%;
+  width: 90%;
 }
 
 .prodd {
@@ -614,7 +616,7 @@ li {
 }
 
 .unitt {
-  width: 15%;
+  width: 20%;
   height: 2rem;
   background-color: rgba(169, 217, 208, 0.4);
   border-color: #152d2f;
@@ -626,6 +628,68 @@ li {
   padding: 0 0.9rem;
   font-size: 0.95rem;
   margin: 0;
+}
+
+.update_conf_background {
+  display: none; /*MAKE NONE */
+  flex-direction: column;
+  position: fixed;
+  z-index: 1000;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 100vw;
+  height: 100vh;
+  overflow: auto;
+  background-color: rgba(0, 0, 0, 0.4);
+}
+
+.update_conf_popup {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+
+  width: 35%;
+  max-height: 80%;
+  gap: 1rem;
+
+  padding-bottom: 1rem;
+  padding-top: 1rem;
+
+  box-sizing: border-box;
+  background-color: rgb(84, 147, 136);
+  margin: auto;
+
+  border-radius: 1rem;
+}
+
+.top_update {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: flex-end;
+
+  width: 98%;
+  height: 10%;
+
+  box-sizing: border-box;
+
+  border-radius: 1rem;
+}
+
+.update_conf_heading {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+.x_conf:hover {
+  cursor: pointer;
+}
+
+.x_conf:active {
+  color: rgb(155, 255, 237);
 }
 
 /* SALES ORDER BUTTON END */
@@ -931,7 +995,6 @@ li {
   justify-content: center;
   align-items: center;
   height: 2rem;
-  /* width: 35%; */
 
   padding: 0 0.75rem;
 
