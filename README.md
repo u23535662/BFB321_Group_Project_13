@@ -373,7 +373,7 @@ Across all endpoints, unexpected server faults or database exceptions return a s
 <!-- You can add the links to all of your imagery at the bottom of the file as references -->
 ## Features and Functionality
 
-![Overview_Page](static/images/OrdersPage.png)
+![Overview_Page](static/images/OverviewPage.png)
 ### Overview Page
 
 
