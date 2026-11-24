@@ -213,6 +213,7 @@ li {
 .topfacts,
 .bottomfacts {
   display: flex;
+  align-items: center;
   flex-direction: row;
   justify-content: space-between;
 
@@ -230,9 +231,8 @@ li {
 .revenuetracker,
 .lowstocktracker {
   display: flex;
-  flex-direction: center;
+  align-items: center;
   justify-content: center;
-
   border-radius: 1rem;
   gap: 0.5rem;
 
@@ -679,11 +679,19 @@ li {
   border-radius: 1rem;
 }
 .task_block_mid1 {
-  width: 50%;
+  width: 65%;
 }
 
 .task_mid2 {
-  width: 10%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #152d2f;
+  border-radius: 1rem;
+  max-height: 80%;
+  width: 15%;
+
+  color: #e0e0e0;
 }
 
 .task_title {
@@ -694,7 +702,16 @@ li {
 }
 
 .task_block_right {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #152d2f;
+  border-radius: 1rem;
+  max-height: 80%;
   width: 10%;
+
+  color: #e0e0e0;
+  margin-right: 0.2rem;
 }
 /* BUTTONS END */
 
