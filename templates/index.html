@@ -93,23 +93,27 @@
                   <div class="popup_name">
                     <h1 class="popup_title">Add to Order</h1>
                   </div>
-                  <div class="close" id="close_index_popup">
-                    <i data-lucide="circle-x"></i>
+                </div>
+                <div class="scroll_content">
+                  <div
+                    id="order_suppliers_container"
+                    class="order_suppliers_container">
+                    <h2>Select Order to load low-stock items...</h2>
                   </div>
                 </div>
+                <div class="bottom">
+                  <div class="order_grand_total" id="order_grand_total">
+                    <h3>Total Cost: R0.00</h3>
+                  </div>
+                  <div class="conf_or_canc">
+                    <button class="confirm_popup" id="confirm_btn_popup">
+                      <p>Confirm</p>
+                    </button>
 
-                <div
-                  id="order_suppliers_container"
-                  class="order_suppliers_container">
-                  <h2>Select Order to load low-stock items...</h2>
-                </div>
-
-                <div class="order_grand_total" id="order_grand_total">
-                  <p>Total Cost: R0.00</p>
-                </div>
-
-                <div class="confirm_popup" id="confirm_btn_popup">
-                  <p>Confirm</p>
+                    <button class="cancel_order" id="close_index_popup">
+                      <p>Cancel</p>
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
@@ -121,7 +125,12 @@
                 <div class="confirm_x">
                   <i class="x_btn" id="x_btn" data-lucide="circle-x"></i>
                 </div>
-                <h3 id="confirm_popup_text">A new order has been confirmed</h3>
+                <div class="check">
+                  <i data-lucide="circle-check-big"></i>
+                </div>
+                <div class="confirm_cont">
+                  <h2 id="confirm_popup_text">New order has been confirmed</h2>
+                </div>
               </div>
             </div>
 
@@ -302,7 +311,7 @@
           });
 
         if (grandTotalEl) {
-          grandTotalEl.innerHTML = `<p>Total Cost: ${formatCurrency(grandTotal)}</p>`;
+          grandTotalEl.innerHTML = `<h3>Total Cost: ${formatCurrency(grandTotal)}</p>`;
         }
       }
 
@@ -656,7 +665,7 @@
           listBlock.innerHTML = `
             <div class="topfacts">
               <div class="jobtracker">
-                <p>KPIs</p>
+                <p>Expired stock: ${products.total_expired_stock}</p>
               </div>
               <div class="producttracker">
                 <p>Products: ${products.count}</p>

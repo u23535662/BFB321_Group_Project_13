@@ -649,12 +649,12 @@ li {
   justify-content: left;
   align-items: center;
 
-  width: 95%;
+  width: 90%;
   height: 20%;
   background-color: rgb(169, 217, 208, 0.6);
   border-radius: 1rem;
 
-  padding: 0.5rem;
+  padding: 1rem;
 }
 
 .tot_order_cost,
@@ -856,12 +856,12 @@ li {
   align-items: center;
   flex-direction: row;
 
-  width: 95%;
+  width: 90%;
   height: 15%;
   background-color: rgb(169, 217, 208, 0.6);
   border-radius: 1rem;
 
-  padding: 0.5rem;
+  padding: 1rem;
 }
 
 .prod_and_icon {
@@ -869,8 +869,13 @@ li {
   flex-direction: row;
   align-items: center;
   justify-content: space-between;
+  gap: 1rem;
+  width: 60%;
+}
 
-  width: 40%;
+.dollar {
+  width: 48px;
+  height: 48px;
 }
 
 .update_units {
@@ -1063,12 +1068,12 @@ li {
   max-height: 2.5rem;
 }
 .editUnits_text {
-  justify-content: space-between; 
+  justify-content: space-between;
 }
 .editUnits_text2 {
-  justify-content: flex-start; 
+  justify-content: flex-start;
 }
-.editUnits_box{
+.editUnits_box {
   width: 1rem;
 }
 
@@ -1170,6 +1175,7 @@ li {
   height: 3rem;
 
   border-radius: 1rem;
+  margin-bottom: 1rem;
 }
 
 .supplier_left {

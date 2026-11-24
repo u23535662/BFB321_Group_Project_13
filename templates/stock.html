@@ -149,6 +149,29 @@
         </div>
       </div>
 
+      <!-- Edit stock popup start -->
+      <div class="edit_background">
+        <div class="edit_content">
+          <div class="edit_heading">
+            <h1>Edit Product</h1>
+            <div class="edit_content">
+              <select class="sel_product"></select>
+            </div>
+          </div>
+
+          <div class="confirmAndcancel">
+            <div class="conff">
+              <p>Confirm</p>
+            </div>
+            <div class="cancc">
+              <p>Cancel</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Edit stock popup end -->
+
       <!-- Delete Product Modal -->
       <div
         id="deleteProductModal"
@@ -221,6 +244,15 @@
         if (window.lucide && typeof window.lucide.createIcons === "function") {
           window.lucide.createIcons();
         }
+      }
+
+      function escapeHtml(value) {
+        return String(value ?? "")
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;")
+          .replace(/'/g, "&#39;");
       }
 
       document.addEventListener("DOMContentLoaded", () => {
@@ -565,9 +597,7 @@
             <div class="expanded_searchbutt">
               <input class="searchbar" type="text" placeholder="Search products..." />
               <div class="others">
-                <button type="button" class="filterbutt" aria-label="Filter products">
-                  <i data-lucide="funnel"></i>
-                </button>
+                
                 <button type="button" class="clearbutt" aria-label="Clear search">
                   <i data-lucide="funnel-x"></i>
                 </button>
@@ -575,17 +605,30 @@
             </div>
             <div class="expanded_description">
               <div class="info">
+                <div class="units">
                 <p>Units</p>
-                <p>Product</p>
+                </div>
+                <div class="sold">
                 <p>Sold this month</p>
+                </div>
+                <div class="products">
+                <p>Product</p>
+                </div>
+                
+                <div class="warning">
+                  <p>Warning</p>
+                </div>
+                <div class="location">
+                  <p>Location</p>
+                </div>
               </div>
-              <button type="button" class="editbutt" aria-label="Edit products">
+              <button class="editbutt">
                 <i data-lucide="pencil"></i>
               </button>
             </div>
-            <ul class="expanded_values product-list">
-              <li class="text product-loading-status">Fetching data ...</li>
-            </ul>
+            <div class="expanded_values product-list">
+              <div class="text product-loading-status">Fetching data ...</div>
+            </div>
           </div>
         `;
 
@@ -674,14 +717,17 @@
         return itemEl;
       }
 
-      function ensureStatusEl(listEl) {
+      function setProductListStatus(listEl, message, isVisible = true) {
         let statusEl = listEl.querySelector(".product-loading-status");
         if (!statusEl) {
-          statusEl = document.createElement("li");
-          statusEl.className = "text product-loading-status";
-          listEl.appendChild(statusEl);
+          listEl.insertAdjacentHTML(
+            "beforeend",
+            `<div class="text product-loading-status"></div>`,
+          );
+          statusEl = listEl.querySelector(".product-loading-status");
         }
-        return statusEl;
+        statusEl.style.display = isVisible ? "" : "none";
+        statusEl.textContent = message;
       }
 
       function renderSupplierProducts(itemEl, products) {
@@ -689,39 +735,29 @@
         if (!listEl) return;
 
         listEl.querySelectorAll(".product-row").forEach((row) => row.remove());
-        const statusEl = ensureStatusEl(listEl);
 
         if (!Array.isArray(products) || products.length === 0) {
-          statusEl.style.display = "";
-          statusEl.textContent = "No products found";
+          setProductListStatus(listEl, "No products found", true);
           return;
         }
 
-        statusEl.style.display = "none";
+        setProductListStatus(listEl, "", false);
 
-        products.forEach((product) => {
-          const li = document.createElement("li");
-          li.className = "text product-row";
+        const rowsHtml = products
+          .map(
+            (product) => `
+              <div class="text product-row">
+                <div class="text">
+                  <p class="text">${escapeHtml(product.current_inventory ?? 0)}</p>
+                  <p class="text t2">${escapeHtml(product.name ?? "")}</p>
+                  <p class="text t1">${escapeHtml(product.sold ?? 0)}</p>
+                </div>
+              </div>
+            `,
+          )
+          .join("");
 
-          const wrapper = document.createElement("div");
-          wrapper.className = "text";
-
-          const invP = document.createElement("p");
-          invP.className = "text";
-          invP.textContent = product.current_inventory ?? 0;
-
-          const nameP = document.createElement("p");
-          nameP.className = "text t2";
-          nameP.textContent = product.name ?? "";
-
-          const soldP = document.createElement("p");
-          soldP.className = "text t1";
-          soldP.textContent = product.sold ?? 0;
-
-          wrapper.append(invP, nameP, soldP);
-          li.appendChild(wrapper);
-          listEl.appendChild(li);
-        });
+        listEl.insertAdjacentHTML("beforeend", rowsHtml);
       }
 
       async function fetchSupplierProducts(itemEl, supplierId) {
@@ -729,9 +765,7 @@
         if (!listEl) return [];
 
         listEl.querySelectorAll(".product-row").forEach((row) => row.remove());
-        const statusEl = ensureStatusEl(listEl);
-        statusEl.style.display = "";
-        statusEl.textContent = "Fetching data ...";
+        setProductListStatus(listEl, "Fetching data ...", true);
 
         try {
           const url = `/api/suppliers/${encodeURIComponent(supplierId)}/products`;
@@ -753,8 +787,7 @@
             `Error fetching products for supplier ${supplierId}:`,
             error,
           );
-          statusEl.style.display = "";
-          statusEl.textContent = "Failed to load products.";
+          setProductListStatus(listEl, "Failed to load products.", true);
           return [];
         }
       }
@@ -788,29 +821,20 @@
           listBlock.innerHTML = "";
 
           if (lowStockProducts.length === 0) {
-            const emptyEl = document.createElement("p");
-            emptyEl.className = "text";
-            emptyEl.textContent = "No low-stock products.";
-            listBlock.appendChild(emptyEl);
+            listBlock.innerHTML = `<p class="text">No low-stock products.</p>`;
             return;
           }
 
-          lowStockProducts.forEach((product) => {
-            const rowEl = document.createElement("div");
-            rowEl.className = "lowstockitem";
-            rowEl.dataset.productId = product.id ?? "";
-
-            const nameEl = document.createElement("p");
-            nameEl.className = "text";
-            nameEl.textContent = product.name ?? "Unnamed Product";
-
-            const qtyEl = document.createElement("p");
-            qtyEl.className = "text";
-            qtyEl.textContent = product.current_inventory ?? 0;
-
-            rowEl.append(nameEl, qtyEl);
-            listBlock.appendChild(rowEl);
-          });
+          listBlock.innerHTML = lowStockProducts
+            .map(
+              (product) => `
+                <div class="lowstockitem" data-product-id="${escapeHtml(product.id ?? "")}">
+                  <p class="text">${escapeHtml(product.name ?? "Unnamed Product")}</p>
+                  <p class="text">${escapeHtml(product.current_inventory ?? 0)}</p>
+                </div>
+              `,
+            )
+            .join("");
         } catch (error) {
           console.error("Error loading low-stock products:", error);
           listBlock.innerHTML = `<p class="text low-stock-status">Failed to load stock data.</p>`;

@@ -81,7 +81,10 @@
         <!-- START OF ORDER LIST -->
 
         <!-- NOT EXPANDED START -->
-        <div class="ordernumber_block">
+        <div
+          class="ordernumber_block"
+          id="order_template_block"
+          style="display: none">
           <div class="ordernumber_top">
             <div class="ordernumber_block_left">
               <div class="order_icon">
@@ -90,14 +93,11 @@
               <h3 class="order_title">Unique Order Number</h3>
             </div>
             <div class="supplier_btns">
-              <button class="update_order" id="update_order">
+              <button class="update_order" type="button">
                 <i data-lucide="circle-plus"></i>
                 <p>Update Order</p>
               </button>
-              <button
-                class="chevron_button"
-                id="toggle_list_view_btn"
-                onclick="toggleListView()">
+              <button class="chevron_button" type="button">
                 <i data-lucide="chevron-up" class="open_list"></i>
                 <i data-lucide="chevron-down" class="close_list"></i>
               </button>
@@ -106,167 +106,8 @@
 
           <!-- NOT EXPANDED END -->
 
-          <!-- UPDATE ORDER POPUP START -->
-          <div class="update_background" id="update_background">
-            <div class="update_content">
-              <div class="update_heading">
-                <h1>Update Order</h1>
-              </div>
-              <div class="update_supplier">
-                <i data-lucide="user"></i>
-                <h3>Supplier</h3>
-              </div>
-              <div class="update_prod_and_units">
-                <div class="prod_and_unit">
-                  <div class="prod_and_icon">
-                    <i data-lucide="circle-dollar-sign"></i>
-                    <h3>Product 1</h3>
-                  </div>
-
-                  <div class="update_units">
-                    <h3>###</h3>
-                    <button class="edit" id="editUnits_open">
-                      <i data-lucide="pencil-line"></i>
-                    </button>
-
-                    <!-- update units modal start -->
-                    <div class="modal" id="editUnits">
-                      <div class="modal-content">
-                        <div class="sup_popup_top_bar">
-                          <div class="sup_popup_title"> <!-- supplier name here -->
-                            <h3>Product</h3>
-                          </div>
-                        </div>
-
-                        <div class="editUnits_text">
-                          <p>Add expiration date</p>
-                          <input type="date">
-                        </div>
-                        <div class="editUnits_text">
-                          <p>Actual received units</p>
-                          <input type="number" min="0", step="1">
-                        </div>
-                        <div class="editUnits_text2">
-                          <input type="checkbox" id="checkbox">
-                          <p>Product did not arrive</p>
-                        </div> 
-                       
-                        <div class="conf_and_canc">
-                          <div class="editconf" id="editUnits_close_conf">
-                            <p>Confirm</p>
-                          </div>
-                          <div class="editcanc" id="editUnits_close_canc">
-                            <p>Cancel</p>
-                          </div>                           
-                        </div>
-                      </div>
-                    </div>
-                    <!-- update units modal start -->
-                  </div>
-                </div>
-
-                <!-- FILLER START -->
-                <div class="prod_and_unit">
-                  <div class="prod_and_icon">
-                    <i data-lucide="circle-dollar-sign"></i>
-                    <h3>Product 2</h3>
-                  </div>
-
-                  <div class="update_units">
-                    <h3>###</h3>
-                    <button class="edit">
-                      <i data-lucide="pencil-line"></i>
-                    </button>
-                  </div>
-                </div>
-                <div class="prod_and_unit">
-                  <div class="prod_and_icon">
-                    <i data-lucide="circle-dollar-sign"></i>
-                    <h3>Product 3</h3>
-                  </div>
-
-                  <div class="update_units">
-                    <h3>###</h3>
-                    <button class="edit">
-                      <i data-lucide="pencil-line"></i>
-                    </button>
-                  </div>
-                </div>
-                <div class="prod_and_unit">
-                  <div class="prod_and_icon">
-                    <i data-lucide="circle-dollar-sign"></i>
-                    <h3>Product 4</h3>
-                  </div>
-
-                  <div class="update_units">
-                    <h3>###</h3>
-                    <button class="edit">
-                      <i data-lucide="pencil-line"></i>
-                    </button>
-                  </div>
-                </div>
-
-                <div class="prod_and_unit">
-                  <div class="prod_and_icon">
-                    <i data-lucide="circle-dollar-sign"></i>
-                    <h3>Product 5</h3>
-                  </div>
-
-                  <div class="update_units">
-                    <h3>###</h3>
-                    <button class="edit">
-                      <i data-lucide="pencil-line"></i>
-                    </button>
-                  </div>
-                </div>
-                <div class="prod_and_unit">
-                  <div class="prod_and_icon">
-                    <i data-lucide="circle-dollar-sign"></i>
-                    <h3>Product 6</h3>
-                  </div>
-
-                  <div class="update_units">
-                    <h3>###</h3>
-                    <button class="edit" id="edit">
-                      <i data-lucide="pencil-line"></i>
-                    </button>
-                  </div>
-                </div>
-                <!-- FILLLER END -->
-              </div>
-
-              <div class="conf_and_canc">
-                <button class="conf" id="conf">
-                  <p>Confirm</p>
-                </button>
-                <button class="canc" id="canc">
-                  <p>Cancel</p>
-                </button>
-              </div>
-            </div>
-          </div>
-
-          <!-- CONFIRM UPDATE ORDER POPUP START -->
-          <div class="update_conf_background" id="update_conf_background">
-            <div class="update_conf_popup" id="update_conf_popup">
-              <div class="top_update">
-                <i class="x_conf" id="x_conf" data-lucide="circle-x"></i>
-              </div>
-
-              <div class="update_conf_heading">
-                <h1>Updated order</h1>
-              </div>
-              <div class="update_conf_text">
-                <p>Your order has been updated succesfully!</p>
-              </div>
-            </div>
-          </div>
-
-          <!-- CONFIRM UPDATE ORDER POPUP END -->
-          <!-- UPDATE ORDER POPUP END -->
-
           <!-- EXPANDED START -->
-          <div class="order_expanded_content">
+          <div class="order_expanded_content hidden" style="display: none">
             <div class="supplier_for_order">
               <div class="supplier_left">
                 <div class="supplier_icon">
@@ -321,6 +162,99 @@
 
     <!-- ORDER BODY END -->
 
+    <!-- UPDATE ORDER POPUP START -->
+    <div class="update_background" id="update_background">
+      <div class="update_content">
+        <div class="update_heading">
+          <h1>Update Order</h1>
+        </div>
+        <div class="update_supplier">
+          <i data-lucide="user"></i>
+          <h3>Supplier</h3>
+        </div>
+        <div class="update_prod_and_units">
+          <div
+            class="prod_and_unit"
+            id="update_prod_row_template"
+            style="display: none">
+            <div class="prod_and_icon">
+              <i class="dollar" data-lucide="circle-dollar-sign"></i>
+              <h3>Product 1</h3>
+            </div>
+
+            <div class="update_units">
+              <h3>###</h3>
+              <button class="edit" type="button">
+                <i data-lucide="pencil-line"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="conf_and_canc">
+          <button class="conf" id="conf" type="button">
+            <p>Confirm</p>
+          </button>
+          <button class="canc" id="canc" type="button">
+            <p>Cancel</p>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- update units modal start -->
+    <div class="modal" id="editUnits">
+      <div class="modal-content">
+        <div class="sup_popup_top_bar">
+          <div class="sup_popup_title">
+            <h3>Product</h3>
+          </div>
+        </div>
+
+        <div class="editUnits_text">
+          <p>Add expiration date</p>
+          <input type="date" id="edit_expiry_input" />
+        </div>
+        <div class="editUnits_text">
+          <p>Actual received units</p>
+          <input type="number" id="edit_units_input" min="0" step="1" />
+        </div>
+        <div class="editUnits_text2">
+          <input type="checkbox" id="checkbox" />
+          <p>Delete product from order</p>
+        </div>
+
+        <div class="conf_and_canc">
+          <div class="editconf" id="editUnits_close_conf">
+            <p>Confirm</p>
+          </div>
+          <div class="editcanc" id="editUnits_close_canc">
+            <p>Cancel</p>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- update units modal end -->
+
+    <!-- CONFIRM UPDATE ORDER POPUP START -->
+    <div class="update_conf_background" id="update_conf_background">
+      <div class="update_conf_popup" id="update_conf_popup">
+        <div class="top_update">
+          <i class="x_conf" id="x_conf" data-lucide="circle-x"></i>
+        </div>
+
+        <div class="update_conf_heading">
+          <h1>Updated order</h1>
+        </div>
+        <div class="update_conf_text">
+          <p>Your order has been updated succesfully!</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- CONFIRM UPDATE ORDER POPUP END -->
+    <!-- UPDATE ORDER POPUP END -->
+
     <!-- NEW ORDER POPUP START -->
     <div class="new_order_popup" id="new_order_popup">
       <div class="new_order_popup_content">
@@ -338,7 +272,11 @@
             </div>
             <div class="product_and_unit_select" id="prod_unit_select">
               <div class="product_select">
-                <select class="product_sel" name="product" id="product" disabled>
+                <select
+                  class="product_sel"
+                  name="product"
+                  id="product"
+                  disabled>
                   <option value="" disabled selected hidden>
                     Select Product
                   </option>
@@ -392,7 +330,7 @@
           </div>
           <div class="products_summary">
             <div class="prod_and_units_sum">
-              <i data-lucide="circle-dollar-sign"></i>
+              <i class="dollar" data-lucide="circle-dollar-sign"></i>
               <h3>Product 1</h3>
             </div>
           </div>
@@ -452,66 +390,495 @@
     </script>
 
     <script>
-      // Script for update order popup
-      const updateOpenBtn = document.getElementById("update_order");
+      // Script for loading open orders, dropdown breakdown, update order popup & product modal
+      const orderBodyBlock = document.querySelector(".order_bodyblock");
+      const orderTemplateBlock = document.getElementById(
+        "order_template_block",
+      );
+
       const updatePopup = document.getElementById("update_background");
       const updateCloseBtn = document.getElementById("canc");
+      const updateConfirmBtn = document.getElementById("conf");
+      const updateSupplierH3 = document.querySelector(".update_supplier h3");
+      const updateProdListContainer = document.querySelector(
+        ".update_prod_and_units",
+      );
+      const updateProdRowTemplate = document.getElementById(
+        "update_prod_row_template",
+      );
 
-      if (updateOpenBtn && updatePopup && updateCloseBtn) {
-        // Open Popup
-        updateOpenBtn.addEventListener("click", function () {
-          updatePopup.style.display = "flex";
-        });
+      const editUnitsModal = document.getElementById("editUnits");
+      const editUnitsTitleH3 = document.querySelector(
+        "#editUnits .sup_popup_title h3",
+      );
+      const editExpiryInput = document.getElementById("edit_expiry_input");
+      const editUnitsInput = document.getElementById("edit_units_input");
+      const editDeleteCheckbox = document.getElementById("checkbox");
+      const editUnitsCloseCancBtn = document.getElementById(
+        "editUnits_close_canc",
+      );
+      const editUnitsCloseConfBtn = document.getElementById(
+        "editUnits_close_conf",
+      );
 
-        // Close Popup
-        updateCloseBtn.addEventListener("click", function () {
-          updatePopup.style.display = "none";
-        });
-
-        // Close Popup (click outside)
-        updatePopup.addEventListener("click", function (event) {
-          if (event.target === updatePopup) {
-            updatePopup.style.display = "none";
-          }
-        });
-      } else if (!updateOpenBtn) {
-        console.log("No open Button");
-      } else if (!updatePopup) {
-        console.log("No popup hold...");
-      } else if (!updateCloseBtn) {
-        console.log("No popup close");
-      }
-
-      // Confirm button
-      const ConfirmOpenBtn = document.getElementById("conf");
       const ConfirmPopup = document.getElementById("update_conf_background");
       const ConfirmCloseBtn = document.getElementById("x_conf");
 
-      if (ConfirmOpenBtn && ConfirmPopup && ConfirmCloseBtn) {
-        // Open Popup
-        ConfirmOpenBtn.addEventListener("click", function () {
-          updatePopup.style.display = "none";
-          ConfirmPopup.style.display = "flex";
+      let allProductsLeadTimeMap = {};
+      let latestInventoryUpdatesByOrderId = {};
+      let activeOrderForUpdate = null;
+      let draftProductStates = [];
+      let editingProductId = null;
+
+      function formatRandValue(amount) {
+        const num = Number(amount || 0);
+        return (
+          "R " +
+          num.toLocaleString("en-ZA", {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2,
+          })
+        );
+      }
+
+      function calculateEstimatedDeliveryDateStr(orderDateStr, leadTimeDays) {
+        if (!orderDateStr) return "N/A";
+        const base = new Date(`${String(orderDateStr).slice(0, 10)}T00:00:00`);
+        if (Number.isNaN(base.getTime())) return String(orderDateStr);
+        const days = Number(leadTimeDays || 0);
+        base.setDate(base.getDate() + days);
+        const yyyy = base.getFullYear();
+        const mm = String(base.getMonth() + 1).padStart(2, "0");
+        const dd = String(base.getDate()).padStart(2, "0");
+        return `${yyyy}-${mm}-${dd}`;
+      }
+
+      async function fetchReferenceData() {
+        try {
+          const [prodRes, iuRes] = await Promise.all([
+            fetch("/api/products"),
+            fetch("/api/inventory_updates"),
+          ]);
+
+          if (prodRes.ok) {
+            const prodPayload = await prodRes.json();
+            if (prodPayload.success && Array.isArray(prodPayload.data)) {
+              allProductsLeadTimeMap = {};
+              prodPayload.data.forEach((p) => {
+                allProductsLeadTimeMap[Number(p.id)] = Number(
+                  p.effective_lt || 0,
+                );
+              });
+            }
+          }
+
+          if (iuRes.ok) {
+            const iuPayload = await iuRes.json();
+            if (iuPayload.success && Array.isArray(iuPayload.data)) {
+              latestInventoryUpdatesByOrderId = {};
+              iuPayload.data.forEach((iu) => {
+                const oid = Number(iu.order_id);
+                if (!latestInventoryUpdatesByOrderId[oid]) {
+                  latestInventoryUpdatesByOrderId[oid] = iu;
+                }
+              });
+            }
+          }
+        } catch (err) {
+          console.error(
+            "Failed to fetch reference product/inventory update data:",
+            err,
+          );
+        }
+      }
+
+      function renderUpdateOrderRows() {
+        if (!updateProdListContainer || !updateProdRowTemplate) return;
+
+        updateProdListContainer.innerHTML = "";
+
+        const visibleItems = draftProductStates.filter((item) => !item.delete);
+
+        visibleItems.forEach((item) => {
+          const row = updateProdRowTemplate.cloneNode(true);
+          row.removeAttribute("id");
+          row.style.display = "";
+
+          const titleEl = row.querySelector(".prod_and_icon h3");
+          if (titleEl) {
+            titleEl.textContent = item.product_name;
+          }
+
+          const qtyEl = row.querySelector(".update_units h3");
+          if (qtyEl) {
+            const hasOrderedQty =
+              item.order_amount !== null &&
+              item.order_amount !== undefined &&
+              item.order_amount !== "";
+            qtyEl.textContent = hasOrderedQty
+              ? String(item.order_amount)
+              : "###";
+          }
+
+          const editBtn = row.querySelector(".update_units .edit");
+          if (editBtn) {
+            editBtn.addEventListener("click", () => {
+              openEditProductModal(item.product_id);
+            });
+          }
+
+          updateProdListContainer.appendChild(row);
         });
 
-        // Close Popup
-        ConfirmCloseBtn.addEventListener("click", function () {
+        if (window.lucide && typeof window.lucide.createIcons === "function") {
+          window.lucide.createIcons();
+        }
+      }
+
+      function openEditProductModal(productId) {
+        if (!editUnitsModal) return;
+        const target = draftProductStates.find(
+          (d) => Number(d.product_id) === Number(productId),
+        );
+        if (!target) return;
+
+        editingProductId = Number(productId);
+
+        if (editUnitsTitleH3) {
+          editUnitsTitleH3.textContent = target.product_name;
+        }
+        if (editExpiryInput) {
+          editExpiryInput.value = target.expiry_date || "";
+        }
+        if (editUnitsInput) {
+          const hasEnteredUnits =
+            target.update_amount !== null &&
+            target.update_amount !== undefined &&
+            target.update_amount !== "";
+          editUnitsInput.value = hasEnteredUnits
+            ? String(target.update_amount)
+            : target.order_amount !== null && target.order_amount !== undefined
+              ? String(target.order_amount)
+              : "";
+        }
+        if (editDeleteCheckbox) {
+          editDeleteCheckbox.checked = Boolean(target.delete);
+        }
+
+        editUnitsModal.style.zIndex = "9999";
+        editUnitsModal.style.display = "block";
+      }
+
+      function openUpdateOrderPopup(order) {
+        if (!updatePopup || !order) return;
+
+        activeOrderForUpdate = order;
+
+        if (updateSupplierH3) {
+          updateSupplierH3.textContent = order.supplier_name || "Supplier";
+        }
+
+        const existingIu =
+          latestInventoryUpdatesByOrderId[Number(order.order_id)];
+        const prevItemsByPid = {};
+        if (existingIu && Array.isArray(existingIu.items)) {
+          existingIu.items.forEach((iuItem) => {
+            prevItemsByPid[Number(iuItem.product_id)] = iuItem;
+          });
+        }
+
+        draftProductStates = (order.items || []).map((poItem) => {
+          const pid = Number(poItem.product_id);
+          const prev = prevItemsByPid[pid];
+          return {
+            product_id: pid,
+            product_name: poItem.product_name,
+            order_amount: Number(poItem.order_amount),
+            update_amount: prev ? Number(prev.update_amount) : "",
+            expiry_date:
+              prev && prev.expiry_date
+                ? String(prev.expiry_date).slice(0, 10)
+                : "",
+            delete: false,
+          };
+        });
+
+        renderUpdateOrderRows();
+        updatePopup.style.display = "flex";
+      }
+
+      function buildOrderBlockElement(order) {
+        const block = orderTemplateBlock.cloneNode(true);
+        block.removeAttribute("id");
+        block.style.display = "";
+
+        const titleEl = block.querySelector(".order_title");
+        if (titleEl) {
+          titleEl.textContent = String(order.order_id);
+        }
+
+        const supplierTitleEl = block.querySelector(
+          ".supplier_for_order .list_item_title",
+        );
+        if (supplierTitleEl) {
+          supplierTitleEl.textContent = order.supplier_name || "Supplier name";
+        }
+
+        const expandedContent = block.querySelector(".order_expanded_content");
+        const openIcon = block.querySelector(".open_list");
+        const closeIcon = block.querySelector(".close_list");
+        const chevronBtn = block.querySelector(".chevron_button");
+
+        if (expandedContent) {
+          expandedContent.classList.add("hidden");
+          expandedContent.style.display = "none";
+        }
+
+        if (chevronBtn && expandedContent) {
+          chevronBtn.addEventListener("click", (event) => {
+            event.preventDefault();
+            const isHidden = expandedContent.style.display === "none";
+            expandedContent.style.display = isHidden ? "block" : "none";
+            expandedContent.classList.toggle("hidden", !isHidden);
+            if (openIcon) openIcon.classList.toggle("hidden", !isHidden);
+            if (closeIcon) closeIcon.classList.toggle("unhide", isHidden);
+          });
+        }
+
+        const updateBtn = block.querySelector(".update_order");
+        if (updateBtn) {
+          updateBtn.addEventListener("click", () => {
+            openUpdateOrderPopup(order);
+          });
+        }
+
+        const expandedValuesEl = block.querySelector(".expanded_values");
+        const templateInfoRow = expandedValuesEl
+          ? expandedValuesEl.querySelector(".info")
+          : null;
+        const totalCostRow = expandedValuesEl
+          ? expandedValuesEl.querySelector(".total_cost")
+          : null;
+        const items = Array.isArray(order.items) ? order.items : [];
+
+        let grandTotal = 0;
+
+        if (expandedValuesEl && templateInfoRow) {
+          expandedValuesEl.querySelectorAll(".info").forEach((existingRow) => {
+            existingRow.remove();
+          });
+
+          items.forEach((item) => {
+            const row = templateInfoRow.cloneNode(true);
+            const unitsP = row.querySelector(".units p");
+            const prodP = row.querySelector(".products p");
+            const delDateP = row.querySelector(".del_date p");
+            const costP = row.querySelector(".cost p");
+
+            const unitsOrdered = Number(item.order_amount || 0);
+            const lineCost =
+              item.line_total !== undefined
+                ? Number(item.line_total)
+                : unitsOrdered * Number(item.unit_cost || 0);
+            grandTotal += lineCost;
+
+            const leadTime =
+              allProductsLeadTimeMap[Number(item.product_id)] || 0;
+            const estDelivery = calculateEstimatedDeliveryDateStr(
+              order.date,
+              leadTime,
+            );
+
+            if (unitsP) unitsP.textContent = String(unitsOrdered);
+            if (prodP) prodP.textContent = String(item.product_name || "");
+            if (delDateP) delDateP.textContent = estDelivery;
+            if (costP) costP.textContent = formatRandValue(lineCost);
+
+            if (totalCostRow) {
+              expandedValuesEl.insertBefore(row, totalCostRow);
+            } else {
+              expandedValuesEl.appendChild(row);
+            }
+          });
+        }
+
+        const totalCostP = block.querySelector(".total_cost p:last-child");
+        if (totalCostP) {
+          totalCostP.textContent = formatRandValue(grandTotal);
+        }
+
+        return block;
+      }
+
+      async function loadOpenOrders() {
+        if (!orderBodyBlock || !orderTemplateBlock) return;
+
+        await fetchReferenceData();
+
+        try {
+          const res = await fetch("/api/purchase_orders");
+          const payload = await res.json();
+
+          Array.from(orderBodyBlock.children).forEach((child) => {
+            if (child !== orderTemplateBlock) {
+              child.remove();
+            }
+          });
+
+          if (!res.ok || !payload.success || !Array.isArray(payload.data)) {
+            return;
+          }
+
+          const openOrders = payload.data.filter(
+            (po) => String(po.status).toLowerCase() === "pending",
+          );
+
+          openOrders.forEach((order) => {
+            const orderEl = buildOrderBlockElement(order);
+            orderBodyBlock.appendChild(orderEl);
+          });
+
+          if (
+            window.lucide &&
+            typeof window.lucide.createIcons === "function"
+          ) {
+            window.lucide.createIcons();
+          }
+        } catch (err) {
+          console.error("Failed to load open orders:", err);
+        }
+      }
+
+      if (editUnitsCloseCancBtn && editUnitsModal) {
+        editUnitsCloseCancBtn.addEventListener("click", (event) => {
+          event.preventDefault();
+          event.stopPropagation();
+          editingProductId = null;
+          editUnitsModal.style.display = "none";
+        });
+      }
+
+      if (editUnitsCloseConfBtn && editUnitsModal) {
+        editUnitsCloseConfBtn.addEventListener("click", (event) => {
+          event.preventDefault();
+          event.stopPropagation();
+
+          if (editingProductId !== null) {
+            const target = draftProductStates.find(
+              (d) => Number(d.product_id) === Number(editingProductId),
+            );
+            if (target) {
+              const markedDeleted = Boolean(
+                editDeleteCheckbox && editDeleteCheckbox.checked,
+              );
+              const rawUnits = editUnitsInput
+                ? editUnitsInput.value.trim()
+                : "";
+              const expiryVal = editExpiryInput
+                ? editExpiryInput.value.trim()
+                : "";
+
+              target.delete = markedDeleted;
+              if (!markedDeleted) {
+                target.update_amount = rawUnits !== "" ? Number(rawUnits) : "";
+                target.expiry_date = expiryVal;
+              }
+            }
+          }
+
+          editingProductId = null;
+          editUnitsModal.style.display = "none";
+          renderUpdateOrderRows();
+        });
+      }
+
+      if (editUnitsModal) {
+        editUnitsModal.addEventListener("click", (event) => {
+          if (event.target === editUnitsModal) {
+            editingProductId = null;
+            editUnitsModal.style.display = "none";
+          }
+        });
+      }
+
+      if (updateCloseBtn && updatePopup) {
+        updateCloseBtn.addEventListener("click", () => {
+          activeOrderForUpdate = null;
+          draftProductStates = [];
+          updatePopup.style.display = "none";
+        });
+
+        updatePopup.addEventListener("click", (event) => {
+          if (event.target === updatePopup) {
+            activeOrderForUpdate = null;
+            draftProductStates = [];
+            updatePopup.style.display = "none";
+          }
+        });
+      }
+
+      if (updateConfirmBtn && updatePopup && ConfirmPopup) {
+        updateConfirmBtn.addEventListener("click", async () => {
+          if (!activeOrderForUpdate) return;
+
+          const orderId = Number(activeOrderForUpdate.order_id);
+          const payloadUpdates = draftProductStates.map((d) => ({
+            product_id: Number(d.product_id),
+            product_name: d.product_name,
+            delete: Boolean(d.delete),
+            update_amount:
+              !d.delete && d.update_amount !== "" && d.update_amount !== null
+                ? Number(d.update_amount)
+                : null,
+            expiry_date: !d.delete && d.expiry_date ? d.expiry_date : null,
+          }));
+
+          try {
+            const res = await fetch(
+              `/api/purchase_orders/${orderId}/process_update`,
+              {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                  product_updates: payloadUpdates,
+                  update_date: new Date()
+                    .toISOString()
+                    .slice(0, 19)
+                    .replace("T", " "),
+                }),
+              },
+            );
+            const result = await res.json();
+            if (!res.ok || !result.success) {
+              alert(result.error || "Failed to update order.");
+              return;
+            }
+
+            updatePopup.style.display = "none";
+            ConfirmPopup.style.display = "flex";
+            await loadOpenOrders();
+          } catch (err) {
+            console.error("Failed to submit order update:", err);
+            alert("An error occurred while updating the order.");
+          }
+        });
+      }
+
+      if (ConfirmCloseBtn && ConfirmPopup) {
+        ConfirmCloseBtn.addEventListener("click", () => {
           ConfirmPopup.style.display = "none";
         });
 
-        // Close Popup (click outside)
-        ConfirmPopup.addEventListener("click", function (event) {
+        ConfirmPopup.addEventListener("click", (event) => {
           if (event.target === ConfirmPopup) {
             ConfirmPopup.style.display = "none";
           }
         });
-      } else if (!ConfirmOpenBtn) {
-        console.log("No open Button");
-      } else if (!ConfirmPopup) {
-        console.log("No popup hold...");
-      } else if (!ConfirmCloseBtn) {
-        console.log("No popup close");
       }
+
+      document.addEventListener("DOMContentLoaded", () => {
+        loadOpenOrders();
+      });
     </script>
 
     <script>
@@ -618,7 +985,8 @@
 
         if (supplierSelect) {
           supplierSelect.value = "";
-          const defaultSupOpt = supplierSelect.querySelector('option[value=""]');
+          const defaultSupOpt =
+            supplierSelect.querySelector('option[value=""]');
           if (defaultSupOpt) defaultSupOpt.selected = true;
           if (!keepSuppliers) {
             supplierSelect.innerHTML =
@@ -680,7 +1048,9 @@
         }
 
         try {
-          const res = await fetch(`/api/suppliers/${encodeURIComponent(supplierId)}/products`);
+          const res = await fetch(
+            `/api/suppliers/${encodeURIComponent(supplierId)}/products`,
+          );
           const payload = await res.json();
           if (!res.ok || !payload.success) {
             refreshAllProductSelects();
@@ -705,7 +1075,8 @@
       function renderConfirmedOrderBreakdown(orderData, submittedItems) {
         if (!confirmPopup) return;
 
-        const orderNumHeading = confirmPopup.querySelector(".ordnum_heading h1");
+        const orderNumHeading =
+          confirmPopup.querySelector(".ordnum_heading h1");
         if (orderNumHeading) {
           orderNumHeading.textContent = `Order ${orderData.order_id} has been generated`;
         }
@@ -854,8 +1225,14 @@
             const productId = prodSel ? Number(prodSel.value) : 0;
             const orderAmount = unitInp ? Number(unitInp.value) : 0;
 
-            if (!productId || !Number.isInteger(orderAmount) || orderAmount <= 0) {
-              alert("Please select a product and enter a valid unit quantity for each row.");
+            if (
+              !productId ||
+              !Number.isInteger(orderAmount) ||
+              orderAmount <= 0
+            ) {
+              alert(
+                "Please select a product and enter a valid unit quantity for each row.",
+              );
               return;
             }
 
@@ -891,6 +1268,7 @@
             resetNewOrderForm(true);
             orderPopup.style.display = "none";
             confirmPopup.style.display = "flex";
+            await loadOpenOrders();
           } catch (err) {
             console.error("Error creating purchase order:", err);
             alert("An error occurred while creating the order.");
@@ -974,39 +1352,6 @@
         console.error("Could not find the add-product button or product row.");
       }
       // ADD PRODUCT EXPANDING BUTTON END
-
-      // EDIT PRODUCT POPUP START
-      const editUnitsModal = document.getElementById("editUnits");
-      const editUnitsOpenBtn = document.getElementById("editUnits_open");
-      const editUnitsCloseCancBtn = document.getElementById("editUnits_close_canc");
-      const editUnitsCloseConfBtn = document.getElementById("editUnits_close_conf");
-
-      if (editUnitsModal && editUnitsOpenBtn && editUnitsCloseCancBtn && editUnitsCloseConfBtn) {
-        // Open Popup
-        editUnitsOpenBtn.addEventListener("click", function () {
-          editUnitsModal.style.display = "block";
-        });
-
-        // Close Popup
-        editUnitsCloseCancBtn.addEventListener("click", function (event) {
-          event.preventDefault();
-          event.stopPropagation();
-          editUnitsModal.style.display = "none";
-        });
-        editUnitsCloseConfBtn.addEventListener("click", function (event) {
-          event.preventDefault();
-          event.stopPropagation();
-          editUnitsModal.style.display = "none";
-        });        
-
-        // Close Popup (click outside)
-        editUnitsModal.addEventListener("click", function (event) {
-          if (event.target === editUnitsModal) {
-            editUnitsModal.style.display = "none";
-          }
-        });
-      }
-      // EDIT PRODUCT POPUP END
     </script>
 
     <!-- SCRIPTS END -->
