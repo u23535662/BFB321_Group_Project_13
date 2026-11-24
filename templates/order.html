@@ -81,7 +81,10 @@
         <!-- START OF ORDER LIST -->
 
         <!-- NOT EXPANDED START -->
-        <div class="ordernumber_block" id="order_template_block" style="display: none;">
+        <div
+          class="ordernumber_block"
+          id="order_template_block"
+          style="display: none">
           <div class="ordernumber_top">
             <div class="ordernumber_block_left">
               <div class="order_icon">
@@ -94,9 +97,7 @@
                 <i data-lucide="circle-plus"></i>
                 <p>Update Order</p>
               </button>
-              <button
-                class="chevron_button"
-                type="button">
+              <button class="chevron_button" type="button">
                 <i data-lucide="chevron-up" class="open_list"></i>
                 <i data-lucide="chevron-down" class="close_list"></i>
               </button>
@@ -106,7 +107,7 @@
           <!-- NOT EXPANDED END -->
 
           <!-- EXPANDED START -->
-          <div class="order_expanded_content hidden" style="display: none;">
+          <div class="order_expanded_content hidden" style="display: none">
             <div class="supplier_for_order">
               <div class="supplier_left">
                 <div class="supplier_icon">
@@ -172,9 +173,12 @@
           <h3>Supplier</h3>
         </div>
         <div class="update_prod_and_units">
-          <div class="prod_and_unit" id="update_prod_row_template" style="display: none;">
+          <div
+            class="prod_and_unit"
+            id="update_prod_row_template"
+            style="display: none">
             <div class="prod_and_icon">
-              <i data-lucide="circle-dollar-sign"></i>
+              <i class="dollar" data-lucide="circle-dollar-sign"></i>
               <h3>Product 1</h3>
             </div>
 
@@ -268,7 +272,11 @@
             </div>
             <div class="product_and_unit_select" id="prod_unit_select">
               <div class="product_select">
-                <select class="product_sel" name="product" id="product" disabled>
+                <select
+                  class="product_sel"
+                  name="product"
+                  id="product"
+                  disabled>
                   <option value="" disabled selected hidden>
                     Select Product
                   </option>
@@ -322,7 +330,7 @@
           </div>
           <div class="products_summary">
             <div class="prod_and_units_sum">
-              <i data-lucide="circle-dollar-sign"></i>
+              <i class="dollar" data-lucide="circle-dollar-sign"></i>
               <h3>Product 1</h3>
             </div>
           </div>
@@ -384,22 +392,34 @@
     <script>
       // Script for loading open orders, dropdown breakdown, update order popup & product modal
       const orderBodyBlock = document.querySelector(".order_bodyblock");
-      const orderTemplateBlock = document.getElementById("order_template_block");
+      const orderTemplateBlock = document.getElementById(
+        "order_template_block",
+      );
 
       const updatePopup = document.getElementById("update_background");
       const updateCloseBtn = document.getElementById("canc");
       const updateConfirmBtn = document.getElementById("conf");
       const updateSupplierH3 = document.querySelector(".update_supplier h3");
-      const updateProdListContainer = document.querySelector(".update_prod_and_units");
-      const updateProdRowTemplate = document.getElementById("update_prod_row_template");
+      const updateProdListContainer = document.querySelector(
+        ".update_prod_and_units",
+      );
+      const updateProdRowTemplate = document.getElementById(
+        "update_prod_row_template",
+      );
 
       const editUnitsModal = document.getElementById("editUnits");
-      const editUnitsTitleH3 = document.querySelector("#editUnits .sup_popup_title h3");
+      const editUnitsTitleH3 = document.querySelector(
+        "#editUnits .sup_popup_title h3",
+      );
       const editExpiryInput = document.getElementById("edit_expiry_input");
       const editUnitsInput = document.getElementById("edit_units_input");
       const editDeleteCheckbox = document.getElementById("checkbox");
-      const editUnitsCloseCancBtn = document.getElementById("editUnits_close_canc");
-      const editUnitsCloseConfBtn = document.getElementById("editUnits_close_conf");
+      const editUnitsCloseCancBtn = document.getElementById(
+        "editUnits_close_canc",
+      );
+      const editUnitsCloseConfBtn = document.getElementById(
+        "editUnits_close_conf",
+      );
 
       const ConfirmPopup = document.getElementById("update_conf_background");
       const ConfirmCloseBtn = document.getElementById("x_conf");
@@ -445,7 +465,9 @@
             if (prodPayload.success && Array.isArray(prodPayload.data)) {
               allProductsLeadTimeMap = {};
               prodPayload.data.forEach((p) => {
-                allProductsLeadTimeMap[Number(p.id)] = Number(p.effective_lt || 0);
+                allProductsLeadTimeMap[Number(p.id)] = Number(
+                  p.effective_lt || 0,
+                );
               });
             }
           }
@@ -463,7 +485,10 @@
             }
           }
         } catch (err) {
-          console.error("Failed to fetch reference product/inventory update data:", err);
+          console.error(
+            "Failed to fetch reference product/inventory update data:",
+            err,
+          );
         }
       }
 
@@ -490,7 +515,9 @@
               item.order_amount !== null &&
               item.order_amount !== undefined &&
               item.order_amount !== "";
-            qtyEl.textContent = hasOrderedQty ? String(item.order_amount) : "###";
+            qtyEl.textContent = hasOrderedQty
+              ? String(item.order_amount)
+              : "###";
           }
 
           const editBtn = row.querySelector(".update_units .edit");
@@ -551,7 +578,8 @@
           updateSupplierH3.textContent = order.supplier_name || "Supplier";
         }
 
-        const existingIu = latestInventoryUpdatesByOrderId[Number(order.order_id)];
+        const existingIu =
+          latestInventoryUpdatesByOrderId[Number(order.order_id)];
         const prevItemsByPid = {};
         if (existingIu && Array.isArray(existingIu.items)) {
           existingIu.items.forEach((iuItem) => {
@@ -567,7 +595,10 @@
             product_name: poItem.product_name,
             order_amount: Number(poItem.order_amount),
             update_amount: prev ? Number(prev.update_amount) : "",
-            expiry_date: prev && prev.expiry_date ? String(prev.expiry_date).slice(0, 10) : "",
+            expiry_date:
+              prev && prev.expiry_date
+                ? String(prev.expiry_date).slice(0, 10)
+                : "",
             delete: false,
           };
         });
@@ -586,7 +617,9 @@
           titleEl.textContent = String(order.order_id);
         }
 
-        const supplierTitleEl = block.querySelector(".supplier_for_order .list_item_title");
+        const supplierTitleEl = block.querySelector(
+          ".supplier_for_order .list_item_title",
+        );
         if (supplierTitleEl) {
           supplierTitleEl.textContent = order.supplier_name || "Supplier name";
         }
@@ -620,8 +653,12 @@
         }
 
         const expandedValuesEl = block.querySelector(".expanded_values");
-        const templateInfoRow = expandedValuesEl ? expandedValuesEl.querySelector(".info") : null;
-        const totalCostRow = expandedValuesEl ? expandedValuesEl.querySelector(".total_cost") : null;
+        const templateInfoRow = expandedValuesEl
+          ? expandedValuesEl.querySelector(".info")
+          : null;
+        const totalCostRow = expandedValuesEl
+          ? expandedValuesEl.querySelector(".total_cost")
+          : null;
         const items = Array.isArray(order.items) ? order.items : [];
 
         let grandTotal = 0;
@@ -645,8 +682,12 @@
                 : unitsOrdered * Number(item.unit_cost || 0);
             grandTotal += lineCost;
 
-            const leadTime = allProductsLeadTimeMap[Number(item.product_id)] || 0;
-            const estDelivery = calculateEstimatedDeliveryDateStr(order.date, leadTime);
+            const leadTime =
+              allProductsLeadTimeMap[Number(item.product_id)] || 0;
+            const estDelivery = calculateEstimatedDeliveryDateStr(
+              order.date,
+              leadTime,
+            );
 
             if (unitsP) unitsP.textContent = String(unitsOrdered);
             if (prodP) prodP.textContent = String(item.product_name || "");
@@ -697,7 +738,10 @@
             orderBodyBlock.appendChild(orderEl);
           });
 
-          if (window.lucide && typeof window.lucide.createIcons === "function") {
+          if (
+            window.lucide &&
+            typeof window.lucide.createIcons === "function"
+          ) {
             window.lucide.createIcons();
           }
         } catch (err) {
@@ -724,9 +768,15 @@
               (d) => Number(d.product_id) === Number(editingProductId),
             );
             if (target) {
-              const markedDeleted = Boolean(editDeleteCheckbox && editDeleteCheckbox.checked);
-              const rawUnits = editUnitsInput ? editUnitsInput.value.trim() : "";
-              const expiryVal = editExpiryInput ? editExpiryInput.value.trim() : "";
+              const markedDeleted = Boolean(
+                editDeleteCheckbox && editDeleteCheckbox.checked,
+              );
+              const rawUnits = editUnitsInput
+                ? editUnitsInput.value.trim()
+                : "";
+              const expiryVal = editExpiryInput
+                ? editExpiryInput.value.trim()
+                : "";
 
               target.delete = markedDeleted;
               if (!markedDeleted) {
@@ -784,14 +834,20 @@
           }));
 
           try {
-            const res = await fetch(`/api/purchase_orders/${orderId}/process_update`, {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({
-                product_updates: payloadUpdates,
-                update_date: new Date().toISOString().slice(0, 19).replace("T", " "),
-              }),
-            });
+            const res = await fetch(
+              `/api/purchase_orders/${orderId}/process_update`,
+              {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                  product_updates: payloadUpdates,
+                  update_date: new Date()
+                    .toISOString()
+                    .slice(0, 19)
+                    .replace("T", " "),
+                }),
+              },
+            );
             const result = await res.json();
             if (!res.ok || !result.success) {
               alert(result.error || "Failed to update order.");
@@ -929,7 +985,8 @@
 
         if (supplierSelect) {
           supplierSelect.value = "";
-          const defaultSupOpt = supplierSelect.querySelector('option[value=""]');
+          const defaultSupOpt =
+            supplierSelect.querySelector('option[value=""]');
           if (defaultSupOpt) defaultSupOpt.selected = true;
           if (!keepSuppliers) {
             supplierSelect.innerHTML =
@@ -991,7 +1048,9 @@
         }
 
         try {
-          const res = await fetch(`/api/suppliers/${encodeURIComponent(supplierId)}/products`);
+          const res = await fetch(
+            `/api/suppliers/${encodeURIComponent(supplierId)}/products`,
+          );
           const payload = await res.json();
           if (!res.ok || !payload.success) {
             refreshAllProductSelects();
@@ -1016,7 +1075,8 @@
       function renderConfirmedOrderBreakdown(orderData, submittedItems) {
         if (!confirmPopup) return;
 
-        const orderNumHeading = confirmPopup.querySelector(".ordnum_heading h1");
+        const orderNumHeading =
+          confirmPopup.querySelector(".ordnum_heading h1");
         if (orderNumHeading) {
           orderNumHeading.textContent = `Order ${orderData.order_id} has been generated`;
         }
@@ -1165,8 +1225,14 @@
             const productId = prodSel ? Number(prodSel.value) : 0;
             const orderAmount = unitInp ? Number(unitInp.value) : 0;
 
-            if (!productId || !Number.isInteger(orderAmount) || orderAmount <= 0) {
-              alert("Please select a product and enter a valid unit quantity for each row.");
+            if (
+              !productId ||
+              !Number.isInteger(orderAmount) ||
+              orderAmount <= 0
+            ) {
+              alert(
+                "Please select a product and enter a valid unit quantity for each row.",
+              );
               return;
             }
 
