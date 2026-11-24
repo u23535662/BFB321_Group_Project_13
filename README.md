@@ -24,7 +24,9 @@
 
 ### Project Description
 
-Our Web Application for Stanway Solutions.
+Our Web Application for Stanway Solutions. We spent a lot of hours coding this project and enjoyed it very much!
+
+We hope you also enjoy using it!
 
 ### Built With
 
