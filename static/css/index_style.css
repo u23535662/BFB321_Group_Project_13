@@ -790,7 +790,9 @@ li {
   gap: 1rem;
 
   width: 100%;
-
+  background-color: rgb(169, 217, 208, 0.6);
+  border-radius: 1rem;
+  margin-bottom: 2rem;
   overflow-x: hidden;
 }
 
@@ -800,10 +802,19 @@ li {
   align-items: center;
   justify-content: flex-start;
 
-  background-color: rgb(169, 217, 208, 0.6);
   border-radius: 1rem;
-  width: 80%;
-  margin-top: 1rem;
+  width: 100%;
+  margin-top: 2rem;
+}
+
+.supplier_total_cost {
+  font-family: "Roboto", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 300;
+  font-style: normal;
+  font-variation-settings: "wdth" 100;
+  text-decoration: none;
+  list-style: none;
 }
 
 .order_suppliers_container {
@@ -848,10 +859,12 @@ li {
   display: flex;
   flex-direction: row;
 
-  width: 100%;
+  width: 98%;
   gap: 1rem;
 
-  background-color: rgb(169, 217, 208, 0.6);
+  margin-bottom: 1rem;
+
+  background-color: rgb(84, 147, 136);
   border-radius: 1rem;
 }
 
