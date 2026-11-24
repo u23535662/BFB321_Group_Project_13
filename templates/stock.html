@@ -909,6 +909,9 @@
         const div1 = document.createElement("div");
         div1.className = "product_details_sub_block";
 
+        const div2 = document.createElement("p");
+        div2.textContent = "Delete";
+
         const divselect = document.createElement("select");
         divselect.className = "prodd";
         divselect.placeholder = "Product...";
@@ -925,6 +928,7 @@
         divdelete.addEventListener("click", () => {
           div1.remove();
         });
+        divdelete.append(div2);
         div1.append(divselect, divinput, divdelete);
         scroll_sales.append(div1);
         return scroll_sales;
