@@ -944,11 +944,11 @@ li {
 .confirm_btn_message {
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  justify-content: flex-start;
   align-items: center;
 
   width: 30%;
-  height: auto;
+  max-height: 50%;
   gap: 0.5rem;
 
   box-sizing: border-box;
@@ -961,21 +961,51 @@ li {
 .confirm_x {
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  justify-content: flex-start;
   align-items: flex-end;
 
   width: 98%;
-  height: 20%;
+  height: 10%;
+
+  margin-top: 0.5rem;
 
   box-sizing: border-box;
-
-  margin-top: 0.2rem;
 
   border-radius: 1rem;
 }
 
 .x_btn:hover {
   cursor: pointer;
+}
+
+.x_btn:active {
+  color: #e0e0e0;
+}
+
+.confirm_cont {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+
+  height: 60%;
+  width: 80%;
+
+  background-color: rgb(169, 217, 208, 0.6);
+  border-radius: 1rem;
+
+  padding: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.check {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  aspect-ratio: 1/1;
+  width: 12%;
+  background-color: rgb(169, 217, 208, 0.6);
+  border-radius: 2rem;
 }
 
 /* POPUP END */
