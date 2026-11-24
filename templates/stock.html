@@ -149,6 +149,29 @@
         </div>
       </div>
 
+      <!-- Edit stock popup start -->
+      <div class="edit_background">
+        <div class="edit_content">
+          <div class="edit_heading">
+            <h1>Edit Product</h1>
+            <div class="edit_content">
+              <select class="sel_product"></select>
+            </div>
+          </div>
+
+          <div class="confirmAndcancel">
+            <div class="conff">
+              <p>Confirm</p>
+            </div>
+            <div class="cancc">
+              <p>Cancel</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Edit stock popup end -->
+
       <!-- Delete Product Modal -->
       <div
         id="deleteProductModal"
@@ -565,9 +588,7 @@
             <div class="expanded_searchbutt">
               <input class="searchbar" type="text" placeholder="Search products..." />
               <div class="others">
-                <button type="button" class="filterbutt" aria-label="Filter products">
-                  <i data-lucide="funnel"></i>
-                </button>
+                
                 <button type="button" class="clearbutt" aria-label="Clear search">
                   <i data-lucide="funnel-x"></i>
                 </button>
@@ -575,11 +596,24 @@
             </div>
             <div class="expanded_description">
               <div class="info">
+                <div class="units">
                 <p>Units</p>
-                <p>Product</p>
+                </div>
+                <div class="sold">
                 <p>Sold this month</p>
+                </div>
+                <div class="products">
+                <p>Product</p>
+                </div>
+                
+                <div class="warning">
+                  <p>Warning</p>
+                </div>
+                <div class="location">
+                  <p>Location</p>
+                </div>
               </div>
-              <button type="button" class="editbutt" aria-label="Edit products">
+              <button class="editbutt">
                 <i data-lucide="pencil"></i>
               </button>
             </div>

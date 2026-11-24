@@ -328,7 +328,7 @@ li {
   display: flex;
   flex-direction: column;
   align-items: stretch;
-  max-width: 90%;
+  width: 100%;
   border-radius: 1rem;
   gap: 0.5rem;
   padding-top: 0.25rem;
@@ -417,29 +417,49 @@ li {
   justify-content: space-between;
   background-color: rgb(94, 155, 145);
   width: 100%;
-  padding: 0.45rem 0.75rem 0.45rem 1.25rem;
-  border-radius: 0.75rem;
-}
 
+  border-radius: 1rem;
+}
 .info {
-  display: grid;
-  grid-template-columns: 1fr 2fr 1fr;
+  display: flex;
+  justify-content: space-between;
   align-items: center;
-  flex: 1;
+  flex-direction: row;
+
+  width: 90%;
+
   gap: 0.5rem;
 }
 
-.info p {
-  margin: 0;
-  font-weight: 600;
-  font-size: 0.85rem;
-  color: #152d2f;
+.units,
+.products,
+.sold,
+.warning,
+.location {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.units,
+.warning {
+  width: 15%;
+}
+
+.sold,
+.location {
+  width: 25%;
+}
+
+.products {
+  width: 40%;
 }
 
 .editbutt {
-  height: 1.75rem;
-  width: 1.75rem;
-  border-radius: 50%;
+  aspect-ratio: 1/1;
+  width: 5%;
+  border-radius: 2rem;
+  margin-right: 1rem;
 }
 
 /* Product Rows List (<ul>) */
@@ -743,6 +763,101 @@ li {
   cursor: not-allowed;
 }
 /* POPUP END */
+
+/* EDIT STOCK POPUP START */
+.edit_background {
+  display: flex; /*MAKE NONE */
+  flex-direction: column;
+  position: fixed;
+  z-index: 1000;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 100vw;
+  height: 100vh;
+  overflow: auto;
+  background-color: rgba(0, 0, 0, 0.4);
+}
+
+.edit_content {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+
+  width: 35%;
+  max-height: 80%;
+  gap: 1rem;
+
+  padding-bottom: 1rem;
+  padding-top: 1rem;
+
+  box-sizing: border-box;
+  background-color: rgb(84, 147, 136);
+  margin: auto;
+
+  border-radius: 1rem;
+}
+
+.edit_heading {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+.confirmAndcancel {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+
+  height: 3rem;
+
+  gap: 1rem;
+}
+
+.conff {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 2rem;
+
+  padding: 0 1rem;
+
+  background-color: rgb(169, 217, 208, 0.6);
+  border-radius: 0.5rem;
+
+  border-style: solid;
+  border-color: #152d2f;
+  border-width: 1px;
+}
+
+.cancc {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 2rem;
+
+  padding: 0 1rem;
+
+  background-color: rgb(169, 217, 208, 0.6);
+  border-radius: 0.5rem;
+
+  border-style: solid;
+  border-color: #152d2f;
+  border-width: 1px;
+}
+
+.conff:hover,
+.cancc:hover {
+  cursor: pointer;
+}
+
+.conff:active,
+.cancc:active {
+  background-color: rgb(84, 147, 136);
+}
+/* EDIT STOCK POPUP END */
 
 /* RESPONSIVE ADJUSTMENTS */
 @media (max-width: 1024px) {
