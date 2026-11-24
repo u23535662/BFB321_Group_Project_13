@@ -68,6 +68,10 @@
 
     <!-- STOCK BLOCKS START -->
     <div class="stockblocks">
+      <div class="salesOrderBtn">
+        <i data-lucide="circle-plus"></i>
+        <p>New Sales Order</p>
+      </div>
       <div class="stockBtns">
         <!-- Add Item Button -->
         <button id="stockButton1" class="stockbutton1">
@@ -85,6 +89,44 @@
           <div class="delete_item_text">Delete Item</div>
         </button>
       </div>
+
+      <!-- SALES ORDER POPUP START -->
+      <div class="sales_background" id="sales_background">
+        <div class="sales_content">
+          <div class="sales_heading">
+            <h1>New Sales Order</h1>
+          </div>
+          <div class="scroll_sales">
+            <div class="prodd_unitt" id="prodd_unitt">
+              <select
+                name="Product"
+                id="prodd"
+                class="prodd"
+                placeholder="Product...">
+                <option value="" disabled selected hidden>
+                  Select a Product...
+                </option>
+              </select>
+              <input type="text" class="unitt" placeholder="Units" />
+            </div>
+          </div>
+
+          <div class="confirmAndcancel">
+            <button class="add_prod" id="add_product" type="button">
+              <i data-lucide="circle-plus"></i>
+              <p>Add Product</p>
+            </button>
+            <div class="conff" id="conff">
+              <p>Confirm</p>
+            </div>
+            <div class="cancc" id="cancc">
+              <p>Cancel</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SALES ORDER POPUP END -->
 
       <!-- Add Product Modal -->
       <div
@@ -150,13 +192,16 @@
       </div>
 
       <!-- Edit stock popup start -->
-      <div class="edit_background">
+      <div class="edit_background" id="edit_background">
         <div class="edit_content">
           <div class="edit_heading">
             <h1>Edit Product</h1>
-            <div class="edit_content">
-              <select class="sel_product"></select>
-            </div>
+          </div>
+          <div class="edit_content">
+            <select class="sel_product"></select>
+            <input />
+            <input />
+            <input />
           </div>
 
           <div class="confirmAndcancel">
@@ -840,6 +885,38 @@
           listBlock.innerHTML = `<p class="text low-stock-status">Failed to load stock data.</p>`;
         }
       }
+    </script>
+
+    <script>
+      //  SALES ORDER POPUP START
+
+      const prodd_unitt = document.getElementById("prodd_unitt");
+
+      const add_product = document.getElementById("add_product");
+      add_product.addEventListener("click", () => {
+        const div1 = document.createElement("div");
+        div1.className = "product_details_sub_block";
+
+        const divselect = document.createElement("select");
+        divselect.className = "prodd";
+        divselect.placeholder = "Product...";
+
+        const divinput = document.createElement("i");
+        divinput.className = "unitt";
+        divinput.type = "number";
+        divinput.step = "1";
+        divinput.min = "0";
+        divinput.placeholder = "Units";
+
+        const divdelete = document.createElement("button");
+        divdelete.innerHTML = <i data-lucide="circle-plus"></i>;
+        divdelete.addEventListener("click", () => {
+          div1.remove();
+        });
+        div1.append(divselect, divinput, divdelete);
+      });
+
+      // SALES ORDER POPUP
     </script>
   </body>
 </html>
