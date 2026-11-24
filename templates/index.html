@@ -93,23 +93,27 @@
                   <div class="popup_name">
                     <h1 class="popup_title">Add to Order</h1>
                   </div>
-                  <div class="close" id="close_index_popup">
-                    <i data-lucide="circle-x"></i>
+                </div>
+                <div class="scroll_content">
+                  <div
+                    id="order_suppliers_container"
+                    class="order_suppliers_container">
+                    <h2>Select Order to load low-stock items...</h2>
                   </div>
                 </div>
+                <div class="bottom">
+                  <div class="order_grand_total" id="order_grand_total">
+                    <h3>Total Cost: R0.00</h3>
+                  </div>
+                  <div class="conf_or_canc">
+                    <button class="confirm_popup" id="confirm_btn_popup">
+                      <p>Confirm</p>
+                    </button>
 
-                <div
-                  id="order_suppliers_container"
-                  class="order_suppliers_container">
-                  <h2>Select Order to load low-stock items...</h2>
-                </div>
-
-                <div class="order_grand_total" id="order_grand_total">
-                  <p>Total Cost: R0.00</p>
-                </div>
-
-                <div class="confirm_popup" id="confirm_btn_popup">
-                  <p>Confirm</p>
+                    <button class="cancel_order" id="close_index_popup">
+                      <p>Cancel</p>
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
@@ -302,7 +306,7 @@
           });
 
         if (grandTotalEl) {
-          grandTotalEl.innerHTML = `<p>Total Cost: ${formatCurrency(grandTotal)}</p>`;
+          grandTotalEl.innerHTML = `<h3>Total Cost: ${formatCurrency(grandTotal)}</p>`;
         }
       }
 

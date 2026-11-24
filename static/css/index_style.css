@@ -750,12 +750,8 @@ li {
   align-items: center;
 
   width: 35%;
-  max-height: 70%;
-  gap: 1rem;
-
-  overflow-y: scroll;
-  scrollbar-width: thin;
-  overflow-x: hidden;
+  max-height: 90%;
+  gap: 0.5rem;
 
   position: fixed;
 
@@ -792,7 +788,7 @@ li {
   width: 100%;
   background-color: rgb(169, 217, 208, 0.6);
   border-radius: 1rem;
-  margin-bottom: 2rem;
+  margin-bottom: 1rem;
   overflow-x: hidden;
 }
 
@@ -817,28 +813,20 @@ li {
   list-style: none;
 }
 
-.order_suppliers_container {
+.scroll_content {
   display: flex;
+  justify-content: safe center;
+  align-items: center;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
+
+  max-height: 100%;
+
+  overflow-y: scroll;
+  scrollbar-width: thin;
 }
 
-/* The Close Button */
-.close {
-  display: flex;
-  align-items: center;
-
-  aspect-ratio: 1/1;
-  width: 10%;
-  color: #e7dbdb;
-}
-
-.close:hover,
-.close:focus {
-  color: black;
-  text-decoration: none;
-  cursor: pointer;
+.order_suppliers_container {
+  max-height: auto;
 }
 
 .popup_name {
@@ -891,22 +879,41 @@ li {
   color: black;
 }
 
-.confirm_popup {
+.order_grand_total {
+  display: flex;
+
+  max-height: 5%;
+}
+
+.conf_or_canc {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+
+  height: 3rem;
+  gap: 1rem;
+}
+
+.confirm_popup,
+.cancel_order {
   display: flex;
   justify-content: center;
   align-items: center;
   height: 2rem;
-  width: 25%;
+
+  padding: 0 1rem;
 
   background-color: rgb(169, 217, 208, 0.6);
   border-radius: 0.5rem;
-  margin: 1rem;
 
   border-style: solid;
   border-color: #152d2f;
   border-width: 1px;
 }
 
+.cancel_order:hover,
+.cancel_order:focus,
 .confirm_popup:hover,
 .confirm_popup:focus {
   color: black;
@@ -914,6 +921,7 @@ li {
   cursor: pointer;
 }
 
+.cancel_order:active,
 .confirm_popup:active {
   background-color: rgb(84, 147, 136);
 }
