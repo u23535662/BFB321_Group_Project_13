@@ -831,7 +831,7 @@
       }
 
       // Script for confirm order popup
-      if (confirmOpenBtn && confirmPopup && confirmCloseBtn) {
+      if (confirmOpenBtn && confirmPopup) {
         confirmOpenBtn.addEventListener("click", async function () {
           if (isSubmittingOrder) return;
 
@@ -897,26 +897,30 @@
           }
         });
 
-        // Close Popup
-        confirmCloseBtn.addEventListener("click", function () {
+        function closeConfirmPopup() {
           document
             .querySelectorAll(".product_and_unit_select:not(#prod_unit_select)")
             .forEach((row) => row.remove());
           confirmPopup.style.display = "none";
-        });
+        }
 
-        // Close Popup (click outside)
+        if (confirmCloseBtn) {
+          confirmCloseBtn.addEventListener("click", closeConfirmPopup);
+        }
+
+        // Close Popup when clicking the X button (including inner SVG shapes or re-rendered icons)
         confirmPopup.addEventListener("click", function (event) {
-          if (event.target === confirmPopup) {
-            confirmPopup.style.display = "none";
+          if (
+            event.target.closest("#x_confirm, .x_confirm, .top_x") ||
+            event.target === confirmPopup
+          ) {
+            closeConfirmPopup();
           }
         });
       } else if (!confirmOpenBtn) {
         console.log("No open Button");
       } else if (!confirmPopup) {
         console.log("No popup hold...");
-      } else if (!confirmCloseBtn) {
-        console.log("No popup close");
       }
 
       // ADD PRODUCT EXPANDING BUTTON START
