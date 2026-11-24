@@ -1033,7 +1033,6 @@ li {
   margin: 6% auto;
   border-radius: 1rem;
   width: 40%;
-  max-height: 70%;
   gap: 2rem;
   justify-content: center;
   align-items: center;
@@ -1053,12 +1052,20 @@ li {
 .popup_title {
   color: #000000;
 }
-.editUnits_text{
+.editUnits_text,
+.editUnits_text2 {
   margin-left: 0.5rem;
+  margin-right: 1rem;
   gap: 0.25rem;
   display: flex;
   flex-direction: row;
   align-items: center;
+  max-height: 2.5rem;
+}
+.editUnits_text {
+  justify-content: space-between; 
+}
+.editUnits_text2 {
   justify-content: flex-start; 
 }
 .editUnits_box{

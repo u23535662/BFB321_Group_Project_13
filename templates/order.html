@@ -138,18 +138,19 @@
                           </div>
                         </div>
 
-                        <div id="choice-group">
-                          <div class="editUnits_text">
-                            <input type="checkbox" id="checkbox1" name="choice" value="1">
-                            <p>Change product units</p>
-                            <div id="editUnits_box" class="editUnits_box"></div>
-                          </div>
-                          <div class="editUnits_text">
-                            <input type="checkbox" id="checkbox2" name="choice" value="2">
-                            <p>Remove from order</p>
-                          </div> 
-                        </div>                          
-
+                        <div class="editUnits_text">
+                          <p>Add expiration date</p>
+                          <input type="date">
+                        </div>
+                        <div class="editUnits_text">
+                          <p>Actual received units</p>
+                          <input type="number" min="0", step="1">
+                        </div>
+                        <div class="editUnits_text2">
+                          <input type="checkbox" id="checkbox">
+                          <p>Product did not arrive</p>
+                        </div> 
+                       
                         <div class="conf_and_canc">
                           <div class="editconf" id="editUnits_close_conf">
                             <p>Confirm</p>
@@ -1005,47 +1006,6 @@
           }
         });
       }
-
-      // CHECKBOX CODE START
-      document.querySelectorAll('#choice-group input[type="checkbox"]').forEach((box) => {
-        box.addEventListener('change', () => {
-          if (box.checked) {
-            document.querySelectorAll('#choice-group input[name="' + box.name + '"]').forEach((other) => {
-              if (other !== box) other.checked = false;
-            });
-          }
-        });
-      });
-
-      const checkbox1 = document.getElementById('checkbox1');
-      const editUnits_box = document.getElementById('editUnits_box');
-
-      checkbox1.addEventListener('change', function() {
-        if (checkbox1.checked) {
-          if (!document.getElementById('dynamicUnitsInput')) {
-            const unitsInput = document.createElement('input');
-            unitsInput.type = 'number';
-            unitsInput.id = 'dynamicUnitsInput';
-            unitsInput.class = 'unitsInput';
-            editUnits_box.appendChild(unitsInput);
-          }
-        } else {
-          const unitsInput = document.getElementById('dynamicUnitsInput');
-          if (unitsInput) {
-            unitsInput.remove();
-          }
-        }
-      });
-
-      const checkbox2 = document.getElementById('checkbox2');
-
-      checkbox2.addEventListener('change', () => {
-        if (checkbox2.checked) {
-          checkbox1.checked = false;
-          checkbox1.dispatchEvent(new Event('change'));
-        }
-      });
-      // CHECKBOX CODE END
       // EDIT PRODUCT POPUP END
     </script>
 
