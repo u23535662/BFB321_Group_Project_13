@@ -489,7 +489,6 @@ def get_products_raw(product_id=None):
     row = db.query_one(f"{_BASE_PRODUCT_SELECT} WHERE p.product_id = %s", (product_id,))
     return _format_product_raw(row) if row else None
 
-
 def get_products(product_id=None):
     single_mode = product_id is not None and product_id != ""
     raw_data = get_products_raw(product_id if single_mode else None)
@@ -500,6 +499,7 @@ def get_products(product_id=None):
     products_to_process = [raw_data] if single_mode else raw_data
     historical_years = max(int(_get_config_value("HISTORICAL_YEARS", 5)), 1)
     service_level = float(_get_config_value("DEFAULT_SERVICE_LEVEL", 0.95))
+    expiry_warning_days = max(int(_get_config_value("EXPIRY_WARNING_DAYS", 7)), 0)
 
     product_filter_sql = "AND product_id = %s" if single_mode else ""
     product_filter_params = (int(product_id),) if single_mode else ()
@@ -605,6 +605,79 @@ def get_products(product_id=None):
     demand_rows = db.query_all(demand_sql, (historical_years, *product_filter_params))
     demand_lookup = {int(r["product_id"]): r for r in demand_rows}
 
+    expiring_soon_sql = f"""
+    SELECT
+        iui.product_id AS id,
+        COALESCE(SUM(iui.update_amount), 0) AS expiring_qty
+    FROM inventory_update_item iui
+    JOIN inventory_update iu
+        ON iu.update_id = iui.update_id
+    WHERE iui.expiry_date >= CURDATE()
+      AND iui.expiry_date <= DATE_ADD(CURDATE(), INTERVAL %s DAY)
+      {"AND iui.product_id = %s" if single_mode else ""}
+    GROUP BY iui.product_id
+    """
+    expiring_soon_rows = db.query_all(
+        expiring_soon_sql,
+        (expiry_warning_days, *product_filter_params) if single_mode else (expiry_warning_days,),
+    )
+    expiring_soon_lookup = {
+        int(r["id"]): int(r["expiring_qty"] or 0) for r in expiring_soon_rows
+    }
+
+    latest_update_sql = f"""
+    WITH ranked_updates AS (
+        SELECT
+            iui.product_id,
+            iu.order_id,
+            iu.update_date,
+            iui.update_amount,
+            iui.expiry_date,
+            ROW_NUMBER() OVER (
+                PARTITION BY iui.product_id
+                ORDER BY iu.update_date DESC, iu.update_id DESC, iui.update_item_id DESC
+            ) AS rn
+        FROM inventory_update_item iui
+        JOIN inventory_update iu
+            ON iu.update_id = iui.update_id
+        WHERE 1=1
+          {"AND iui.product_id = %s" if single_mode else ""}
+    )
+    SELECT
+        ru.product_id,
+        ru.update_date,
+        ru.expiry_date,
+        COALESCE(poi.order_amount, ru.update_amount) AS order_qty,
+        COALESCE((
+            SELECT SUM(s.sold_qty)
+            FROM sale s
+            WHERE s.product_id = ru.product_id
+              AND s.sold_date >= ru.update_date
+              AND DATE(s.sold_date) <= ru.expiry_date
+        ), 0) AS sales_qty,
+        (
+            ru.expiry_date >= DATE_FORMAT(CURDATE(), '%%Y-%%m-01')
+            AND ru.expiry_date < DATE_FORMAT(CURDATE(), '%%Y-%%m-01') + INTERVAL 1 MONTH
+            AND CURDATE() >= ru.expiry_date
+        ) AS expired_this_month
+    FROM ranked_updates ru
+    LEFT JOIN purchase_order_item poi
+        ON poi.order_id = ru.order_id
+       AND poi.product_id = ru.product_id
+    WHERE ru.rn = 1
+    """
+    latest_update_rows = db.query_all(latest_update_sql, product_filter_params)
+    expired_stock_lookup: dict[int, int] = {}
+    for r in latest_update_rows:
+        pid = int(r["product_id"])
+        order_qty = int(r["order_qty"] or 0)
+        sales_qty = int(r["sales_qty"] or 0)
+        expired_this_month = bool(r["expired_this_month"])
+        if expired_this_month and sales_qty < order_qty:
+            expired_stock_lookup[pid] = order_qty - sales_qty
+        else:
+            expired_stock_lookup[pid] = 0
+
     inv_product_where = "WHERE p.product_id = %s" if single_mode else ""
     inv_sql = f"""
     WITH sales_agg AS (
@@ -704,6 +777,17 @@ def get_products(product_id=None):
         sell_price = float(p["sell_price"] or 0.0)
         revenue = ytd_sold * sell_price
 
+        expired_stock = expired_stock_lookup.get(p_id, 0)
+        current_inventory = inv_lookup.get(p_id, 0) - expired_stock
+        expiring_soon_qty = expiring_soon_lookup.get(p_id, 0)
+
+        if expiring_soon_qty > 0:
+            status = f"{expiring_soon_qty} items are about to expire"
+        elif current_inventory <= int(rop):
+            status = "low stock"
+        else:
+            status = "product is ok"
+
         output_products.append({
             "id": p_id,
             "supplier_id": p["supplier_id"],
@@ -717,14 +801,15 @@ def get_products(product_id=None):
             "ss": int(ss),
             "rop": int(rop),
             "class": abc_lookup.get(p_id, "C"),
-            "current_inventory": inv_lookup.get(p_id, 0),
+            "current_inventory": current_inventory,
+            "expired_stock": expired_stock,
+            "status": status,
             "sold": month_lookup.get(p_id, 0),
             "revenue": revenue,
             "effective_lt": int(round(effective_lt, 0)),
         })
 
     return output_products[0] if single_mode else output_products
-
 
 def insert_product(
     name: str = "",

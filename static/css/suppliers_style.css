@@ -281,34 +281,45 @@ li {
 
 /* sup_topblock BLOCK START */
 .sup_searchbar {
-  grid-area: sup_searchbar;
+  background-color: rgba(21, 45, 47, 0.7);
+  color: rgb(198, 234, 227);
+  height: 2.15rem;
+  flex: 1;
 
-  width: 88%;
-  height: 50%;
-
-  background-color: rgb(84, 147, 136);
-  outline: rgba(19, 22, 22, 0.6) solid 2px;
   border-radius: 1rem;
-  margin-left: 1.5rem;
-  border-style: none;
+  border: none;
+  padding: 0 1rem;
+  font-size: 0.9rem;
+
+  margin-left: 0.5rem;
+}
+.sup_searchbar::placeholder {
+  color: rgba(198, 234, 227, 0.75);
 }
 .sup_searchbar:focus {
-  outline: rgba(19, 22, 22, 0.6) solid 2px;
+  outline: rgba(155, 255, 237, 0.8) solid 2px;
 }
+
 /* searchbar buttons start */
-.filterbutt,
 .clearbutt {
   display: flex;
-  flex-direction: row;
   align-items: center;
   justify-content: center;
-
-  background-color: rgb(21, 45, 47, 0.6);
-  height: 2rem;
-  width: 2rem;
-
-  border-radius: 0.5rem;
-  border-style: none;
+  background-color: rgba(21, 45, 47, 0.7);
+  color: rgb(198, 234, 227);
+  height: 2.15rem;
+  width: 2.15rem;
+  border-radius: 0.6rem;
+  border: none;
+  cursor: pointer;
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease;
+  margin-right: 0.5rem;
+}
+.clearbutt:hover {
+  background-color: #152d2f;
+  color: rgb(155, 255, 237);
 }
 /* searchbar buttons end */
 /* sup_topblock BLOCK END */
