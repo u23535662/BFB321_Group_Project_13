@@ -195,10 +195,10 @@ li {
   min-width: 0;
   height: 100%;
   gap: 1.25rem;
-  grid-template-columns: 1fr 1fr minmax(20rem, 25rem);
+  grid-template-columns: 12rem 1fr minmax(20rem, 25rem);
   grid-template-rows: 2.75rem 1fr;
   grid-template-areas:
-    "blockempty blockempty stockBtns"
+    "blockSalesOrder blockempty stockBtns"
     "blocksuppliersmain blocksuppliersmain blocklowstock";
 }
 
@@ -397,9 +397,6 @@ li {
   border-radius: 0.6rem;
   border: none;
   cursor: pointer;
-  transition:
-    background-color 0.2s ease,
-    color 0.2s ease;
 }
 
 .filterbutt:hover,
@@ -508,6 +505,130 @@ li {
   margin-left: 0;
 }
 /* SUPPLIER BLOCK END */
+
+/* SALES ORDER BUTTON START */
+.salesOrderBtn {
+  grid-area: blockSalesOrder;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: row;
+
+  background-color: rgba(169, 217, 208, 0.7);
+  color: #152d2f;
+
+  height: 20%;
+  padding: 0.75rem;
+  border-radius: 1rem;
+  border: 2px solid rgb(155, 255, 237);
+  gap: 1rem;
+  cursor: pointer;
+
+  margin-top: 0.5rem;
+}
+
+.salesOrderBtn:hover {
+  cursor: pointer;
+}
+
+.salesOrderBtn:active {
+  background-color: rgb(84, 147, 136);
+  color: rgb(155, 255, 237);
+}
+
+.sales_background {
+  display: flex; /*MAKE NONE */
+  flex-direction: column;
+  position: fixed;
+  z-index: 1000;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 100vw;
+  height: 100vh;
+  overflow: auto;
+  background-color: rgba(0, 0, 0, 0.4);
+}
+
+.sales_content {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+
+  width: 35%;
+  max-height: 80%;
+  gap: 1rem;
+
+  padding-bottom: 1rem;
+  padding-top: 1rem;
+
+  box-sizing: border-box;
+  background-color: rgb(84, 147, 136);
+  margin: auto;
+
+  border-radius: 1rem;
+}
+
+.sales_heading {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+.scroll_sales {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  overflow-y: scroll;
+  scrollbar-width: thin;
+
+  min-height: 10rem;
+}
+
+.prodd_unitt {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: row;
+
+  gap: 1rem;
+
+  width: 70%;
+}
+
+.prodd {
+  width: 90%;
+  height: 2rem;
+  background-color: rgba(169, 217, 208, 0.4);
+  border-color: #152d2f;
+  border-style: none;
+  color: #152d2f;
+  border-radius: 0.75rem;
+  outline: 1px solid #152d2f;
+
+  padding: 0 0.9rem;
+  font-size: 0.95rem;
+  margin: 0;
+}
+
+.unitt {
+  width: 15%;
+  height: 2rem;
+  background-color: rgba(169, 217, 208, 0.4);
+  border-color: #152d2f;
+  border-style: none;
+  color: #152d2f;
+  border-radius: 0.75rem;
+  outline: 1px solid #152d2f;
+
+  padding: 0 0.9rem;
+  font-size: 0.95rem;
+  margin: 0;
+}
+
+/* SALES ORDER BUTTON END */
 
 /* LOW STOCK BLOCK START */
 .headingblockstock {
@@ -803,6 +924,34 @@ li {
   display: flex;
   flex-direction: row;
   align-items: center;
+}
+
+.add_prod {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 2rem;
+  /* width: 35%; */
+
+  padding: 0 0.75rem;
+
+  background-color: #152d2f;
+  border-radius: 0.5rem;
+
+  border-style: solid;
+  border-color: #152d2f;
+  border-width: 1px;
+  gap: 0.5rem;
+
+  color: #e0e0e0;
+}
+
+.add_prod:active {
+  background-color: rgb(169, 217, 208, 0.6);
+}
+
+.add_prod:hover {
+  cursor: pointer;
 }
 
 .confirmAndcancel {
