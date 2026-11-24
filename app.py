@@ -88,12 +88,14 @@ def api_get_products():
     try:
         products = models.get_products()
 
+        expired_stock = 0
         low_stock= 0
         for r in products:
             if r['current_inventory'] <= r['rop']:
                 low_stock += 1
+            expired_stock += int(r['expired_stock'])
 
-        return jsonify({"success": True, "count": len(products), "low_stock":low_stock, "data": products}), 200
+        return jsonify({"success": True, "count": len(products), "total_expired_stock":expired_stock, "low_stock":low_stock, "data": products}), 200
     except Exception as exc:
         return jsonify({"success": False, "error": str(exc)}), 500
 
