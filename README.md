@@ -332,7 +332,7 @@ Across all endpoints, unexpected server faults or database exceptions return a s
 1. **Clone the Repository:**
 
    ```
-   git clone 
+   git clone https://github.com/u23535662/BFB321_Group_Project_13
    cd bfb321-final-project-group13
    
    ```
