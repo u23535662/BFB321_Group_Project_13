@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Gelasio:ital,wght@0,400..700;1,400..700&display=swap"
+      rel="stylesheet" />
+    <!-- insert here -->
+    <link rel="stylesheet" href="../css/style.css" />
+  </head>
+
+  <body>
+    <!--NAV BAR START-->
+    <nav class="navbar">
+      <div class="logobox">
+        <div class="logo">
+          <img src="../images/Stanway-Logo-picture.png" class="logoimg" />
+        </div>
+        <i class="fa-solid fa-grip-lines"></i>
+      </div>
+      <ul class="navlist">
+        <li class="pagenames">
+          <a href="index.html" class="noto-sans-display-page"
+            ><div>
+              <i class="fa-solid fa-chart-line"></i>
+              Overview
+            </div></a
+          >
+        </li>
+        <li class="pagenames">
+          <a href="stock.html" class="noto-sans-display-page"
+            ><div>
+              <i class="fa-solid fa-boxes-packing"></i>
+              Stock
+            </div></a
+          >
+        </li>
+        <li class="pagenames">
+          <a href="pricelists.html" class="noto-sans-display-page"
+            ><div>
+              <i class="fa-solid fa-hand-holding-dollar"></i>
+              Pricelist
+            </div></a
+          >
+        </li>
+        <li class="pagenames active">
+          <a href="suppliers.html" class="noto-sans-display-page page_active"
+            ><div>
+              <i class="fa-solid fa-truck-field"></i>
+              Suppliers
+            </div></a
+          >
+        </li>
+      </ul>
+      <div class="accountbox">
+        <i class="fa-solid fa-circle-user"></i>
+        <h3 class="noto-sans-display-h1">Account</h3>
+      </div>
+    </nav>
+
+    <!-- NAV BAR END -->
+
+    <!-- SUPPLIER BODY START-->
+    <div class="supplier_body">
+      <div class="sup_topblock">
+        <input class="sup_searchbar" type="text" placeholder="Search..." />
+        <button class="filterbutt">
+          <i data-lucide="funnel"></i>
+        </button>
+        <button class="clearbutt">
+          <i data-lucide="funnel-x"></i>
+        </button>
+      </div>
+      <div class="sup_bodyblock">
+        <!-- BUTTON FOR PRICELIST - MAIN START -->
+        <button id="sup_Block" class="sup_block">
+          <div class="sup_Block_left">
+            <div class="sup_icon">
+              <i data-lucide="circle-dollar-sign"></i>
+            </div>
+            <h3 class="sup_title">Supplier Name</h3>
+          </div>
+        </button>
+      </div>
+
+      <!-- POPUP MODAL -->
+      <div id="supp_popup_Hold" class="supp_popup_hold">
+        <div class="supp_popup_content">
+          <!-- CLOSE BUTTON -->
+          <div class="pl_popup_top_bar">
+            <div class="pl_popup_title">
+              <h3>Supplier Name</h3>
+            </div>
+            <button id="close_supp" class="close_supp_popup">
+              <i data-lucide="circle-x"></i>
+            </button>
+          </div>
+
+          <!-- POPUP CONTENT -->
+          <div class="pl_product_info">
+            <div class="pl_info_left">
+              <h3>Supplier Contact Details</h3>
+            </div>
+            <div class="pl_info_right">
+              <div class="pl_info_display sup_prod_list">
+                <div class="sup_prod_item">
+                  <h3>Product Name</h3>
+                </div>
+                <div class="sup_prod_item">
+                  <h3>Product Name</h3>
+                </div>
+                <div class="sup_prod_item">
+                  <h3>Product Name</h3>
+                </div>
+                <div class="sup_prod_item">
+                  <h3>Product Name</h3>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SUPPLIER BODY END -->
+    <!-- Script for icons-->
+    <script
+      src="https://kit.fontawesome.com/3000704a08.js"
+      crossorigin="anonymous"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script>
+      lucide.createIcons();
+    </script>
+    <script src="../templates/script.js"></script>
+  </body>
+</html>

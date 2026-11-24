@@ -1,6 +1,23 @@
 //
 //
-// STOCK PAGE
+// INDEX PAGE START
+//
+//
+
+
+//
+// POPUP END
+//
+
+//
+//
+// INDEX PAGE END
+//
+//
+
+//
+//
+// STOCK PAGE START
 //
 //
 
@@ -75,42 +92,15 @@ if (stockModal && stockOpenBtn && stockCloseBtn) {
 
 //
 //
-// PRICE LIST PAGE START
+// ORDER PAGE START
 //
 //
 
-const plOpenBtn = document.getElementById("pl_Block");
-const plPopup = document.getElementById("pl_popup_Hold");
-const plCloseBtn = document.getElementById("close_pl");
 
-if (plOpenBtn && plPopup && plCloseBtn) {
-  // Open Popup
-  plOpenBtn.addEventListener("click", function () {
-    plPopup.style.display = "flex";
-  });
-
-  // Close Popup
-  plCloseBtn.addEventListener("click", function () {
-    plPopup.style.display = "none";
-  });
-
-  // Close Popup (click outside)
-  plPopup.addEventListener("click", function (event) {
-    if (event.target === plPopup) {
-      plPopup.style.display = "none";
-    }
-  });
-} else if (!plOpenBtn) {
-  console.log("No open Button");
-} else if (!plPopup) {
-  console.log("No popup hold...");
-} else if (!plCloseBtn) {
-  console.log("No popup close");
-}
 
 //
 //
-// PRICE LIST END
+// ORDER PAGE END
 //
 //
 
@@ -120,37 +110,50 @@ if (plOpenBtn && plPopup && plCloseBtn) {
 //
 //
 
-const suppOpenBtn = document.getElementById("sup_Block");
-const suppPopup = document.getElementById("supp_popup_Hold");
-const suppCloseBtn = document.getElementById("close_supp");
+const supOpenBtn = document.getElementById("sup_Block");
+const supPopup = document.getElementById("sup_popup_Hold");
+const supCloseBtn = document.getElementById("close_sup");
 
-if (suppOpenBtn && suppPopup && suppCloseBtn) {
+if (supOpenBtn && supPopup && supCloseBtn) {
   // Open Popup
-  suppOpenBtn.addEventListener("click", function () {
-    suppPopup.style.display = "flex";
+  supOpenBtn.addEventListener("click", function () {
+    supPopup.style.display = "flex";
   });
 
   // Close Popup
-  suppCloseBtn.addEventListener("click", function () {
-    suppPopup.style.display = "none";
+  supCloseBtn.addEventListener("click", function () {
+    supPopup.style.display = "none";
   });
 
   // Close Popup (click outside)
-  suppPopup.addEventListener("click", function (event) {
-    if (event.target === suppPopup) {
-      suppPopup.style.display = "none";
+  supPopup.addEventListener("click", function (event) {
+    if (event.target === supPopup) {
+      supPopup.style.display = "none";
     }
   });
-} else if (!suppOpenBtn) {
+} else if (!supOpenBtn) {
   console.log("No open Button");
-} else if (!suppPopup) {
+} else if (!supPopup) {
   console.log("No popup hold...");
-} else if (!suppCloseBtn) {
+} else if (!supCloseBtn) {
   console.log("No popup close");
 }
 
 //
 //
 // SUPPLIERS PRICE LIST END
+//
+//
+
+//
+//
+// SUPPLIERS ADD MODAL START
+//
+//
+// Get the modal
+
+//
+//
+// SUPPLIERS ADD MODAL END
 //
 //

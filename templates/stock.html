@@ -3,57 +3,60 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Stock Management | Stanway</title>
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
       href="https://fonts.googleapis.com/css2?family=Gelasio:ital,wght@0,400..700;1,400..700&display=swap"
       rel="stylesheet" />
-    <!-- insert here -->
-    <link rel="stylesheet" href="../css/style.css" />
+    <link rel="stylesheet" href="../static/css/stock_style.css" />
   </head>
 
   <body>
-    <!--NAV BAR START-->
+    <!-- NAV BAR START -->
     <nav class="navbar">
       <div class="logobox">
         <div class="logo">
-          <img src="../images/Stanway-Logo-picture.png" class="logoimg" />
+          <img
+            src="../static/images/Stanway-Logo-picture.png"
+            alt="Stanway Logo"
+            class="logoimg" />
         </div>
         <i class="fa-solid fa-grip-lines"></i>
       </div>
       <ul class="navlist">
         <li class="pagenames">
-          <a href="index.html" class="noto-sans-display-page"
-            ><div>
+          <a href="index.html" class="noto-sans-display-page">
+            <div>
               <i class="fa-solid fa-chart-line"></i>
               Overview
-            </div></a
-          >
+            </div>
+          </a>
         </li>
         <li class="pagenames active">
-          <a href="stock.html" class="noto-sans-display-page page_active"
-            ><div>
+          <a href="stock.html" class="noto-sans-display-page page_active">
+            <div>
               <i class="fa-solid fa-boxes-packing"></i>
               Stock
-            </div></a
-          >
+            </div>
+          </a>
         </li>
         <li class="pagenames">
-          <a href="pricelists.html" class="noto-sans-display-page"
-            ><div>
+          <a href="order.html" class="noto-sans-display-page">
+            <div>
               <i class="fa-solid fa-hand-holding-dollar"></i>
-              Pricelist
-            </div></a
-          >
+              Orders
+            </div>
+          </a>
         </li>
         <li class="pagenames">
-          <a href="suppliers.html" class="noto-sans-display-page"
-            ><div>
+          <a href="suppliers.html" class="noto-sans-display-page">
+            <div>
               <i class="fa-solid fa-truck-field"></i>
               Suppliers
-            </div></a
-          >
+            </div>
+          </a>
         </li>
       </ul>
       <div class="accountbox">
@@ -61,12 +64,16 @@
         <h3 class="noto-sans-display-h1">Account</h3>
       </div>
     </nav>
-
     <!-- NAV BAR END -->
 
     <!-- STOCK BLOCKS START -->
     <div class="stockblocks">
+      <div class="salesOrderBtn" id="salesOrderBtn">
+        <i data-lucide="circle-plus"></i>
+        <p>New Sales Order</p>
+      </div>
       <div class="stockBtns">
+        <!-- Add Item Button -->
         <button id="stockButton1" class="stockbutton1">
           <div class="new_item_icon">
             <i data-lucide="circle-plus"></i>
@@ -74,31 +81,8 @@
           <div class="new_item_text">New Item</div>
         </button>
 
-        <!-- Modal start -->
-        <div id="myModal" class="modal">
-          <!-- Modal content -->
-          <div class="modal-content">
-            <span class="close" id="close_stock_popup">
-              <i data-lucide="circle-x"></i>
-            </span>
-            <div class="popup_name">
-              <p class="popup_title">Add New Product</p>
-            </div>
-            <p class="block_title">Item Name</p>
-            <input class="addProd" type="text" placeholder="Product name..." />
-            <h3 class="block_title">Supplier Name</h3>
-            <input class="addSupp" type="text" placeholder="Supplier name..." />
-            <p class="block_title">Units in Stock</p>
-            <input
-              class="addUnits"
-              type="text"
-              placeholder="Units in Stock..." />
-            <span class="submit_popup">Submit</span>
-          </div>
-        </div>
-        <!-- Modal end -->
-
-        <button id="stockButton2" class="stockbutton2">
+        <!-- Delete Item Button -->
+        <button type="button" id="stockButton2" class="stockbutton2">
           <div class="delete_item_icon">
             <i data-lucide="circle-x"></i>
           </div>
@@ -106,491 +90,1111 @@
         </button>
       </div>
 
-      <div class="blocksuppliersmain">
-        <div class="supp_list_item">
-          <div class="supplier_item">
-            <div class="list_item_left">
-              <div class="list_item_icon">
-                <i data-lucide="users-round"></i>
-              </div>
-              <p class="list_item_title">Supplier name</p>
-            </div>
-            <button
-              class="list_item_button"
-              id="toggle_list_view_btn"
-              onclick="toggleListView()">
-              <i data-lucide="chevron-up" class="open_list"></i>
-              <i data-lucide="chevron-down" class="close_list"></i>
-            </button>
+      <!-- SALES ORDER POPUP START -->
+      <div class="sales_background" id="sales_background">
+        <div class="sales_content">
+          <div class="sales_heading">
+            <h1>New Sales Order</h1>
           </div>
-          <div class="supplier_item_expanded_content">
-            <div class="expanded_searchbutt">
-              <input class="searchbar" type="text" placeholder="Search..." />
-              <div class="others">
-                <button class="filterbutt">
-                  <i data-lucide="funnel"></i>
-                </button>
-                <button class="clearbutt">
-                  <i data-lucide="funnel-x"></i>
-                </button>
-              </div>
-            </div>
-            <div class="expanded_description">
-              <div class="info">
-                <p>Units</p>
-                <p>Product</p>
-                <p>Sold this month</p>
-              </div>
-              <button class="editbutt">
-                <i data-lucide="pencil"></i>
-              </button>
-            </div>
-            <div class="expanded_values">
-              <p class="text">###</p>
-              <p class="text t2">Product name</p>
-              <p class="text t1">###</p>
-            </div>
-            <div class="expanded_values">
-              <p class="text">###</p>
-              <p class="text t2">Product name</p>
-              <p class="text t1">###</p>
-            </div>
-            <div class="expanded_values">
-              <p class="text">###</p>
-              <p class="text t2">Product name</p>
-              <p class="text t1">###</p>
+          <div class="scroll_sales" id="scroll_sales">
+            <div class="prodd_unitt" id="prodd_unitt">
+              <select
+                name="Product"
+                id="prodd"
+                class="prodd"
+                placeholder="Product...">
+                <option value="" disabled selected hidden>
+                  Select a Product...
+                </option>
+              </select>
+              <input
+                type="number"
+                min="1"
+                step="1"
+                class="unitt"
+                placeholder="Units" />
             </div>
           </div>
-        </div>
 
-        <div class="supp_list_item">
-          <div class="supplier_item">
-            <div class="list_item_left">
-              <div class="list_item_icon">
-                <i data-lucide="users-round"></i>
-              </div>
-              <p class="list_item_title">Supplier name</p>
-            </div>
-            <button
-              class="list_item_button"
-              id="toggle_list_view_btn"
-              onclick="toggleListView()">
-              <i data-lucide="chevron-up" class="open_list"></i>
-              <i data-lucide="chevron-down" class="close_list"></i>
-            </button>
-          </div>
-          <div class="supplier_item_expanded_content">
-            <div class="expanded_searchbutt">
-              <input class="searchbar" type="text" placeholder="Search..." />
-              <div class="others">
-                <button class="filterbutt">
-                  <i data-lucide="funnel"></i>
-                </button>
-                <button class="clearbutt">
-                  <i data-lucide="funnel-x"></i>
-                </button>
-              </div>
-            </div>
-            <div class="expanded_description">
-              <div class="info">
-                <p>Units</p>
-                <p>Product</p>
-                <p>Sold this month</p>
-              </div>
-              <button class="editbutt">
-                <i data-lucide="pencil"></i>
-              </button>
-            </div>
-            <div class="expanded_values">
-              <p class="text">###</p>
-              <p class="text t2">Product name</p>
-              <p class="text t1">###</p>
-            </div>
-            <div class="expanded_values">
-              <p class="text">###</p>
-              <p class="text t2">Product name</p>
-              <p class="text t1">###</p>
-            </div>
-            <div class="expanded_values">
-              <p class="text">###</p>
-              <p class="text t2">Product name</p>
-              <p class="text t1">###</p>
-            </div>
-          </div>
-        </div>
+          <p
+            class="popup-status text"
+            id="salesOrderStatus"
+            style="display: none"></p>
 
-        <div class="supp_list_item">
-          <div class="supplier_item">
-            <div class="list_item_left">
-              <div class="list_item_icon">
-                <i data-lucide="users-round"></i>
-              </div>
-              <p class="list_item_title">Supplier name</p>
-            </div>
-            <button
-              class="list_item_button"
-              id="toggle_list_view_btn"
-              onclick="toggleListView()">
-              <i data-lucide="chevron-up" class="open_list"></i>
-              <i data-lucide="chevron-down" class="close_list"></i>
+          <div class="confirmAndcancel">
+            <button class="add_prod" id="add_product" type="button">
+              <i data-lucide="circle-plus"></i>
+              <p>Add Product</p>
             </button>
-          </div>
-          <div class="supplier_item_expanded_content">
-            <div class="expanded_searchbutt">
-              <input class="searchbar" type="text" placeholder="Search..." />
-              <div class="others">
-                <button class="filterbutt">
-                  <i data-lucide="funnel"></i>
-                </button>
-                <button class="clearbutt">
-                  <i data-lucide="funnel-x"></i>
-                </button>
-              </div>
+            <div class="conff" id="conff">
+              <p>Confirm</p>
             </div>
-            <div class="expanded_description">
-              <div class="info">
-                <p>Units</p>
-                <p>Product</p>
-                <p>Sold this month</p>
-              </div>
-              <button class="editbutt">
-                <i data-lucide="pencil"></i>
-              </button>
-            </div>
-            <div class="expanded_values">
-              <p class="text">###</p>
-              <p class="text t2">Product name</p>
-              <p class="text t1">###</p>
-            </div>
-            <div class="expanded_values">
-              <p class="text">###</p>
-              <p class="text t2">Product name</p>
-              <p class="text t1">###</p>
-            </div>
-            <div class="expanded_values">
-              <p class="text">###</p>
-              <p class="text t2">Product name</p>
-              <p class="text t1">###</p>
-            </div>
-          </div>
-        </div>
-
-        <div class="supp_list_item">
-          <div class="supplier_item">
-            <div class="list_item_left">
-              <div class="list_item_icon">
-                <i data-lucide="users-round"></i>
-              </div>
-              <p class="list_item_title">Supplier name</p>
-            </div>
-            <button
-              class="list_item_button"
-              id="toggle_list_view_btn"
-              onclick="toggleListView()">
-              <i data-lucide="chevron-up" class="open_list"></i>
-              <i data-lucide="chevron-down" class="close_list"></i>
-            </button>
-          </div>
-          <div class="supplier_item_expanded_content">
-            <div class="expanded_searchbutt">
-              <input class="searchbar" type="text" placeholder="Search..." />
-              <div class="others">
-                <button class="filterbutt">
-                  <i data-lucide="funnel"></i>
-                </button>
-                <button class="clearbutt">
-                  <i data-lucide="funnel-x"></i>
-                </button>
-              </div>
-            </div>
-            <div class="expanded_description">
-              <div class="info">
-                <p>Units</p>
-                <p>Product</p>
-                <p>Sold this month</p>
-              </div>
-              <button class="editbutt">
-                <i data-lucide="pencil"></i>
-              </button>
-            </div>
-            <div class="expanded_values">
-              <p class="text">###</p>
-              <p class="text t2">Product name</p>
-              <p class="text t1">###</p>
-            </div>
-            <div class="expanded_values">
-              <p class="text">###</p>
-              <p class="text t2">Product name</p>
-              <p class="text t1">###</p>
-            </div>
-            <div class="expanded_values">
-              <p class="text">###</p>
-              <p class="text t2">Product name</p>
-              <p class="text t1">###</p>
-            </div>
-          </div>
-        </div>
-
-        <div class="supp_list_item">
-          <div class="supplier_item">
-            <div class="list_item_left">
-              <div class="list_item_icon">
-                <i data-lucide="users-round"></i>
-              </div>
-              <p class="list_item_title">Supplier name</p>
-            </div>
-            <button
-              class="list_item_button"
-              id="toggle_list_view_btn"
-              onclick="toggleListView()">
-              <i data-lucide="chevron-up" class="open_list"></i>
-              <i data-lucide="chevron-down" class="close_list"></i>
-            </button>
-          </div>
-          <div class="supplier_item_expanded_content">
-            <div class="expanded_searchbutt">
-              <input class="searchbar" type="text" placeholder="Search..." />
-              <div class="others">
-                <button class="filterbutt">
-                  <i data-lucide="funnel"></i>
-                </button>
-                <button class="clearbutt">
-                  <i data-lucide="funnel-x"></i>
-                </button>
-              </div>
-            </div>
-            <div class="expanded_description">
-              <div class="info">
-                <p>Units</p>
-                <p>Product</p>
-                <p>Sold this month</p>
-              </div>
-              <button class="editbutt">
-                <i data-lucide="pencil"></i>
-              </button>
-            </div>
-            <div class="expanded_values">
-              <p class="text">###</p>
-              <p class="text t2">Product name</p>
-              <p class="text t1">###</p>
-            </div>
-            <div class="expanded_values">
-              <p class="text">###</p>
-              <p class="text t2">Product name</p>
-              <p class="text t1">###</p>
-            </div>
-            <div class="expanded_values">
-              <p class="text">###</p>
-              <p class="text t2">Product name</p>
-              <p class="text t1">###</p>
-            </div>
-          </div>
-        </div>
-
-        <div class="supp_list_item">
-          <div class="supplier_item">
-            <div class="list_item_left">
-              <div class="list_item_icon">
-                <i data-lucide="users-round"></i>
-              </div>
-              <p class="list_item_title">Supplier name</p>
-            </div>
-            <button
-              class="list_item_button"
-              id="toggle_list_view_btn"
-              onclick="toggleListView()">
-              <i data-lucide="chevron-up" class="open_list"></i>
-              <i data-lucide="chevron-down" class="close_list"></i>
-            </button>
-          </div>
-          <div class="supplier_item_expanded_content">
-            <div class="expanded_searchbutt">
-              <input class="searchbar" type="text" placeholder="Search..." />
-              <div class="others">
-                <button class="filterbutt">
-                  <i data-lucide="funnel"></i>
-                </button>
-                <button class="clearbutt">
-                  <i data-lucide="funnel-x"></i>
-                </button>
-              </div>
-            </div>
-            <div class="expanded_description">
-              <div class="info">
-                <p>Units</p>
-                <p>Product</p>
-                <p>Sold this month</p>
-              </div>
-              <button class="editbutt">
-                <i data-lucide="pencil"></i>
-              </button>
-            </div>
-            <div class="expanded_values">
-              <p class="text">###</p>
-              <p class="text t2">Product name</p>
-              <p class="text t1">###</p>
-            </div>
-            <div class="expanded_values">
-              <p class="text">###</p>
-              <p class="text t2">Product name</p>
-              <p class="text t1">###</p>
-            </div>
-            <div class="expanded_values">
-              <p class="text">###</p>
-              <p class="text t2">Product name</p>
-              <p class="text t1">###</p>
-            </div>
-          </div>
-        </div>
-
-        <div class="supp_list_item">
-          <div class="supplier_item">
-            <div class="list_item_left">
-              <div class="list_item_icon">
-                <i data-lucide="users-round"></i>
-              </div>
-              <p class="list_item_title">Supplier name</p>
-            </div>
-            <button
-              class="list_item_button"
-              id="toggle_list_view_btn"
-              onclick="toggleListView()">
-              <i data-lucide="chevron-up" class="open_list"></i>
-              <i data-lucide="chevron-down" class="close_list"></i>
-            </button>
-          </div>
-          <div class="supplier_item_expanded_content">
-            <div class="expanded_searchbutt">
-              <input class="searchbar" type="text" placeholder="Search..." />
-              <div class="others">
-                <button class="filterbutt">
-                  <i data-lucide="funnel"></i>
-                </button>
-                <button class="clearbutt">
-                  <i data-lucide="funnel-x"></i>
-                </button>
-              </div>
-            </div>
-            <div class="expanded_description">
-              <div class="info">
-                <p>Units</p>
-                <p>Product</p>
-                <p>Sold this month</p>
-              </div>
-              <button class="editbutt">
-                <i data-lucide="pencil"></i>
-              </button>
-            </div>
-            <div class="expanded_values">
-              <p class="text">###</p>
-              <p class="text t2">Product name</p>
-              <p class="text t1">###</p>
-            </div>
-            <div class="expanded_values">
-              <p class="text">###</p>
-              <p class="text t2">Product name</p>
-              <p class="text t1">###</p>
-            </div>
-            <div class="expanded_values">
-              <p class="text">###</p>
-              <p class="text t2">Product name</p>
-              <p class="text t1">###</p>
-            </div>
-          </div>
-        </div>
-
-        <div class="supp_list_item">
-          <div class="supplier_item">
-            <div class="list_item_left">
-              <div class="list_item_icon">
-                <i data-lucide="users-round"></i>
-              </div>
-              <p class="list_item_title">Supplier name</p>
-            </div>
-            <button
-              class="list_item_button"
-              id="toggle_list_view_btn"
-              onclick="toggleListView()">
-              <i data-lucide="chevron-up" class="open_list"></i>
-              <i data-lucide="chevron-down" class="close_list"></i>
-            </button>
-          </div>
-          <div class="supplier_item_expanded_content">
-            <div class="expanded_searchbutt">
-              <input class="searchbar" type="text" placeholder="Search..." />
-              <div class="others">
-                <button class="filterbutt">
-                  <i data-lucide="funnel"></i>
-                </button>
-                <button class="clearbutt">
-                  <i data-lucide="funnel-x"></i>
-                </button>
-              </div>
-            </div>
-            <div class="expanded_description">
-              <div class="info">
-                <p>Units</p>
-                <p>Product</p>
-                <p>Sold this month</p>
-              </div>
-              <button class="editbutt">
-                <i data-lucide="pencil"></i>
-              </button>
-            </div>
-            <div class="expanded_values">
-              <p class="text">###</p>
-              <p class="text t2">Product name</p>
-              <p class="text t1">###</p>
-            </div>
-            <div class="expanded_values">
-              <p class="text">###</p>
-              <p class="text t2">Product name</p>
-              <p class="text t1">###</p>
-            </div>
-            <div class="expanded_values">
-              <p class="text">###</p>
-              <p class="text t2">Product name</p>
-              <p class="text t1">###</p>
+            <div class="cancc" id="cancc">
+              <p>Cancel</p>
             </div>
           </div>
         </div>
       </div>
 
+      <!-- SALES ORDER POPUP END -->
+
+      <!-- SALES ORDER CONFIRM POPUP -->
+      <div class="update_conf_background">
+        <div class="update_conf_popup" id="update_conf_popup">
+          <div class="top_update">
+            <i class="x_conf" id="x_conf" data-lucide="circle-x"></i>
+          </div>
+
+          <div class="update_conf_heading">
+            <h1>Sales order Created</h1>
+          </div>
+          <div class="update_conf_text">
+            <p>Your sales order has been created succesfully!</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Add Product Modal -->
+      <div
+        id="addProductModal"
+        class="modal"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="addModalTitle">
+        <div class="modal-content">
+          <span
+            class="close"
+            id="close_stock_popup"
+            role="button"
+            tabindex="0"
+            aria-label="Close modal">
+            <i data-lucide="circle-x"></i>
+          </span>
+          <div class="popup_name">
+            <h1>Add New Product</h1>
+          </div>
+
+          <form id="addProductForm" novalidate>
+            <input
+              id="addProdName"
+              class="addProd"
+              type="text"
+              placeholder="Product name..."
+              required />
+
+            <select id="addSuppSelect" class="addSupp" required>
+              <option value="">Select a supplier...</option>
+            </select>
+
+            <input
+              id="addProdUnits"
+              class="addUnits"
+              type="number"
+              min="0"
+              step="1"
+              placeholder="Units in Stock..."
+              required />
+
+            <input
+              id="addProdPrice"
+              class="addUnits"
+              type="number"
+              min="0"
+              step="0.01"
+              placeholder="Unit Price" />
+
+            <input
+              id="addProdSupplierPrice"
+              class="addUnits"
+              type="number"
+              min="0"
+              step="0.01"
+              placeholder="Supplier Price" />
+
+            <input
+              id="addProdUnitsPerPkg"
+              class="addUnits"
+              type="number"
+              min="1"
+              step="1"
+              placeholder="Units per Package" />
+
+            <input
+              id="addProdHoldingCost"
+              class="addUnits"
+              type="number"
+              min="0"
+              step="0.01"
+              placeholder="Holding Cost" />
+
+            <input
+              id="addProdLocation"
+              class="addProd"
+              type="text"
+              placeholder="Storage Location..." />
+
+            <p class="popup-status text" style="display: none"></p>
+            <button type="submit" class="submit_popup">Submit</button>
+          </form>
+        </div>
+      </div>
+
+      <!-- Edit stock popup start -->
+      <div class="edit_background" id="edit_background">
+        <div class="edit_content">
+          <div class="edit_heading">
+            <h1>Edit Product</h1>
+          </div>
+          <div class="edit_content">
+            <select class="sel_product"></select>
+            <input />
+            <input />
+            <input />
+          </div>
+
+          <div class="confirmAndcancel">
+            <div class="conff">
+              <p>Confirm</p>
+            </div>
+            <div class="cancc">
+              <p>Cancel</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Edit stock popup end -->
+
+      <!-- Delete Product Modal -->
+      <div
+        id="deleteProductModal"
+        class="modal"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="deleteModalTitle">
+        <div class="modal-content">
+          <span
+            class="close"
+            id="close_delete_popup"
+            role="button"
+            tabindex="0"
+            aria-label="Close modal">
+            <i data-lucide="circle-x"></i>
+          </span>
+          <div class="popup_name">
+            <h1 id="deleteModalTitle" class="popup_title">Delete Product</h1>
+          </div>
+
+          <form id="deleteProductForm" novalidate>
+            <h3>Select Product To remove</h3>
+            <select id="deleteProdSelect" class="addSupp" required>
+              <option value="">Loading products...</option>
+            </select>
+
+            <p class="popup-status text" style="display: none"></p>
+            <button
+              type="submit"
+              class="submit_popup"
+              style="background-color: #c0392b">
+              Delete Product
+            </button>
+          </form>
+        </div>
+      </div>
+
+      <!-- Main Suppliers List -->
+      <div class="blocksuppliersmain">
+        <div id="suppliers_list">
+          <p class="text">Loading suppliers...</p>
+        </div>
+      </div>
+
+      <!-- Low Stock Panel -->
       <div class="blocklowstock">
         <div class="headingblockstock">
           <p>Low Stock Items</p>
         </div>
-        <div class="contentblockstock">
-          <div class="lowstockitem">
-            <p class="text">Product name</p>
-            <p class="text">###</p>
-          </div>
-          <div class="lowstockitem">
-            <p class="text">Product name</p>
-            <p class="text">###</p>
-          </div>
-          <div class="lowstockitem">
-            <p class="text">Product name</p>
-            <p class="text">###</p>
-          </div>
-          <div class="lowstockitem">
-            <p class="text">Product name</p>
-            <p class="text">###</p>
-          </div>
+        <div id="low_stock_list" class="contentblockstock">
+          <p class="text1">Checking stock levels...</p>
         </div>
       </div>
     </div>
-
     <!-- STOCK BLOCKS END -->
 
-    <!-- Script for icons-->
+    <!-- Icon & Base Scripts -->
     <script
       src="https://kit.fontawesome.com/3000704a08.js"
       crossorigin="anonymous"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
-    <script>
-      lucide.createIcons();
-    </script>
     <script src="../templates/script.js"></script>
+
+    <!-- API Integration -->
+    <script>
+      // Store card controllers by supplierId so we can refresh them dynamically
+      const supplierCardControllers = new Map();
+      let cachedAllProducts = [];
+
+      function refreshIcons() {
+        if (window.lucide && typeof window.lucide.createIcons === "function") {
+          window.lucide.createIcons();
+        }
+      }
+
+      function escapeHtml(value) {
+        return String(value ?? "")
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;")
+          .replace(/'/g, "&#39;");
+      }
+
+      function refreshAllSupplierCards() {
+        supplierCardControllers.forEach((ctrl) => ctrl.refreshIfOpen());
+        supplierCardControllers.forEach((ctrl) => {
+          ctrl.markStale?.();
+        });
+      }
+
+      document.addEventListener("DOMContentLoaded", () => {
+        refreshIcons();
+        loadSuppliers();
+        loadLowStockProducts();
+        initAddProductModal();
+        initDeleteProductModal();
+        initSalesOrderPopup();
+
+        // Allow Escape key to close any open modal
+        document.addEventListener("keydown", (event) => {
+          if (event.key === "Escape") {
+            document.querySelectorAll(".modal").forEach((modal) => {
+              modal.style.display = "none";
+            });
+          }
+        });
+      });
+
+      /* ---------------- ADD PRODUCT MODAL ---------------- */
+      function initAddProductModal() {
+        const modal = document.getElementById("addProductModal");
+        const openBtn = document.getElementById("stockButton1");
+        const closeBtn = document.getElementById("close_stock_popup");
+        const form = document.getElementById("addProductForm");
+
+        if (!modal || !openBtn || !closeBtn || !form) return;
+
+        const prodInput = document.getElementById("addProdName");
+        const suppSelect = document.getElementById("addSuppSelect");
+        const unitsInput = document.getElementById("addProdUnits");
+        const priceInput = document.getElementById("addProdPrice");
+        const supplierPriceInput = document.getElementById(
+          "addProdSupplierPrice",
+        );
+        const unitsPerPkgInput = document.getElementById("addProdUnitsPerPkg");
+        const holdingCostInput = document.getElementById("addProdHoldingCost");
+        const locationInput = document.getElementById("addProdLocation");
+        const submitBtn = form.querySelector(".submit_popup");
+        const statusEl = modal.querySelector(".popup-status");
+
+        let suppliersLoaded = false;
+
+        function setStatus(message, isError = false) {
+          statusEl.style.display = message ? "block" : "none";
+          statusEl.textContent = message;
+          statusEl.style.color = isError ? "#c0392b" : "#27ae60";
+        }
+
+        function resetForm() {
+          form.reset();
+          setStatus("");
+        }
+
+        function closeModal() {
+          modal.style.display = "none";
+          setStatus("");
+        }
+
+        async function populateSuppliers(forceReload = false) {
+          if (suppliersLoaded && !forceReload) return;
+
+          suppSelect.innerHTML = `<option value="">Loading suppliers...</option>`;
+          suppSelect.disabled = true;
+
+          try {
+            const response = await fetch("/api/suppliers");
+            if (!response.ok) throw new Error(`HTTP ${response.status}`);
+
+            const payload = await response.json();
+            const suppliers = Array.isArray(payload)
+              ? payload
+              : payload.data || [];
+
+            suppSelect.innerHTML = `<option value="">Select a supplier...</option>`;
+            suppliers.forEach((supplier) => {
+              const option = document.createElement("option");
+              option.value = supplier.id ?? supplier.supplier_id ?? "";
+              option.textContent =
+                supplier.name ?? supplier.supplier_name ?? "Unnamed Supplier";
+              suppSelect.appendChild(option);
+            });
+
+            suppliersLoaded = true;
+          } catch (error) {
+            console.error("Failed to load suppliers for modal:", error);
+            suppSelect.innerHTML = `<option value="">Failed to load suppliers</option>`;
+            setStatus("Could not load suppliers list.", true);
+          } finally {
+            suppSelect.disabled = false;
+          }
+        }
+
+        openBtn.addEventListener("click", () => {
+          resetForm();
+          modal.style.display = "block";
+          populateSuppliers();
+          prodInput.focus();
+        });
+
+        closeBtn.addEventListener("click", closeModal);
+        modal.addEventListener("click", (e) => {
+          if (e.target === modal) closeModal();
+        });
+
+        form.addEventListener("submit", async (e) => {
+          e.preventDefault();
+
+          const name = prodInput.value.trim();
+          const supplierId = suppSelect.value;
+          const units = Number(unitsInput.value);
+          const price = Number(priceInput.value || 0);
+          const supplierPrice = Number(supplierPriceInput.value || 0);
+          const unitsPerPackage =
+            unitsPerPkgInput.value === "" ? 1 : Number(unitsPerPkgInput.value);
+          const holdingCost = Number(holdingCostInput.value || 0);
+          const storageLocation = locationInput.value.trim();
+
+          if (!name) return setStatus("Please enter a product name.", true);
+          if (!supplierId) return setStatus("Please select a supplier.", true);
+          if (unitsInput.value === "" || Number.isNaN(units) || units < 0) {
+            return setStatus("Please enter a valid number of units.", true);
+          }
+          if (
+            Number.isNaN(price) ||
+            price < 0 ||
+            Number.isNaN(supplierPrice) ||
+            supplierPrice < 0 ||
+            Number.isNaN(holdingCost) ||
+            holdingCost < 0
+          ) {
+            return setStatus(
+              "Price, supplier price, and holding cost must be 0 or greater.",
+              true,
+            );
+          }
+          if (Number.isNaN(unitsPerPackage) || unitsPerPackage < 1) {
+            return setStatus("Units per package must be 1 or greater.", true);
+          }
+
+          submitBtn.disabled = true;
+          setStatus("Saving product...", false);
+
+          try {
+            const normalizedSupplierId = Number.isNaN(Number(supplierId))
+              ? supplierId
+              : Number(supplierId);
+            const body = {
+              name,
+              supplier_id: normalizedSupplierId,
+              year_starting_inventory: Math.trunc(units),
+              price,
+              supplier_price: supplierPrice,
+              units_per_package: Math.trunc(unitsPerPackage),
+              holding_cost: holdingCost,
+              storage_location: storageLocation,
+            };
+
+            const response = await fetch("/api/products", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(body),
+            });
+
+            const result = await response.json();
+            if (!response.ok || !result.success) {
+              throw new Error(result.error || `HTTP ${response.status}`);
+            }
+
+            setStatus("Product added successfully!", false);
+
+            // Refresh low stock list and the affected supplier's product list
+            loadLowStockProducts();
+            const controller = supplierCardControllers.get(
+              String(normalizedSupplierId),
+            );
+            if (controller) {
+              controller.refresh();
+            }
+
+            setTimeout(closeModal, 600);
+          } catch (error) {
+            console.error("Error creating product:", error);
+            setStatus(error.message || "Failed to add product.", true);
+          } finally {
+            submitBtn.disabled = false;
+          }
+        });
+      }
+
+      /* ---------------- DELETE PRODUCT MODAL ---------------- */
+      function initDeleteProductModal() {
+        const modal = document.getElementById("deleteProductModal");
+        const openBtn = document.getElementById("stockButton2");
+        const closeBtn = document.getElementById("close_delete_popup");
+        const form = document.getElementById("deleteProductForm");
+
+        if (!modal || !openBtn || !closeBtn || !form) return;
+
+        const prodSelect = document.getElementById("deleteProdSelect");
+        const submitBtn = form.querySelector(".submit_popup");
+        const statusEl = modal.querySelector(".popup-status");
+
+        function setStatus(message, isError = false) {
+          statusEl.style.display = message ? "block" : "none";
+          statusEl.textContent = message;
+          statusEl.style.color = isError ? "#c0392b" : "#27ae60";
+        }
+
+        function closeModal() {
+          modal.style.display = "none";
+          setStatus("");
+        }
+
+        async function populateProducts() {
+          prodSelect.innerHTML = `<option value="">Loading products...</option>`;
+          prodSelect.disabled = true;
+
+          try {
+            const response = await fetch("/api/products");
+            if (!response.ok) throw new Error(`HTTP ${response.status}`);
+
+            const payload = await response.json();
+            const products = Array.isArray(payload)
+              ? payload
+              : payload.data || [];
+
+            prodSelect.innerHTML = `<option value="">Select a product...</option>`;
+            products.forEach((product) => {
+              const option = document.createElement("option");
+              option.value = product.id;
+              option.dataset.supplierId = product.supplier_id ?? "";
+              option.textContent = `${product.name} (${product.current_inventory ?? 0} in stock)`;
+              prodSelect.appendChild(option);
+            });
+          } catch (error) {
+            console.error("Failed to load products for deletion:", error);
+            prodSelect.innerHTML = `<option value="">Failed to load products</option>`;
+            setStatus("Could not load products.", true);
+          } finally {
+            prodSelect.disabled = false;
+          }
+        }
+
+        openBtn.addEventListener("click", () => {
+          setStatus("");
+          modal.style.display = "block";
+          populateProducts();
+        });
+
+        closeBtn.addEventListener("click", closeModal);
+        modal.addEventListener("click", (e) => {
+          if (e.target === modal) closeModal();
+        });
+
+        form.addEventListener("submit", async (e) => {
+          e.preventDefault();
+          const productId = prodSelect.value;
+          const selectedOption = prodSelect.options[prodSelect.selectedIndex];
+          const supplierId = selectedOption?.dataset.supplierId;
+
+          if (!productId)
+            return setStatus("Please select a product to delete.", true);
+
+          submitBtn.disabled = true;
+          setStatus("Deleting product...", false);
+
+          try {
+            const response = await fetch(
+              `/api/products/${encodeURIComponent(productId)}`,
+              {
+                method: "DELETE",
+              },
+            );
+
+            const result = await response.json().catch(() => ({}));
+            if (!response.ok || result.success === false) {
+              throw new Error(result.error || `HTTP ${response.status}`);
+            }
+
+            setStatus("Product deleted.", false);
+            loadLowStockProducts();
+
+            if (supplierId && supplierCardControllers.has(String(supplierId))) {
+              supplierCardControllers.get(String(supplierId)).refresh();
+            } else {
+              // Refresh any open supplier cards if supplierId wasn't returned on /api/products
+              supplierCardControllers.forEach((ctrl) => ctrl.refreshIfOpen());
+            }
+
+            setTimeout(closeModal, 600);
+          } catch (error) {
+            console.error("Error deleting product:", error);
+            setStatus(error.message || "Failed to delete product.", true);
+          } finally {
+            submitBtn.disabled = false;
+          }
+        });
+      }
+
+      /* ---------------- SUPPLIERS & PRODUCTS ---------------- */
+      async function loadSuppliers() {
+        const container = document.getElementById("suppliers_list");
+        if (!container) return;
+
+        container.innerHTML = `<p class="text">Loading suppliers...</p>`;
+        supplierCardControllers.clear();
+
+        try {
+          const response = await fetch("/api/suppliers");
+          if (!response.ok) throw new Error(`HTTP ${response.status}`);
+
+          const payload = await response.json();
+          const suppliers = Array.isArray(payload)
+            ? payload
+            : payload.data || [];
+
+          if (suppliers.length === 0) {
+            container.innerHTML = `<p class="text">No suppliers found.</p>`;
+            return;
+          }
+
+          container.innerHTML = "";
+          suppliers.forEach((supplier) => {
+            const card = createSupplierCard(supplier);
+            container.appendChild(card);
+          });
+
+          refreshIcons();
+        } catch (error) {
+          console.error("Error fetching suppliers:", error);
+          container.innerHTML = `<p class="text">Failed to load suppliers.</p>`;
+        }
+      }
+
+      function createSupplierCard(supplier) {
+        const supplierId = supplier.id ?? supplier.supplier_id;
+        const supplierName =
+          supplier.name ?? supplier.supplier_name ?? "Unnamed Supplier";
+
+        const itemEl = document.createElement("div");
+        itemEl.className = "supp_list_item";
+        itemEl.dataset.supplierId = supplierId;
+
+        itemEl.innerHTML = `
+          <div class="supplier_item">
+            <div class="list_item_left">
+              <div class="list_item_icon">
+                <i data-lucide="users-round"></i>
+              </div>
+              <p class="list_item_title"></p>
+            </div>
+            <button type="button" class="list_item_button" aria-expanded="false" aria-label="Toggle supplier products">
+              <i data-lucide="chevron-up" class="open_list"></i>
+              <i data-lucide="chevron-down" class="close_list"></i>
+            </button>
+          </div>
+          <div class="supplier_item_expanded_content hidden">
+            <div class="expanded_searchbutt">
+              <input class="searchbar" type="text" placeholder="Search products..." />
+              <div class="others">
+                
+                <button type="button" class="clearbutt" aria-label="Clear search">
+                  <i data-lucide="funnel-x"></i>
+                </button>
+              </div>
+            </div>
+            <div class="expanded_description">
+              <div class="info">
+                <div class="units">
+                <p>Units</p>
+                </div>
+                <div class="sold">
+                <p>Sold this month</p>
+                </div>
+                <div class="products">
+                <p>Product</p>
+                </div>
+                
+                <div class="warning">
+                  <p>Warning</p>
+                </div>
+                <div class="location">
+                  <p>Location</p>
+                </div>
+              </div>
+              <button class="editbutt" id="editbutt">
+                <i data-lucide="pencil"></i>
+              </button>
+            </div>
+            <div class="expanded_values product-list">
+              <div class="text product-loading-status">Fetching data ...</div>
+            </div>
+          </div>
+        `;
+
+        itemEl.querySelector(".list_item_title").textContent = supplierName;
+
+        const toggleBtn = itemEl.querySelector(".list_item_button");
+        const expandedContent = itemEl.querySelector(
+          ".supplier_item_expanded_content",
+        );
+        const openListIcon = itemEl.querySelector(".open_list");
+        const closeListIcon = itemEl.querySelector(".close_list");
+        const searchInput = itemEl.querySelector(".searchbar");
+        const filterBtn = itemEl.querySelector(".filterbutt");
+        const clearBtn = itemEl.querySelector(".clearbutt");
+
+        let hasLoaded = false;
+        let cachedProducts = [];
+
+        async function loadAndRenderProducts() {
+          hasLoaded = true;
+          cachedProducts = await fetchSupplierProducts(itemEl, supplierId);
+          applyFilter();
+        }
+
+        toggleBtn?.addEventListener("click", () => {
+          const isOpening = expandedContent.classList.contains("hidden");
+
+          expandedContent.classList.toggle("hidden");
+          openListIcon?.classList.toggle("hidden");
+          closeListIcon?.classList.toggle("unhide");
+          toggleBtn.setAttribute("aria-expanded", String(isOpening));
+
+          if (isOpening && !hasLoaded && supplierId != null) {
+            loadAndRenderProducts();
+          }
+        });
+
+        function applyFilter() {
+          const term = (searchInput?.value || "").trim().toLowerCase();
+          if (!term) {
+            renderSupplierProducts(itemEl, cachedProducts);
+            return;
+          }
+          const filtered = cachedProducts.filter((product) =>
+            String(product.name ?? "")
+              .toLowerCase()
+              .includes(term),
+          );
+          renderSupplierProducts(itemEl, filtered);
+        }
+
+        filterBtn?.addEventListener("click", applyFilter);
+        searchInput?.addEventListener("input", applyFilter);
+        searchInput?.addEventListener("keydown", (event) => {
+          if (event.key === "Enter") {
+            event.preventDefault();
+            applyFilter();
+          }
+        });
+
+        clearBtn?.addEventListener("click", () => {
+          if (searchInput) searchInput.value = "";
+          renderSupplierProducts(itemEl, cachedProducts);
+        });
+
+        // Register controller for external cache invalidation/refresh
+        if (supplierId != null) {
+          supplierCardControllers.set(String(supplierId), {
+            refresh: () => {
+              if (!expandedContent.classList.contains("hidden")) {
+                loadAndRenderProducts();
+              } else {
+                hasLoaded = false; // Force reload next time it's opened
+              }
+            },
+            refreshIfOpen: () => {
+              if (!expandedContent.classList.contains("hidden")) {
+                loadAndRenderProducts();
+              } else {
+                hasLoaded = false;
+              }
+            },
+            markStale: () => {
+              hasLoaded = false;
+            },
+          });
+        }
+
+        return itemEl;
+      }
+
+      function setProductListStatus(listEl, message, isVisible = true) {
+        let statusEl = listEl.querySelector(".product-loading-status");
+        if (!statusEl) {
+          listEl.insertAdjacentHTML(
+            "beforeend",
+            `<div class="text product-loading-status"></div>`,
+          );
+          statusEl = listEl.querySelector(".product-loading-status");
+        }
+        statusEl.style.display = isVisible ? "" : "none";
+        statusEl.textContent = message;
+      }
+
+      function renderSupplierProducts(itemEl, products) {
+        const listEl = itemEl.querySelector(".product-list");
+        if (!listEl) return;
+
+        listEl.querySelectorAll(".product-row").forEach((row) => row.remove());
+
+        if (!Array.isArray(products) || products.length === 0) {
+          setProductListStatus(listEl, "No products found", true);
+          return;
+        }
+
+        setProductListStatus(listEl, "", false);
+
+        const rowsHtml = products
+          .map(
+            (product) => `
+              <div class="text product-row">
+                <div class="text">
+                  <p class="text1">${escapeHtml(product.current_inventory ?? 0)}</p>
+                  <p class="text t1">${escapeHtml(product.sold ?? 0)}</p>
+                  <p class="text t2">${escapeHtml(product.name ?? "")}</p>
+                  <p class="text12">${escapeHtml(product.status ?? "")}</p>
+                  <p class="text123">${escapeHtml(product.storage_location ?? "")}</p>
+                </div>
+              </div>
+            `,
+          )
+          .join("");
+
+        listEl.insertAdjacentHTML("beforeend", rowsHtml);
+      }
+
+      async function fetchSupplierProducts(itemEl, supplierId) {
+        const listEl = itemEl.querySelector(".product-list");
+        if (!listEl) return [];
+
+        listEl.querySelectorAll(".product-row").forEach((row) => row.remove());
+        setProductListStatus(listEl, "Fetching data ...", true);
+
+        try {
+          const url = `/api/suppliers/${encodeURIComponent(supplierId)}/products`;
+          const response = await fetch(url);
+          if (!response.ok) throw new Error(`HTTP ${response.status}`);
+
+          const payload = await response.json();
+          const products =
+            payload.success && Array.isArray(payload.data?.products_data)
+              ? payload.data.products_data
+              : Array.isArray(payload.data)
+                ? payload.data
+                : [];
+
+          renderSupplierProducts(itemEl, products);
+          return products;
+        } catch (error) {
+          console.error(
+            `Error fetching products for supplier ${supplierId}:`,
+            error,
+          );
+          setProductListStatus(listEl, "Failed to load products.", true);
+          return [];
+        }
+      }
+
+      /* ---------------- LOW STOCK PANEL ---------------- */
+      async function loadLowStockProducts() {
+        const listBlock = document.getElementById("low_stock_list");
+        if (!listBlock) return;
+
+        listBlock.innerHTML = `<p class="text">Checking stock levels...</p>`;
+
+        try {
+          const response = await fetch("/api/products");
+          if (!response.ok) throw new Error(`HTTP ${response.status}`);
+
+          const payload = await response.json();
+          const products = Array.isArray(payload)
+            ? payload
+            : payload.data || [];
+
+          const lowStockProducts = products.filter((item) => {
+            const currentInv = Number(item.current_inventory);
+            const rop = Number(item.rop);
+            return (
+              !Number.isNaN(currentInv) &&
+              !Number.isNaN(rop) &&
+              currentInv <= rop
+            );
+          });
+
+          listBlock.innerHTML = "";
+
+          if (lowStockProducts.length === 0) {
+            listBlock.innerHTML = `<p class="text">No low-stock products.</p>`;
+            return;
+          }
+
+          listBlock.innerHTML = lowStockProducts
+            .map(
+              (product) => `
+                <div class="lowstockitem" data-product-id="${escapeHtml(product.id ?? "")}">
+                  <p class="text">${escapeHtml(product.name ?? "Unnamed Product")}</p>
+                  <p class="text">${escapeHtml(product.current_inventory ?? 0)}</p>
+                </div>
+              `,
+            )
+            .join("");
+        } catch (error) {
+          console.error("Error loading low-stock products:", error);
+          listBlock.innerHTML = `<p class="text low-stock-status">Failed to load stock data.</p>`;
+        }
+      }
+
+      /* ---------------- SALES ORDER POPUP ---------------- */
+      function initSalesOrderPopup() {
+        const openBtn = document.getElementById("salesOrderBtn");
+        const closeBtn = document.getElementById("cancc");
+        const backg = document.getElementById("sales_background");
+        const scroll_sales = document.getElementById("scroll_sales");
+        const add_product = document.getElementById("add_product");
+        const cBtn = document.getElementById("conff");
+        const ccBtn = document.getElementById("x_conf");
+        const back2 = document.querySelector(".update_conf_background");
+        const statusEl = document.getElementById("salesOrderStatus");
+
+        if (
+          !openBtn ||
+          !closeBtn ||
+          !backg ||
+          !scroll_sales ||
+          !add_product ||
+          !cBtn
+        ) {
+          return;
+        }
+
+        function setSalesStatus(message, isError = false) {
+          if (!statusEl) return;
+          statusEl.style.display = message ? "block" : "none";
+          statusEl.textContent = message;
+          statusEl.style.color = isError ? "#c0392b" : "#27ae60";
+        }
+
+        function fillProductSelect(selectEl, selectedValue = "") {
+          const currentVal = selectedValue || selectEl.value;
+          selectEl.innerHTML = `<option value="" disabled selected hidden>Select a Product...</option>`;
+          cachedAllProducts.forEach((product) => {
+            const option = document.createElement("option");
+            option.value = product.id;
+            option.textContent = `${product.name} (${product.current_inventory ?? 0} in stock)`;
+            if (String(product.id) === String(currentVal)) {
+              option.selected = true;
+            }
+            selectEl.appendChild(option);
+          });
+        }
+
+        async function loadSalesProducts() {
+          try {
+            const response = await fetch("/api/products");
+            if (!response.ok) throw new Error(`HTTP ${response.status}`);
+            const payload = await response.json();
+            cachedAllProducts = Array.isArray(payload)
+              ? payload
+              : payload.data || [];
+
+            scroll_sales.querySelectorAll("select.prodd").forEach((sel) => {
+              fillProductSelect(sel);
+            });
+          } catch (error) {
+            console.error("Failed to load products for sales order:", error);
+            setSalesStatus("Could not load products.", true);
+          }
+        }
+
+        function resetSalesRows() {
+          const firstRow = document.getElementById("prodd_unitt");
+          scroll_sales.querySelectorAll(".prodd_unitt").forEach((row) => {
+            if (row !== firstRow) row.remove();
+          });
+          if (firstRow) {
+            const firstSelect = firstRow.querySelector("select.prodd");
+            const firstInput = firstRow.querySelector("input.unitt");
+            if (firstSelect) {
+              firstSelect.value = "";
+              if (firstSelect.options.length > 0) {
+                firstSelect.options[0].selected = true;
+              }
+            }
+            if (firstInput) firstInput.value = "";
+          }
+          setSalesStatus("");
+        }
+
+        openBtn.addEventListener("click", () => {
+          resetSalesRows();
+          backg.style.display = "flex";
+          loadSalesProducts();
+        });
+
+        closeBtn.addEventListener("click", () => {
+          backg.style.display = "none";
+          setSalesStatus("");
+        });
+
+        add_product.addEventListener("click", () => {
+          const div1 = document.createElement("div");
+          div1.className = "prodd_unitt";
+
+          const div2 = document.createElement("p");
+          div2.textContent = "Delete";
+
+          const divselect = document.createElement("select");
+          divselect.className = "prodd";
+          divselect.placeholder = "Product...";
+          fillProductSelect(divselect);
+
+          const divinput = document.createElement("input");
+          divinput.className = "unitt";
+          divinput.type = "number";
+          divinput.step = "1";
+          divinput.min = "1";
+          divinput.placeholder = "Units";
+
+          const divdelete = document.createElement("button");
+          divdelete.type = "button";
+          divdelete.className = "cancc";
+          divdelete.addEventListener("click", () => {
+            div1.remove();
+          });
+          divdelete.append(div2);
+          div1.append(divselect, divinput, divdelete);
+          scroll_sales.append(div1);
+        });
+
+        cBtn.addEventListener("click", async () => {
+          const rows = Array.from(
+            scroll_sales.querySelectorAll(".prodd_unitt"),
+          );
+          const salesToPost = [];
+          const requestedByProduct = new Map();
+
+          for (const row of rows) {
+            const selectEl = row.querySelector("select.prodd");
+            const inputEl = row.querySelector("input.unitt");
+            const productId = Number(selectEl?.value);
+            const saleQty = Number(inputEl?.value);
+
+            if (!productId || Number.isNaN(productId)) {
+              return setSalesStatus(
+                "Please select a product for every row.",
+                true,
+              );
+            }
+            if (!saleQty || Number.isNaN(saleQty) || saleQty <= 0) {
+              return setSalesStatus(
+                "Please enter valid units (greater than 0) for every row.",
+                true,
+              );
+            }
+
+            const qtyInt = Math.trunc(saleQty);
+            const product = cachedAllProducts.find(
+              (p) => Number(p.id) === productId,
+            );
+            const availableStock = Number(product?.current_inventory ?? 0);
+            const totalRequested =
+              (requestedByProduct.get(productId) || 0) + qtyInt;
+
+            if (totalRequested > availableStock) {
+              return setSalesStatus(
+                `Cannot order ${totalRequested} units of ${product?.name ?? "selected product"} (only ${availableStock} available).`,
+                true,
+              );
+            }
+
+            requestedByProduct.set(productId, totalRequested);
+
+            salesToPost.push({
+              product_id: productId,
+              sale_qty: qtyInt,
+              sale_date: new Date().toISOString().slice(0, 10),
+            });
+          }
+
+          if (salesToPost.length === 0) {
+            return setSalesStatus(
+              "Add at least one product to create a sales order.",
+              true,
+            );
+          }
+
+          setSalesStatus("Creating sales order...", false);
+
+          try {
+            for (const salePayload of salesToPost) {
+              const response = await fetch("/api/sales", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(salePayload),
+              });
+              const result = await response.json().catch(() => ({}));
+              if (!response.ok || result.success === false) {
+                throw new Error(result.error || `HTTP ${response.status}`);
+              }
+            }
+
+            backg.style.display = "none";
+            if (back2) back2.style.display = "flex";
+            resetSalesRows();
+            loadLowStockProducts();
+            refreshAllSupplierCards();
+          } catch (error) {
+            console.error("Failed to create sales order:", error);
+            setSalesStatus(
+              error.message || "Failed to post sales order.",
+              true,
+            );
+          }
+        });
+
+        const closeConfirmPopup = () => {
+          if (back2) back2.style.display = "none";
+        };
+
+        ccBtn?.addEventListener("click", closeConfirmPopup);
+        back2?.addEventListener("click", (e) => {
+          if (e.target === back2) closeConfirmPopup();
+        });
+
+        // EDIT BUTTON
+        const editBtn = document.getElementById("editbutt");
+        const closeeBtn = document.getElementById("canc");
+        const back3 = document.getElementById("edit_background");
+
+        editBtn?.addEventListener("click", () => {
+          if (back3) back3.style.display = "flex";
+        });
+
+        closeeBtn?.addEventListener("click", () => {
+          if (back3) back3.style.display = "none";
+        });
+      }
+    </script>
   </body>
 </html>

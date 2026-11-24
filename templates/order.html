@@ -1,0 +1,1359 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Gelasio:ital,wght@0,400..700;1,400..700&display=swap"
+      rel="stylesheet" />
+    <!-- insert here -->
+    <link rel="stylesheet" href="../static/css/order_style.css" />
+  </head>
+
+  <body>
+    <!--NAV BAR START-->
+    <nav class="navbar">
+      <div class="logobox">
+        <div class="logo">
+          <img
+            src="../static/images/Stanway-Logo-picture.png"
+            class="logoimg" />
+        </div>
+        <i class="fa-solid fa-grip-lines"></i>
+      </div>
+      <ul class="navlist">
+        <li class="pagenames">
+          <a href="index.html" class="noto-sans-display-page"
+            ><div>
+              <i class="fa-solid fa-chart-line"></i>
+              Overview
+            </div></a
+          >
+        </li>
+        <li class="pagenames">
+          <a href="stock.html" class="noto-sans-display-page"
+            ><div>
+              <i class="fa-solid fa-boxes-packing"></i>
+              Stock
+            </div></a
+          >
+        </li>
+        <li class="pagenames active">
+          <a href="order.html" class="noto-sans-display-page page_active"
+            ><div>
+              <i class="fa-solid fa-hand-holding-dollar"></i>
+              Orders
+            </div></a
+          >
+        </li>
+        <li class="pagenames">
+          <a href="suppliers.html" class="noto-sans-display-page"
+            ><div>
+              <i class="fa-solid fa-truck-field"></i>
+              Suppliers
+            </div></a
+          >
+        </li>
+      </ul>
+      <div class="accountbox">
+        <i class="fa-solid fa-circle-user"></i>
+        <h3 class="noto-sans-display-h1">Account</h3>
+      </div>
+    </nav>
+
+    <!-- NAV BAR END -->
+
+    <!-- ORDER BODY START-->
+    <div class="order_body">
+      <div class="order_topblock">
+        <!-- NEW ORDER BUTTON START -->
+        <button class="new_order_button" id="new_order_button">
+          <i data-lucide="circle-plus"></i>
+          <p class="new_order_text">New Order</p>
+        </button>
+
+        <!-- NEW ORDER BUTTON END -->
+      </div>
+      <div class="order_bodyblock">
+        <!-- START OF ORDER LIST -->
+
+        <!-- NOT EXPANDED START -->
+        <div
+          class="ordernumber_block"
+          id="order_template_block"
+          style="display: none">
+          <div class="ordernumber_top">
+            <div class="ordernumber_block_left">
+              <div class="order_icon">
+                <i data-lucide="circle-dollar-sign"></i>
+              </div>
+              <h3 class="order_title">Unique Order Number</h3>
+            </div>
+            <div class="supplier_btns">
+              <button class="update_order" type="button">
+                <i data-lucide="circle-plus"></i>
+                <p>Update Order</p>
+              </button>
+              <button class="chevron_button" type="button">
+                <i data-lucide="chevron-up" class="open_list"></i>
+                <i data-lucide="chevron-down" class="close_list"></i>
+              </button>
+            </div>
+          </div>
+
+          <!-- NOT EXPANDED END -->
+
+          <!-- EXPANDED START -->
+          <div class="order_expanded_content hidden" style="display: none">
+            <div class="supplier_for_order">
+              <div class="supplier_left">
+                <div class="supplier_icon">
+                  <i data-lucide="users-round"></i>
+                </div>
+                <p class="list_item_title">Supplier name</p>
+              </div>
+            </div>
+            <div class="expanded_headings">
+              <div class="info">
+                <div class="units">
+                  <p>Units</p>
+                </div>
+                <div class="products">
+                  <p>Products</p>
+                </div>
+                <div class="del_date">
+                  <p>Estimated Delivery Date</p>
+                </div>
+                <div class="cost">
+                  <p>Cost of Products</p>
+                </div>
+              </div>
+            </div>
+            <div class="expanded_values">
+              <div class="info">
+                <div class="units">
+                  <p>###</p>
+                </div>
+                <div class="products">
+                  <p>Product</p>
+                </div>
+                <div class="del_date">
+                  <p>###</p>
+                </div>
+                <div class="cost">
+                  <p>R # ###.##</p>
+                </div>
+              </div>
+              <div class="total_cost">
+                <p>Total order cost</p>
+                <p>R # ###.##</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- EXPANDED END -->
+
+        <!-- END OF ORDER LIST-->
+      </div>
+    </div>
+
+    <!-- ORDER BODY END -->
+
+    <!-- UPDATE ORDER POPUP START -->
+    <div class="update_background" id="update_background">
+      <div class="update_content">
+        <div class="update_heading">
+          <h1>Update Order</h1>
+        </div>
+        <div class="update_supplier">
+          <i data-lucide="user"></i>
+          <h3>Supplier</h3>
+        </div>
+        <div class="update_prod_and_units">
+          <div
+            class="prod_and_unit"
+            id="update_prod_row_template"
+            style="display: none">
+            <div class="prod_and_icon">
+              <i class="dollar" data-lucide="circle-dollar-sign"></i>
+              <h3>Product 1</h3>
+            </div>
+
+            <div class="update_units">
+              <h3>###</h3>
+              <button class="edit" type="button">
+                <i data-lucide="pencil-line"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="conf_and_canc">
+          <button class="conf" id="conf" type="button">
+            <p>Confirm</p>
+          </button>
+          <button class="canc" id="canc" type="button">
+            <p>Cancel</p>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- update units modal start -->
+    <div class="modal" id="editUnits">
+      <div class="modal-content">
+        <div class="sup_popup_top_bar">
+          <div class="sup_popup_title">
+            <h3>Product</h3>
+          </div>
+        </div>
+
+        <div class="editUnits_text">
+          <p>Add expiration date</p>
+          <input type="date" id="edit_expiry_input" />
+        </div>
+        <div class="editUnits_text">
+          <p>Actual received units</p>
+          <input type="number" id="edit_units_input" min="0" step="1" />
+        </div>
+        <div class="editUnits_text2">
+          <input type="checkbox" id="checkbox" />
+          <p>Delete product from order</p>
+        </div>
+
+        <div class="conf_and_canc">
+          <div class="editconf" id="editUnits_close_conf">
+            <p>Confirm</p>
+          </div>
+          <div class="editcanc" id="editUnits_close_canc">
+            <p>Cancel</p>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- update units modal end -->
+
+    <!-- CONFIRM UPDATE ORDER POPUP START -->
+    <div class="update_conf_background" id="update_conf_background">
+      <div class="update_conf_popup" id="update_conf_popup">
+        <div class="top_update">
+          <i class="x_conf" id="x_conf" data-lucide="circle-x"></i>
+        </div>
+
+        <div class="update_conf_heading">
+          <h1>Updated order</h1>
+        </div>
+        <div class="update_conf_text">
+          <p>Your order has been updated succesfully!</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- CONFIRM UPDATE ORDER POPUP END -->
+    <!-- UPDATE ORDER POPUP END -->
+
+    <!-- NEW ORDER POPUP START -->
+    <div class="new_order_popup" id="new_order_popup">
+      <div class="new_order_popup_content">
+        <div class="add_new_order_heading">
+          <h1>Add New Order</h1>
+        </div>
+        <div class="new_order_body">
+          <div class="selectors">
+            <div class="supplier_select">
+              <select class="supplier_sel" name="supplier" id="supplier">
+                <option value="" disabled selected hidden>
+                  Select Supplier
+                </option>
+              </select>
+            </div>
+            <div class="product_and_unit_select" id="prod_unit_select">
+              <div class="product_select">
+                <select
+                  class="product_sel"
+                  name="product"
+                  id="product"
+                  disabled>
+                  <option value="" disabled selected hidden>
+                    Select Product
+                  </option>
+                </select>
+              </div>
+              <div class="unit_select">
+                <input
+                  type="number"
+                  class="unit_input"
+                  name="units"
+                  id="units"
+                  min="1"
+                  placeholder="Units" />
+              </div>
+            </div>
+          </div>
+
+          <div class="order_action_btns">
+            <button class="add_prod" id="add_product" type="button">
+              <i data-lucide="circle-plus"></i>
+              <p>Add Product</p>
+            </button>
+            <div class="confirm_or_cancel_order">
+              <div class="cancel" id="cancel">
+                <p>Cancel</p>
+              </div>
+              <div class="confirm" id="confirm">
+                <p>Confirm</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- NEW ORDER POPUP END -->
+
+    <!-- ORDER CONFIRMED POPUP START -->
+    <div class="confirm_background" id="confirm_background">
+      <div class="confirm_message">
+        <div class="top_x">
+          <i class="x_confirm" id="x_confirm" data-lucide="circle-x"></i>
+        </div>
+        <div class="ordnum_heading">
+          <h1>Order ### has been generated</h1>
+        </div>
+        <div class="order_summary">
+          <h2>Order Summary:</h2>
+          <div class="supplier_summary">
+            <i data-lucide="user"></i>
+            <h3>Supplier</h3>
+          </div>
+          <div class="products_summary">
+            <div class="prod_and_units_sum">
+              <i class="dollar" data-lucide="circle-dollar-sign"></i>
+              <h3>Product 1</h3>
+            </div>
+          </div>
+
+          <div class="tot_order_cost">
+            <div class="tot_cost_left">
+              <h3>Total Order Cost:</h3>
+            </div>
+            <div class="tot_cost_right">
+              <h3>R ###,###.##</h3>
+            </div>
+          </div>
+          <div class="est_del_date">
+            <div class="est_date_left">
+              <h3>Estimated Delivery Date</h3>
+            </div>
+            <div class="est_date_right">
+              <h3>####/##/##</h3>
+            </div>
+          </div>
+        </div>
+        <div class="buttons"></div>
+      </div>
+    </div>
+
+    <!-- ORDER CONFIRMED POPUP END -->
+
+    <!-- SCRIPTS START -->
+
+    <!-- Script for icons-->
+    <script
+      src="https://kit.fontawesome.com/3000704a08.js"
+      crossorigin="anonymous"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script>
+      lucide.createIcons();
+    </script>
+
+    <!-- Script for expanding order -->
+    <script>
+      const toggleViewListBtn = document.getElementById("toggle_list_view_btn");
+
+      if (toggleViewListBtn) {
+        const orderExpandedContent = document.querySelector(
+          ".order_expanded_content",
+        );
+        const openListIcon = document.querySelector(".open_list");
+        const closeListIcon = document.querySelector(".close_list");
+
+        // Toggle list view between open and close
+        toggleViewListBtn.addEventListener("click", () => {
+          orderExpandedContent.classList.toggle("hidden");
+          openListIcon.classList.toggle("hidden");
+          closeListIcon.classList.toggle("unhide");
+        });
+      }
+    </script>
+
+    <script>
+      // Script for loading open orders, dropdown breakdown, update order popup & product modal
+      const orderBodyBlock = document.querySelector(".order_bodyblock");
+      const orderTemplateBlock = document.getElementById(
+        "order_template_block",
+      );
+
+      const updatePopup = document.getElementById("update_background");
+      const updateCloseBtn = document.getElementById("canc");
+      const updateConfirmBtn = document.getElementById("conf");
+      const updateSupplierH3 = document.querySelector(".update_supplier h3");
+      const updateProdListContainer = document.querySelector(
+        ".update_prod_and_units",
+      );
+      const updateProdRowTemplate = document.getElementById(
+        "update_prod_row_template",
+      );
+
+      const editUnitsModal = document.getElementById("editUnits");
+      const editUnitsTitleH3 = document.querySelector(
+        "#editUnits .sup_popup_title h3",
+      );
+      const editExpiryInput = document.getElementById("edit_expiry_input");
+      const editUnitsInput = document.getElementById("edit_units_input");
+      const editDeleteCheckbox = document.getElementById("checkbox");
+      const editUnitsCloseCancBtn = document.getElementById(
+        "editUnits_close_canc",
+      );
+      const editUnitsCloseConfBtn = document.getElementById(
+        "editUnits_close_conf",
+      );
+
+      const ConfirmPopup = document.getElementById("update_conf_background");
+      const ConfirmCloseBtn = document.getElementById("x_conf");
+
+      let allProductsLeadTimeMap = {};
+      let latestInventoryUpdatesByOrderId = {};
+      let activeOrderForUpdate = null;
+      let draftProductStates = [];
+      let editingProductId = null;
+
+      function formatRandValue(amount) {
+        const num = Number(amount || 0);
+        return (
+          "R " +
+          num.toLocaleString("en-ZA", {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2,
+          })
+        );
+      }
+
+      function calculateEstimatedDeliveryDateStr(orderDateStr, leadTimeDays) {
+        if (!orderDateStr) return "N/A";
+        const base = new Date(`${String(orderDateStr).slice(0, 10)}T00:00:00`);
+        if (Number.isNaN(base.getTime())) return String(orderDateStr);
+        const days = Number(leadTimeDays || 0);
+        base.setDate(base.getDate() + days);
+        const yyyy = base.getFullYear();
+        const mm = String(base.getMonth() + 1).padStart(2, "0");
+        const dd = String(base.getDate()).padStart(2, "0");
+        return `${yyyy}-${mm}-${dd}`;
+      }
+
+      async function fetchReferenceData() {
+        try {
+          const [prodRes, iuRes] = await Promise.all([
+            fetch("/api/products"),
+            fetch("/api/inventory_updates"),
+          ]);
+
+          if (prodRes.ok) {
+            const prodPayload = await prodRes.json();
+            if (prodPayload.success && Array.isArray(prodPayload.data)) {
+              allProductsLeadTimeMap = {};
+              prodPayload.data.forEach((p) => {
+                allProductsLeadTimeMap[Number(p.id)] = Number(
+                  p.effective_lt || 0,
+                );
+              });
+            }
+          }
+
+          if (iuRes.ok) {
+            const iuPayload = await iuRes.json();
+            if (iuPayload.success && Array.isArray(iuPayload.data)) {
+              latestInventoryUpdatesByOrderId = {};
+              iuPayload.data.forEach((iu) => {
+                const oid = Number(iu.order_id);
+                if (!latestInventoryUpdatesByOrderId[oid]) {
+                  latestInventoryUpdatesByOrderId[oid] = iu;
+                }
+              });
+            }
+          }
+        } catch (err) {
+          console.error(
+            "Failed to fetch reference product/inventory update data:",
+            err,
+          );
+        }
+      }
+
+      function renderUpdateOrderRows() {
+        if (!updateProdListContainer || !updateProdRowTemplate) return;
+
+        updateProdListContainer.innerHTML = "";
+
+        const visibleItems = draftProductStates.filter((item) => !item.delete);
+
+        visibleItems.forEach((item) => {
+          const row = updateProdRowTemplate.cloneNode(true);
+          row.removeAttribute("id");
+          row.style.display = "";
+
+          const titleEl = row.querySelector(".prod_and_icon h3");
+          if (titleEl) {
+            titleEl.textContent = item.product_name;
+          }
+
+          const qtyEl = row.querySelector(".update_units h3");
+          if (qtyEl) {
+            const hasOrderedQty =
+              item.order_amount !== null &&
+              item.order_amount !== undefined &&
+              item.order_amount !== "";
+            qtyEl.textContent = hasOrderedQty
+              ? String(item.order_amount)
+              : "###";
+          }
+
+          const editBtn = row.querySelector(".update_units .edit");
+          if (editBtn) {
+            editBtn.addEventListener("click", () => {
+              openEditProductModal(item.product_id);
+            });
+          }
+
+          updateProdListContainer.appendChild(row);
+        });
+
+        if (window.lucide && typeof window.lucide.createIcons === "function") {
+          window.lucide.createIcons();
+        }
+      }
+
+      function openEditProductModal(productId) {
+        if (!editUnitsModal) return;
+        const target = draftProductStates.find(
+          (d) => Number(d.product_id) === Number(productId),
+        );
+        if (!target) return;
+
+        editingProductId = Number(productId);
+
+        if (editUnitsTitleH3) {
+          editUnitsTitleH3.textContent = target.product_name;
+        }
+        if (editExpiryInput) {
+          editExpiryInput.value = target.expiry_date || "";
+        }
+        if (editUnitsInput) {
+          const hasEnteredUnits =
+            target.update_amount !== null &&
+            target.update_amount !== undefined &&
+            target.update_amount !== "";
+          editUnitsInput.value = hasEnteredUnits
+            ? String(target.update_amount)
+            : target.order_amount !== null && target.order_amount !== undefined
+              ? String(target.order_amount)
+              : "";
+        }
+        if (editDeleteCheckbox) {
+          editDeleteCheckbox.checked = Boolean(target.delete);
+        }
+
+        editUnitsModal.style.zIndex = "9999";
+        editUnitsModal.style.display = "block";
+      }
+
+      function openUpdateOrderPopup(order) {
+        if (!updatePopup || !order) return;
+
+        activeOrderForUpdate = order;
+
+        if (updateSupplierH3) {
+          updateSupplierH3.textContent = order.supplier_name || "Supplier";
+        }
+
+        const existingIu =
+          latestInventoryUpdatesByOrderId[Number(order.order_id)];
+        const prevItemsByPid = {};
+        if (existingIu && Array.isArray(existingIu.items)) {
+          existingIu.items.forEach((iuItem) => {
+            prevItemsByPid[Number(iuItem.product_id)] = iuItem;
+          });
+        }
+
+        draftProductStates = (order.items || []).map((poItem) => {
+          const pid = Number(poItem.product_id);
+          const prev = prevItemsByPid[pid];
+          return {
+            product_id: pid,
+            product_name: poItem.product_name,
+            order_amount: Number(poItem.order_amount),
+            update_amount: prev ? Number(prev.update_amount) : "",
+            expiry_date:
+              prev && prev.expiry_date
+                ? String(prev.expiry_date).slice(0, 10)
+                : "",
+            delete: false,
+          };
+        });
+
+        renderUpdateOrderRows();
+        updatePopup.style.display = "flex";
+      }
+
+      function buildOrderBlockElement(order) {
+        const block = orderTemplateBlock.cloneNode(true);
+        block.removeAttribute("id");
+        block.style.display = "";
+
+        const titleEl = block.querySelector(".order_title");
+        if (titleEl) {
+          titleEl.textContent = String(order.order_id);
+        }
+
+        const supplierTitleEl = block.querySelector(
+          ".supplier_for_order .list_item_title",
+        );
+        if (supplierTitleEl) {
+          supplierTitleEl.textContent = order.supplier_name || "Supplier name";
+        }
+
+        const expandedContent = block.querySelector(".order_expanded_content");
+        const openIcon = block.querySelector(".open_list");
+        const closeIcon = block.querySelector(".close_list");
+        const chevronBtn = block.querySelector(".chevron_button");
+
+        if (expandedContent) {
+          expandedContent.classList.add("hidden");
+          expandedContent.style.display = "none";
+        }
+
+        if (chevronBtn && expandedContent) {
+          chevronBtn.addEventListener("click", (event) => {
+            event.preventDefault();
+            const isHidden = expandedContent.style.display === "none";
+            expandedContent.style.display = isHidden ? "block" : "none";
+            expandedContent.classList.toggle("hidden", !isHidden);
+            if (openIcon) openIcon.classList.toggle("hidden", !isHidden);
+            if (closeIcon) closeIcon.classList.toggle("unhide", isHidden);
+          });
+        }
+
+        const updateBtn = block.querySelector(".update_order");
+        if (updateBtn) {
+          updateBtn.addEventListener("click", () => {
+            openUpdateOrderPopup(order);
+          });
+        }
+
+        const expandedValuesEl = block.querySelector(".expanded_values");
+        const templateInfoRow = expandedValuesEl
+          ? expandedValuesEl.querySelector(".info")
+          : null;
+        const totalCostRow = expandedValuesEl
+          ? expandedValuesEl.querySelector(".total_cost")
+          : null;
+        const items = Array.isArray(order.items) ? order.items : [];
+
+        let grandTotal = 0;
+
+        if (expandedValuesEl && templateInfoRow) {
+          expandedValuesEl.querySelectorAll(".info").forEach((existingRow) => {
+            existingRow.remove();
+          });
+
+          items.forEach((item) => {
+            const row = templateInfoRow.cloneNode(true);
+            const unitsP = row.querySelector(".units p");
+            const prodP = row.querySelector(".products p");
+            const delDateP = row.querySelector(".del_date p");
+            const costP = row.querySelector(".cost p");
+
+            const unitsOrdered = Number(item.order_amount || 0);
+            const lineCost =
+              item.line_total !== undefined
+                ? Number(item.line_total)
+                : unitsOrdered * Number(item.unit_cost || 0);
+            grandTotal += lineCost;
+
+            const leadTime =
+              allProductsLeadTimeMap[Number(item.product_id)] || 0;
+            const estDelivery = calculateEstimatedDeliveryDateStr(
+              order.date,
+              leadTime,
+            );
+
+            if (unitsP) unitsP.textContent = String(unitsOrdered);
+            if (prodP) prodP.textContent = String(item.product_name || "");
+            if (delDateP) delDateP.textContent = estDelivery;
+            if (costP) costP.textContent = formatRandValue(lineCost);
+
+            if (totalCostRow) {
+              expandedValuesEl.insertBefore(row, totalCostRow);
+            } else {
+              expandedValuesEl.appendChild(row);
+            }
+          });
+        }
+
+        const totalCostP = block.querySelector(".total_cost p:last-child");
+        if (totalCostP) {
+          totalCostP.textContent = formatRandValue(grandTotal);
+        }
+
+        return block;
+      }
+
+      async function loadOpenOrders() {
+        if (!orderBodyBlock || !orderTemplateBlock) return;
+
+        await fetchReferenceData();
+
+        try {
+          const res = await fetch("/api/purchase_orders");
+          const payload = await res.json();
+
+          Array.from(orderBodyBlock.children).forEach((child) => {
+            if (child !== orderTemplateBlock) {
+              child.remove();
+            }
+          });
+
+          if (!res.ok || !payload.success || !Array.isArray(payload.data)) {
+            return;
+          }
+
+          const openOrders = payload.data.filter(
+            (po) => String(po.status).toLowerCase() === "pending",
+          );
+
+          openOrders.forEach((order) => {
+            const orderEl = buildOrderBlockElement(order);
+            orderBodyBlock.appendChild(orderEl);
+          });
+
+          if (
+            window.lucide &&
+            typeof window.lucide.createIcons === "function"
+          ) {
+            window.lucide.createIcons();
+          }
+        } catch (err) {
+          console.error("Failed to load open orders:", err);
+        }
+      }
+
+      if (editUnitsCloseCancBtn && editUnitsModal) {
+        editUnitsCloseCancBtn.addEventListener("click", (event) => {
+          event.preventDefault();
+          event.stopPropagation();
+          editingProductId = null;
+          editUnitsModal.style.display = "none";
+        });
+      }
+
+      if (editUnitsCloseConfBtn && editUnitsModal) {
+        editUnitsCloseConfBtn.addEventListener("click", (event) => {
+          event.preventDefault();
+          event.stopPropagation();
+
+          if (editingProductId !== null) {
+            const target = draftProductStates.find(
+              (d) => Number(d.product_id) === Number(editingProductId),
+            );
+            if (target) {
+              const markedDeleted = Boolean(
+                editDeleteCheckbox && editDeleteCheckbox.checked,
+              );
+              const rawUnits = editUnitsInput
+                ? editUnitsInput.value.trim()
+                : "";
+              const expiryVal = editExpiryInput
+                ? editExpiryInput.value.trim()
+                : "";
+
+              target.delete = markedDeleted;
+              if (!markedDeleted) {
+                target.update_amount = rawUnits !== "" ? Number(rawUnits) : "";
+                target.expiry_date = expiryVal;
+              }
+            }
+          }
+
+          editingProductId = null;
+          editUnitsModal.style.display = "none";
+          renderUpdateOrderRows();
+        });
+      }
+
+      if (editUnitsModal) {
+        editUnitsModal.addEventListener("click", (event) => {
+          if (event.target === editUnitsModal) {
+            editingProductId = null;
+            editUnitsModal.style.display = "none";
+          }
+        });
+      }
+
+      if (updateCloseBtn && updatePopup) {
+        updateCloseBtn.addEventListener("click", () => {
+          activeOrderForUpdate = null;
+          draftProductStates = [];
+          updatePopup.style.display = "none";
+        });
+
+        updatePopup.addEventListener("click", (event) => {
+          if (event.target === updatePopup) {
+            activeOrderForUpdate = null;
+            draftProductStates = [];
+            updatePopup.style.display = "none";
+          }
+        });
+      }
+
+      if (updateConfirmBtn && updatePopup && ConfirmPopup) {
+        updateConfirmBtn.addEventListener("click", async () => {
+          if (!activeOrderForUpdate) return;
+
+          const orderId = Number(activeOrderForUpdate.order_id);
+          const payloadUpdates = draftProductStates.map((d) => ({
+            product_id: Number(d.product_id),
+            product_name: d.product_name,
+            delete: Boolean(d.delete),
+            update_amount:
+              !d.delete && d.update_amount !== "" && d.update_amount !== null
+                ? Number(d.update_amount)
+                : null,
+            expiry_date: !d.delete && d.expiry_date ? d.expiry_date : null,
+          }));
+
+          try {
+            const res = await fetch(
+              `/api/purchase_orders/${orderId}/process_update`,
+              {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                  product_updates: payloadUpdates,
+                  update_date: new Date()
+                    .toISOString()
+                    .slice(0, 19)
+                    .replace("T", " "),
+                }),
+              },
+            );
+            const result = await res.json();
+            if (!res.ok || !result.success) {
+              alert(result.error || "Failed to update order.");
+              return;
+            }
+
+            updatePopup.style.display = "none";
+            ConfirmPopup.style.display = "flex";
+            await loadOpenOrders();
+          } catch (err) {
+            console.error("Failed to submit order update:", err);
+            alert("An error occurred while updating the order.");
+          }
+        });
+      }
+
+      if (ConfirmCloseBtn && ConfirmPopup) {
+        ConfirmCloseBtn.addEventListener("click", () => {
+          ConfirmPopup.style.display = "none";
+        });
+
+        ConfirmPopup.addEventListener("click", (event) => {
+          if (event.target === ConfirmPopup) {
+            ConfirmPopup.style.display = "none";
+          }
+        });
+      }
+
+      document.addEventListener("DOMContentLoaded", () => {
+        loadOpenOrders();
+      });
+    </script>
+
+    <script>
+      // Script for new order popup & confirmed order breakdown
+      const orderOpenBtn = document.getElementById("new_order_button");
+      const orderPopup = document.getElementById("new_order_popup");
+      const orderCloseBtn = document.getElementById("cancel");
+      const supplierSelect = document.getElementById("supplier");
+      const productRows = document.querySelector(".selectors");
+      const firstProductRow = document.getElementById("prod_unit_select");
+      const addProdBtn = document.getElementById("add_product");
+
+      const confirmOpenBtn = document.getElementById("confirm");
+      const confirmPopup = document.getElementById("confirm_background");
+      const confirmCloseBtn = document.getElementById("x_confirm");
+
+      let supplierProductsCache = [];
+      let isSubmittingOrder = false;
+
+      function formatRand(amount) {
+        const num = Number(amount || 0);
+        return (
+          "R " +
+          num.toLocaleString("en-ZA", {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2,
+          })
+        );
+      }
+
+      function getAllProductSelects() {
+        return Array.from(document.querySelectorAll(".product_sel"));
+      }
+
+      function getSelectedProductIds(excludeSelect = null) {
+        const selected = new Set();
+        getAllProductSelects().forEach((sel) => {
+          if (sel !== excludeSelect && sel.value) {
+            selected.add(String(sel.value));
+          }
+        });
+        return selected;
+      }
+
+      function populateProductSelect(selectEl, preserveValue = null) {
+        const hasSupplier = Boolean(supplierSelect && supplierSelect.value);
+        selectEl.innerHTML = "";
+
+        const placeholderOpt = document.createElement("option");
+        placeholderOpt.value = "";
+        placeholderOpt.disabled = true;
+        placeholderOpt.selected = true;
+        placeholderOpt.hidden = true;
+        placeholderOpt.textContent = hasSupplier
+          ? "Select Product"
+          : "Select Product";
+        selectEl.appendChild(placeholderOpt);
+
+        if (!hasSupplier) {
+          selectEl.disabled = true;
+          selectEl.value = "";
+          return;
+        }
+
+        const takenByOthers = getSelectedProductIds(selectEl);
+        const availableProducts = supplierProductsCache.filter(
+          (prod) =>
+            !takenByOthers.has(String(prod.id)) ||
+            String(prod.id) === String(preserveValue),
+        );
+
+        availableProducts.forEach((prod) => {
+          const opt = document.createElement("option");
+          opt.value = String(prod.id);
+          opt.textContent = prod.name;
+          selectEl.appendChild(opt);
+        });
+
+        selectEl.disabled = availableProducts.length === 0;
+
+        if (
+          preserveValue &&
+          availableProducts.some((p) => String(p.id) === String(preserveValue))
+        ) {
+          selectEl.value = String(preserveValue);
+        } else {
+          selectEl.value = "";
+          placeholderOpt.selected = true;
+        }
+      }
+
+      function refreshAllProductSelects() {
+        getAllProductSelects().forEach((sel) => {
+          populateProductSelect(sel, sel.value);
+        });
+      }
+
+      function resetNewOrderForm(keepSuppliers = true) {
+        document
+          .querySelectorAll(".product_and_unit_select:not(#prod_unit_select)")
+          .forEach((row) => row.remove());
+
+        supplierProductsCache = [];
+
+        if (supplierSelect) {
+          supplierSelect.value = "";
+          const defaultSupOpt =
+            supplierSelect.querySelector('option[value=""]');
+          if (defaultSupOpt) defaultSupOpt.selected = true;
+          if (!keepSuppliers) {
+            supplierSelect.innerHTML =
+              '<option value="" disabled selected hidden>Select Supplier</option>';
+          }
+        }
+
+        if (firstProductRow) {
+          const firstProdSel = firstProductRow.querySelector(".product_sel");
+          const firstUnitInp = firstProductRow.querySelector(".unit_input");
+          if (firstProdSel) {
+            populateProductSelect(firstProdSel, null);
+          }
+          if (firstUnitInp) {
+            firstUnitInp.value = "";
+          }
+        }
+      }
+
+      async function loadSuppliers() {
+        if (!supplierSelect) return;
+        try {
+          const res = await fetch("/api/suppliers");
+          const payload = await res.json();
+          if (!res.ok || !payload.success) return;
+
+          supplierSelect.innerHTML =
+            '<option value="" disabled selected hidden>Select Supplier</option>';
+
+          (payload.data || []).forEach((sup) => {
+            const opt = document.createElement("option");
+            opt.value = String(sup.id);
+            opt.textContent = sup.name;
+            supplierSelect.appendChild(opt);
+          });
+        } catch (err) {
+          console.error("Failed to load suppliers:", err);
+        }
+      }
+
+      async function handleSupplierChange() {
+        const supplierId = supplierSelect ? supplierSelect.value : "";
+
+        // Reset extra rows and clear current selection when supplier changes
+        document
+          .querySelectorAll(".product_and_unit_select:not(#prod_unit_select)")
+          .forEach((row) => row.remove());
+
+        if (firstProductRow) {
+          const firstUnitInp = firstProductRow.querySelector(".unit_input");
+          if (firstUnitInp) firstUnitInp.value = "";
+        }
+
+        supplierProductsCache = [];
+
+        if (!supplierId) {
+          refreshAllProductSelects();
+          return;
+        }
+
+        try {
+          const res = await fetch(
+            `/api/suppliers/${encodeURIComponent(supplierId)}/products`,
+          );
+          const payload = await res.json();
+          if (!res.ok || !payload.success) {
+            refreshAllProductSelects();
+            return;
+          }
+
+          const rawProducts = payload.data?.products_data || [];
+          supplierProductsCache = rawProducts.map((p) => ({
+            id: p.id,
+            name: p.name,
+            cost_price: Number(p.cost_price ?? 0),
+            effective_lt: Number(p.effective_lt ?? 0),
+          }));
+
+          refreshAllProductSelects();
+        } catch (err) {
+          console.error("Failed to load products for supplier:", err);
+          refreshAllProductSelects();
+        }
+      }
+
+      function renderConfirmedOrderBreakdown(orderData, submittedItems) {
+        if (!confirmPopup) return;
+
+        const orderNumHeading =
+          confirmPopup.querySelector(".ordnum_heading h1");
+        if (orderNumHeading) {
+          orderNumHeading.textContent = `Order ${orderData.order_id} has been generated`;
+        }
+
+        const supplierSummaryH3 = confirmPopup.querySelector(
+          ".supplier_summary h3",
+        );
+        if (supplierSummaryH3) {
+          supplierSummaryH3.textContent = orderData.supplier_name || "Supplier";
+        }
+
+        const productsSummaryContainer =
+          confirmPopup.querySelector(".products_summary");
+        const orderItems =
+          Array.isArray(orderData.items) && orderData.items.length > 0
+            ? orderData.items
+            : submittedItems;
+
+        let calculatedTotal = 0;
+
+        if (productsSummaryContainer) {
+          productsSummaryContainer.innerHTML = "";
+          orderItems.forEach((item) => {
+            const cachedProd = supplierProductsCache.find(
+              (p) => String(p.id) === String(item.product_id),
+            );
+            const qty = Number(item.order_amount ?? item.units ?? 0);
+            const unitCost =
+              item.unit_cost !== undefined
+                ? Number(item.unit_cost)
+                : Number(cachedProd?.cost_price ?? 0);
+            const lineTotal =
+              item.line_total !== undefined
+                ? Number(item.line_total)
+                : qty * unitCost;
+
+            calculatedTotal += lineTotal;
+
+            const rowDiv = document.createElement("div");
+            rowDiv.className = "prod_and_units_sum";
+            rowDiv.innerHTML = `
+              <i data-lucide="circle-dollar-sign"></i>
+              <h3>${item.product_name || cachedProd?.name || "Product"} — ${qty} units (${formatRand(lineTotal)})</h3>
+            `;
+            productsSummaryContainer.appendChild(rowDiv);
+          });
+        }
+
+        const totalCostH3 = confirmPopup.querySelector(".tot_cost_right h3");
+        if (totalCostH3) {
+          totalCostH3.textContent = formatRand(calculatedTotal);
+        }
+
+        const estDateH3 = confirmPopup.querySelector(".est_date_right h3");
+        if (estDateH3) {
+          const maxLeadDays = submittedItems.reduce((acc, item) => {
+            const cachedProd = supplierProductsCache.find(
+              (p) => String(p.id) === String(item.product_id),
+            );
+            const lt = Number(cachedProd?.effective_lt ?? 0);
+            return Math.max(acc, lt);
+          }, 0);
+
+          if (maxLeadDays > 0) {
+            const baseDate = orderData.date
+              ? new Date(orderData.date)
+              : new Date();
+            const estDate = new Date(baseDate);
+            estDate.setDate(estDate.getDate() + maxLeadDays);
+            const yyyy = estDate.getFullYear();
+            const mm = String(estDate.getMonth() + 1).padStart(2, "0");
+            const dd = String(estDate.getDate()).padStart(2, "0");
+            estDateH3.textContent = `${yyyy}/${mm}/${dd}`;
+          } else {
+            estDateH3.textContent = orderData.date
+              ? String(orderData.date).replaceAll("-", "/")
+              : "####/##/##";
+          }
+        }
+
+        if (window.lucide && typeof window.lucide.createIcons === "function") {
+          window.lucide.createIcons();
+        }
+      }
+
+      if (supplierSelect) {
+        supplierSelect.addEventListener("change", handleSupplierChange);
+      }
+
+      if (firstProductRow) {
+        const firstSel = firstProductRow.querySelector(".product_sel");
+        if (firstSel) {
+          populateProductSelect(firstSel, null);
+          firstSel.addEventListener("change", refreshAllProductSelects);
+        }
+      }
+
+      if (orderOpenBtn && orderPopup && orderCloseBtn) {
+        // Open Popup
+        orderOpenBtn.addEventListener("click", async function () {
+          resetNewOrderForm(false);
+          await loadSuppliers();
+          orderPopup.style.display = "flex";
+        });
+
+        // Close Popup
+        orderCloseBtn.addEventListener("click", function () {
+          resetNewOrderForm(true);
+          orderPopup.style.display = "none";
+        });
+
+        // Close Popup (click outside)
+        orderPopup.addEventListener("click", function (event) {
+          if (event.target === orderPopup) {
+            resetNewOrderForm(true);
+            orderPopup.style.display = "none";
+          }
+        });
+      } else if (!orderOpenBtn) {
+        console.log("No open Button");
+      } else if (!orderPopup) {
+        console.log("No popup hold...");
+      } else if (!orderCloseBtn) {
+        console.log("No popup close");
+      }
+
+      // Script for confirm order popup
+      if (confirmOpenBtn && confirmPopup) {
+        confirmOpenBtn.addEventListener("click", async function () {
+          if (isSubmittingOrder) return;
+
+          const supplierId = supplierSelect ? Number(supplierSelect.value) : 0;
+          if (!supplierId) {
+            alert("Please select a supplier.");
+            return;
+          }
+
+          const rows = Array.from(
+            document.querySelectorAll(".product_and_unit_select"),
+          );
+          const items = [];
+
+          for (const row of rows) {
+            const prodSel = row.querySelector(".product_sel");
+            const unitInp = row.querySelector(".unit_input");
+            const productId = prodSel ? Number(prodSel.value) : 0;
+            const orderAmount = unitInp ? Number(unitInp.value) : 0;
+
+            if (
+              !productId ||
+              !Number.isInteger(orderAmount) ||
+              orderAmount <= 0
+            ) {
+              alert(
+                "Please select a product and enter a valid unit quantity for each row.",
+              );
+              return;
+            }
+
+            items.push({
+              product_id: productId,
+              order_amount: orderAmount,
+            });
+          }
+
+          if (items.length === 0) {
+            alert("Please add at least one product to the order.");
+            return;
+          }
+
+          try {
+            isSubmittingOrder = true;
+            const res = await fetch("/api/purchase_orders", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                supplier_id: supplierId,
+                items: items,
+              }),
+            });
+            const payload = await res.json();
+
+            if (!res.ok || !payload.success) {
+              alert(payload.error || "Failed to create order.");
+              return;
+            }
+
+            renderConfirmedOrderBreakdown(payload.data, items);
+            resetNewOrderForm(true);
+            orderPopup.style.display = "none";
+            confirmPopup.style.display = "flex";
+            await loadOpenOrders();
+          } catch (err) {
+            console.error("Error creating purchase order:", err);
+            alert("An error occurred while creating the order.");
+          } finally {
+            isSubmittingOrder = false;
+          }
+        });
+
+        function closeConfirmPopup() {
+          document
+            .querySelectorAll(".product_and_unit_select:not(#prod_unit_select)")
+            .forEach((row) => row.remove());
+          confirmPopup.style.display = "none";
+        }
+
+        if (confirmCloseBtn) {
+          confirmCloseBtn.addEventListener("click", closeConfirmPopup);
+        }
+
+        // Close Popup when clicking the X button (including inner SVG shapes or re-rendered icons)
+        confirmPopup.addEventListener("click", function (event) {
+          if (
+            event.target.closest("#x_confirm, .x_confirm, .top_x") ||
+            event.target === confirmPopup
+          ) {
+            closeConfirmPopup();
+          }
+        });
+      } else if (!confirmOpenBtn) {
+        console.log("No open Button");
+      } else if (!confirmPopup) {
+        console.log("No popup hold...");
+      }
+
+      // ADD PRODUCT EXPANDING BUTTON START
+      if (addProdBtn && productRows && firstProductRow) {
+        addProdBtn.addEventListener("click", () => {
+          if (!supplierSelect || !supplierSelect.value) {
+            alert("Please select a supplier first.");
+            return;
+          }
+
+          const taken = getSelectedProductIds(null);
+          const remaining = supplierProductsCache.filter(
+            (p) => !taken.has(String(p.id)),
+          );
+          if (remaining.length === 0) {
+            alert("All products from this supplier have already been added.");
+            return;
+          }
+
+          const productRow = firstProductRow.cloneNode(true);
+          productRow.removeAttribute("id");
+          productRow.querySelectorAll("[id]").forEach((element) => {
+            element.removeAttribute("id");
+          });
+
+          const clonedSel = productRow.querySelector(".product_sel");
+          const clonedUnit = productRow.querySelector(".unit_input");
+          if (clonedUnit) clonedUnit.value = "";
+          if (clonedSel) {
+            populateProductSelect(clonedSel, null);
+            clonedSel.addEventListener("change", refreshAllProductSelects);
+          }
+
+          const deleteButton = document.createElement("button");
+          deleteButton.type = "button";
+          deleteButton.className = "prod_del";
+          deleteButton.innerHTML =
+            '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-trash preview-icon"><path d="M10 11v6"/><path d="M14 11v6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>';
+          deleteButton.addEventListener("click", () => {
+            productRow.remove();
+            refreshAllProductSelects();
+          });
+
+          productRow.appendChild(deleteButton);
+          productRows.appendChild(productRow);
+          refreshAllProductSelects();
+        });
+      } else {
+        console.error("Could not find the add-product button or product row.");
+      }
+      // ADD PRODUCT EXPANDING BUTTON END
+    </script>
+
+    <!-- SCRIPTS END -->
+  </body>
+</html>

@@ -3,14 +3,16 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Suppliers | Stanway</title>
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
       href="https://fonts.googleapis.com/css2?family=Gelasio:ital,wght@0,400..700;1,400..700&display=swap"
-      rel="stylesheet" />
-    <!-- insert here -->
-    <link rel="stylesheet" href="../css/style.css" />
+      rel="stylesheet"
+    />
+    <!-- Styles -->
+    <link rel="stylesheet" href="../static/css/suppliers_style.css" />
   </head>
 
   <body>
@@ -18,7 +20,11 @@
     <nav class="navbar">
       <div class="logobox">
         <div class="logo">
-          <img src="../images/Stanway-Logo-picture.png" class="logoimg" />
+          <img
+            src="../static/images/Stanway-Logo-picture.png"
+            alt="Stanway Logo"
+            class="logoimg"
+          />
         </div>
         <i class="fa-solid fa-grip-lines"></i>
       </div>
@@ -28,32 +34,32 @@
             ><div>
               <i class="fa-solid fa-chart-line"></i>
               Overview
-            </div></a
-          >
+            </div>
+          </a>
         </li>
         <li class="pagenames">
           <a href="stock.html" class="noto-sans-display-page"
             ><div>
               <i class="fa-solid fa-boxes-packing"></i>
               Stock
-            </div></a
-          >
+            </div>
+          </a>
         </li>
         <li class="pagenames">
-          <a href="pricelists.html" class="noto-sans-display-page"
+          <a href="order.html" class="noto-sans-display-page"
             ><div>
               <i class="fa-solid fa-hand-holding-dollar"></i>
-              Pricelist
-            </div></a
-          >
+              Orders
+            </div>
+          </a>
         </li>
         <li class="pagenames active">
           <a href="suppliers.html" class="noto-sans-display-page page_active"
             ><div>
               <i class="fa-solid fa-truck-field"></i>
               Suppliers
-            </div></a
-          >
+            </div>
+          </a>
         </li>
       </ul>
       <div class="accountbox">
@@ -61,63 +67,270 @@
         <h3 class="noto-sans-display-h1">Account</h3>
       </div>
     </nav>
-
     <!-- NAV BAR END -->
 
-    <!-- SUPPLIER BODY START-->
+    <!-- SUPPLIER BODY START -->
     <div class="supplier_body">
-      <div class="sup_topblock">
-        <input class="sup_searchbar" type="text" placeholder="Search..." />
-        <button class="filterbutt">
-          <i data-lucide="funnel"></i>
+      <!-- SUPPLIER BUTTONS START -->
+      <div class="supplierBtns">
+        <button id="supplierButton1" class="supplierbutton1">
+          <div class="new_item_icon">
+            <i data-lucide="circle-plus"></i>
+          </div>
+          <div class="new_item_text">Add Supplier</div>
         </button>
-        <button class="clearbutt">
+
+        <!-- Add Supplier Modal -->
+        <div
+          id="addSupplier"
+          class="modal"
+          role="dialog"
+          aria-labelledby="addSupplierModalTitle"
+          aria-modal="true"
+        >
+          <div class="modal-content">
+            <div class="popup_name">
+              <h1 id="addSupplierModalTitle" class="popup_title">
+                Add New Supplier
+              </h1>
+            </div>
+
+            <form id="addSupplierForm" novalidate>
+              <div class="supplier_details_block">
+                <h3 class="block_title">Supplier Details</h3>
+                <div class="supplier_details_sub_block">
+                  <input
+                    id="addSuppName"
+                    class="addSupplierDetail"
+                    type="text"
+                    placeholder="Supplier Name"
+                    required
+                  />
+                  <input
+                    id="addSuppEmail"
+                    class="addSupplierDetail"
+                    type="email"
+                    placeholder="Email Address"
+                    required
+                  />
+                </div>
+                <input
+                  id="addSuppPhone"
+                  class="addSupplierDetail"
+                  type="text"
+                  placeholder="Telephone Number (optional)"
+                />
+              </div>
+
+              <div class="add_product_button_block">
+                <button
+                  type="button"
+                  id="add_product_button"
+                  class="addProductButton"
+                >
+                  <div class="sup_icon">
+                    <i data-lucide="circle-plus"></i>
+                  </div>
+                  <div class="new_item_text">Add Product</div>
+                </button>
+              </div>
+
+              <div class="ul_block">
+                <ul class="add_ul" id="add_product_ul">
+                  <li class="add_li" id="add_product_li"></li>
+                </ul>
+              </div>
+
+              <p class="popup-status text" style="display: none"></p>
+
+              <div class="cancel_and_submit_block">
+                <span
+                  class="close"
+                  id="close_addSupplier_popup"
+                  role="button"
+                  tabindex="0"
+                >
+                  Cancel
+                </span>
+                <button type="submit" class="submit_popup">Submit</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+      <!-- SUPPLIER BUTTONS END -->
+
+      <!-- Search & Filter Bar -->
+      <div class="sup_topblock">
+        <input
+          id="supplierSearchInput"
+          class="sup_searchbar"
+          type="text"
+          placeholder="Search..."
+        />
+        <button
+          type="button"
+          class="clearbutt"
+          aria-label="Clear supplier search and filters"
+        >
           <i data-lucide="funnel-x"></i>
         </button>
       </div>
-      <div class="sup_bodyblock">
-        <!-- BUTTON FOR PRICELIST - MAIN START -->
-        <button id="sup_Block" class="sup_block">
-          <div class="sup_Block_left">
-            <div class="sup_icon">
-              <i data-lucide="circle-dollar-sign"></i>
-            </div>
-            <h3 class="sup_title">Supplier Name</h3>
-          </div>
-        </button>
+
+      <!-- Main Suppliers List -->
+      <div class="sup_bodyblock" id="suppliers_container">
+        <p class="text">Loading suppliers...</p>
       </div>
 
-      <!-- POPUP MODAL -->
-      <div id="supp_popup_Hold" class="supp_popup_hold">
-        <div class="supp_popup_content">
-          <!-- CLOSE BUTTON -->
-          <div class="pl_popup_top_bar">
-            <div class="pl_popup_title">
-              <h3>Supplier Name</h3>
+      <!-- Supplier Details Popup Modal -->
+      <div
+        id="sup_popup_Hold"
+        class="sup_popup_hold"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="popup_supplier_name"
+      >
+        <div class="sup_popup_content">
+          <!-- Popup Heading -->
+          <div class="sup_popup_top_bar">
+            <div class="sup_popup_title">
+              <h3 id="popup_supplier_name">Supplier Name</h3>
             </div>
-            <button id="close_supp" class="close_supp_popup">
+            <button
+              type="button"
+              id="close_sup"
+              class="close_sup_popup"
+              aria-label="Close supplier details"
+            >
               <i data-lucide="circle-x"></i>
             </button>
           </div>
 
-          <!-- POPUP CONTENT -->
-          <div class="pl_product_info">
-            <div class="pl_info_left">
-              <h3>Supplier Contact Details</h3>
+          <!-- Edit Supplier Action & Modal -->
+          <div class="editsupplierbutton_block">
+            <button
+              type="button"
+              id="editsupplierButton"
+              class="editsupplierbutton"
+            >
+              <div class="new_item_icon">
+                <i data-lucide="circle-plus"></i>
+              </div>
+              <div class="new_item_text">Edit Supplier</div>
+            </button>
+
+            <!-- Edit Supplier Modal -->
+            <div
+              id="editSupplier"
+              class="edit_modal"
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="editSupplierTitle"
+            >
+              <!-- Modal content -->
+              <div class="edit_modal-content">
+                <div class="delete_block">
+                  <button
+                    type="button"
+                    id="deleteSupplierButton"
+                    class="deleteSupplierBigButton"
+                  >
+                    <p>Delete Supplier</p>
+                  </button>
+                </div>
+
+                <div class="popup_name">
+                  <h1 class="popup_title" id="editSupplierTitle">
+                    Edit Supplier Name
+                  </h1>
+                </div>
+
+                <form id="editSupplierForm" novalidate>
+                  <div class="supplier_details_block">
+                    <h3 class="block_title">Supplier Details</h3>
+                    <div class="supplier_details_sub_block">
+                      <input
+                        id="editSuppName"
+                        class="addSupplierDetail"
+                        type="text"
+                        placeholder="Supplier Name"
+                        required
+                      />
+                      <input
+                        id="editSuppEmail"
+                        class="addSupplierDetail"
+                        type="email"
+                        placeholder="Email Address"
+                        required
+                      />
+                    </div>
+                    <input
+                      id="editSuppPhone"
+                      class="addSupplierDetail"
+                      type="text"
+                      placeholder="Telephone Number (optional)"
+                    />
+                  </div>
+
+                  <h3 class="block_title">Products</h3>
+                  <div id="edit_existing_products"></div>
+
+                  <div class="add_product_button_block">
+                    <button
+                      type="button"
+                      id="edit_add_product_button"
+                      class="addProductButton"
+                    >
+                      <div class="sup_icon">
+                        <i data-lucide="circle-plus"></i>
+                      </div>
+                      <div class="new_item_text">Add Product</div>
+                    </button>
+                  </div>
+
+                  <div class="edit_ul_block">
+                    <ul class="edit_add_ul" id="edit_add_product_ul">
+                      <li class="edit_add_li" id="edit_add_product_li"></li>
+                    </ul>
+                  </div>
+
+                  <p class="popup-status text" style="display: none"></p>
+
+                  <div class="cancel_and_submit_block">
+                    <span
+                      class="close"
+                      id="close_editSupplier_popup"
+                      role="button"
+                      tabindex="0"
+                    >
+                      Cancel
+                    </span>
+                    <button type="submit" class="submit_popup">Submit</button>
+                  </div>
+                </form>
+              </div>
             </div>
-            <div class="pl_info_right">
-              <div class="pl_info_display sup_prod_list">
-                <div class="sup_prod_item">
-                  <h3>Product Name</h3>
+          </div>
+
+          <!-- Supplier Contact & Linked Products Display -->
+          <div class="sup_product_info">
+            <div class="sup_info_left">
+              <div class="sup_info_textbox">
+                <div class="sup_info_sub_textbox">
+                  <p>Email Address</p>
+                  <p id="popup_supplier_email">email@address</p>
                 </div>
-                <div class="sup_prod_item">
-                  <h3>Product Name</h3>
+                <div class="sup_info_sub_textbox">
+                  <p>Phone Number</p>
+                  <p id="popup_supplier_telephone">0123456789</p>
                 </div>
+              </div>
+            </div>
+
+            <div class="sup_info_right">
+              <div class="sup_info_display" id="popup_supplier_products">
                 <div class="sup_prod_item">
-                  <h3>Product Name</h3>
-                </div>
-                <div class="sup_prod_item">
-                  <h3>Product Name</h3>
+                  <p>Loading products...</p>
                 </div>
               </div>
             </div>
@@ -125,16 +338,782 @@
         </div>
       </div>
     </div>
-
     <!-- SUPPLIER BODY END -->
-    <!-- Script for icons-->
+
+    <!-- Icon & Base Scripts -->
     <script
       src="https://kit.fontawesome.com/3000704a08.js"
-      crossorigin="anonymous"></script>
+      crossorigin="anonymous"
+    ></script>
     <script src="https://unpkg.com/lucide@latest"></script>
-    <script>
-      lucide.createIcons();
-    </script>
     <script src="../templates/script.js"></script>
+
+    <!-- API Integration -->
+    <script>
+      let allSuppliers = [];
+      let activeSupplier = null;
+      let activeSupplierProductsDetail = [];
+
+      function refreshIcons() {
+        if (window.lucide && typeof window.lucide.createIcons === "function") {
+          window.lucide.createIcons();
+        }
+      }
+
+      function todayISO() {
+        return new Date().toISOString().split("T")[0];
+      }
+
+      document.addEventListener("DOMContentLoaded", () => {
+        refreshIcons();
+        loadSuppliers();
+        initSearchAndFilter();
+        initSupplierDetailPopup();
+        initAddSupplierModal();
+        initEditSupplierModal();
+
+        // Allow Escape key to close the top-most open modal
+        document.addEventListener("keydown", (event) => {
+          if (event.key === "Escape") {
+            const editModal = document.getElementById("editSupplier");
+            const addModal = document.getElementById("addSupplier");
+            const detailPopup = document.getElementById("sup_popup_Hold");
+
+            if (editModal && editModal.style.display === "block") {
+              editModal.style.display = "none";
+            } else if (addModal && addModal.style.display === "block") {
+              addModal.style.display = "none";
+            } else if (detailPopup && detailPopup.style.display === "flex") {
+              detailPopup.style.display = "none";
+            }
+          }
+        });
+      });
+
+      /* ---------------- PRODUCT ROW BUILDER ---------------- */
+      function buildProductRow({
+        productId = null,
+        name = "",
+        price = "",
+        supplierPrice = "",
+        units = "",
+        inventory = "",
+        storageLocation = "",
+        isEdit = false,
+      } = {}) {
+        const parentDiv = document.createElement("div");
+        parentDiv.className = isEdit
+          ? "edit_product_details_block"
+          : "product_details_block";
+        if (productId !== null) {
+          parentDiv.dataset.productId = productId;
+        }
+
+        const inputName = document.createElement("input");
+        inputName.className = "addProductName";
+        inputName.type = "text";
+        inputName.placeholder = "Product Name";
+        inputName.value = name;
+
+        const inputUnits = document.createElement("input");
+        inputUnits.className = "addProductUnits";
+        inputUnits.type = "number";
+        inputUnits.step = "1";
+        inputUnits.min = "1";
+        inputUnits.value = units;
+
+        const inputInventory = document.createElement("input");
+        inputInventory.className = "addProductInventory";
+        inputInventory.type = "number";
+        inputInventory.step = "1";
+        inputInventory.min = "0";
+        inputInventory.value = inventory !== "" ? inventory : units;
+
+        const inputSupplierPrice = document.createElement("input");
+        inputSupplierPrice.className = "addProductSupplierPrice";
+        inputSupplierPrice.type = "number";
+        inputSupplierPrice.step = "0.01";
+        inputSupplierPrice.min = "0";
+        inputSupplierPrice.value =
+          supplierPrice !== "" ? supplierPrice : price;
+
+        const inputProductPrice = document.createElement("input");
+        inputProductPrice.className = "addProductPrice";
+        inputProductPrice.type = "number";
+        inputProductPrice.step = "0.01";
+        inputProductPrice.min = "0";
+        inputProductPrice.value = price;
+
+        const inputStorageLocation = document.createElement("input");
+        inputStorageLocation.className = "addProductStorageLocation";
+        inputStorageLocation.type = "text";
+        inputStorageLocation.placeholder = "Storage Location";
+        inputStorageLocation.value = storageLocation;
+
+        const childDiv1 = document.createElement("div");
+        childDiv1.className = "product_details_sub_block";
+
+        const childDiv2 = document.createElement("div");
+        childDiv2.className = "product_details_sub_block";
+
+        const childDiv2text = document.createElement("div");
+        childDiv2text.textContent = "Units per box";
+
+        const childDiv3 = document.createElement("div");
+        childDiv3.className = "product_details_sub_block";
+
+        const childDiv3text = document.createElement("div");
+        childDiv3text.textContent = "Amount in inventory";
+
+        const childDiv4 = document.createElement("div");
+        childDiv4.className = "product_details_sub_block";
+
+        const childDiv4text = document.createElement("div");
+        childDiv4text.textContent = "Supplier Price";
+
+        const childDiv5 = document.createElement("div");
+        childDiv5.className = "product_details_sub_block";
+
+        const childDiv5text = document.createElement("div");
+        childDiv5text.textContent = "Product Price";
+
+        const childDiv6 = document.createElement("div");
+        childDiv6.className = "product_details_sub_block";
+
+        const childDiv7 = document.createElement("div");
+        childDiv7.className = "product_details_sub_block";
+
+        const childDiv8 = document.createElement("div");
+        childDiv8.className = "product_details_sub_block";
+
+        const childDiv9 = document.createElement("div");
+        childDiv9.className = "product_details_sub_block";
+
+        const childDiv10 = document.createElement("div");
+        childDiv10.className = "delete_block";
+
+        const deleteBtn = document.createElement("button");
+        deleteBtn.type = "button";
+        deleteBtn.className = isEdit ? "deleteSupplierButton" : "deletebutton";
+        deleteBtn.textContent = "Delete";
+        deleteBtn.addEventListener("click", () => {
+          if (productId !== null) {
+            parentDiv.dataset.deleted = "true";
+            parentDiv.style.display = "none";
+          } else {
+            parentDiv.remove();
+          }
+        });
+
+        childDiv1.append(inputName);
+        childDiv2.append(childDiv2text, inputUnits);
+        childDiv3.append(childDiv3text, inputInventory);
+        childDiv4.append(childDiv4text, inputSupplierPrice);
+        childDiv5.append(childDiv5text, inputProductPrice);
+        childDiv9.append(childDiv4, childDiv5);
+        childDiv6.append(inputStorageLocation);
+        childDiv10.append(deleteBtn);
+        childDiv7.append(childDiv2, childDiv3);
+        childDiv8.append(childDiv6, childDiv10);
+        parentDiv.append(childDiv1, childDiv7, childDiv9, childDiv8);
+        return parentDiv;
+      }
+
+      function extractProductPayload(row, supplierId) {
+        const pName = row.querySelector(".addProductName")?.value.trim() || "";
+        if (!pName) return null;
+
+        const rawUnits = row.querySelector(".addProductUnits")?.value;
+        const rawInv = row.querySelector(".addProductInventory")?.value;
+        const rawSupPrice = row.querySelector(".addProductSupplierPrice")?.value;
+        const rawProdPrice = row.querySelector(".addProductPrice")?.value;
+        const storageLocation =
+          row.querySelector(".addProductStorageLocation")?.value.trim() || "";
+
+        const pUnits = Math.max(Math.trunc(Number(rawUnits) || 1), 1);
+        const pInv = Math.max(Math.trunc(Number(rawInv) || 0), 0);
+        const pSupPrice = Math.max(Number(rawSupPrice) || 0, 0);
+        const pProdPrice = Math.max(Number(rawProdPrice) || 0, 0);
+
+        return {
+          name: pName,
+          supplier_id: supplierId,
+          supplier_price: pSupPrice,
+          price: pProdPrice,
+          units_per_package: pUnits,
+          holding_cost: 0,
+          year_starting_inventory: pInv,
+          storage_location: storageLocation,
+        };
+      }
+
+      /* ---------------- ADD SUPPLIER MODAL ---------------- */
+      function initAddSupplierModal() {
+        const modal = document.getElementById("addSupplier");
+        const openBtn = document.getElementById("supplierButton1");
+        const closeBtn = document.getElementById("close_addSupplier_popup");
+        const form = document.getElementById("addSupplierForm");
+
+        if (!modal || !openBtn || !closeBtn || !form) return;
+
+        const nameInput = document.getElementById("addSuppName");
+        const emailInput = document.getElementById("addSuppEmail");
+        const phoneInput = document.getElementById("addSuppPhone");
+        const addProductBtn = document.getElementById("add_product_button");
+        const productListEl = document.getElementById("add_product_li");
+        const submitBtn = form.querySelector(".submit_popup");
+        const statusEl = modal.querySelector(".popup-status");
+
+        function setStatus(message, isError = false) {
+          statusEl.style.display = message ? "block" : "none";
+          statusEl.textContent = message;
+          statusEl.style.color = isError ? "#c0392b" : "#27ae60";
+        }
+
+        function resetForm() {
+          form.reset();
+          productListEl.innerHTML = "";
+          setStatus("");
+        }
+
+        function closeModal() {
+          modal.style.display = "none";
+          setStatus("");
+        }
+
+        openBtn.addEventListener("click", () => {
+          resetForm();
+          modal.style.display = "block";
+          nameInput.focus();
+        });
+
+        closeBtn.addEventListener("click", (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          closeModal();
+        });
+
+        modal.addEventListener("click", (e) => {
+          if (e.target === modal) closeModal();
+        });
+
+        addProductBtn?.addEventListener("click", () => {
+          productListEl.appendChild(buildProductRow({ isEdit: false }));
+        });
+
+        form.addEventListener("submit", async (e) => {
+          e.preventDefault();
+
+          const name = nameInput.value.trim();
+          const contactEmail = emailInput.value.trim();
+          const contactPhone = phoneInput.value.trim();
+
+          if (!name) return setStatus("Please enter a supplier name.", true);
+          if (!contactEmail) {
+            return setStatus("Please enter an email address.", true);
+          }
+
+          submitBtn.disabled = true;
+          setStatus("Saving supplier...", false);
+
+          try {
+            const supResponse = await fetch("/api/suppliers", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                name,
+                from_date: todayISO(),
+                contact_email: contactEmail,
+                contact_phone: contactPhone,
+              }),
+            });
+
+            const supResult = await supResponse.json();
+            if (!supResponse.ok || !supResult.success) {
+              throw new Error(supResult.error || `HTTP ${supResponse.status}`);
+            }
+
+            const newSupplierId = supResult.data.id;
+            const productRows = productListEl.querySelectorAll(
+              ".product_details_block",
+            );
+
+            for (const row of productRows) {
+              const payload = extractProductPayload(row, newSupplierId);
+              if (!payload) continue;
+
+              const prodResponse = await fetch("/api/products", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(payload),
+              });
+
+              const prodResult = await prodResponse.json();
+              if (!prodResponse.ok || !prodResult.success) {
+                throw new Error(
+                  prodResult.error || `Failed to add product "${payload.name}".`,
+                );
+              }
+            }
+
+            setStatus("Supplier added successfully!", false);
+            await loadSuppliers();
+            setTimeout(closeModal, 600);
+          } catch (error) {
+            console.error("Error creating supplier:", error);
+            setStatus(error.message || "Failed to add supplier.", true);
+          } finally {
+            submitBtn.disabled = false;
+          }
+        });
+      }
+
+      /* ---------------- EDIT & DELETE SUPPLIER MODAL ---------------- */
+      function initEditSupplierModal() {
+        const modal = document.getElementById("editSupplier");
+        const openBtn = document.getElementById("editsupplierButton");
+        const closeBtn = document.getElementById("close_editSupplier_popup");
+        const form = document.getElementById("editSupplierForm");
+        const deleteSupBtn = document.getElementById("deleteSupplierButton");
+
+        if (!modal || !openBtn || !closeBtn || !form) return;
+
+        const titleEl = document.getElementById("editSupplierTitle");
+        const nameInput = document.getElementById("editSuppName");
+        const emailInput = document.getElementById("editSuppEmail");
+        const phoneInput = document.getElementById("editSuppPhone");
+        const existingProductsEl = document.getElementById(
+          "edit_existing_products",
+        );
+        const addProductBtn = document.getElementById(
+          "edit_add_product_button",
+        );
+        const newProductsListEl = document.getElementById(
+          "edit_add_product_li",
+        );
+        const submitBtn = form.querySelector(".submit_popup");
+        const statusEl = modal.querySelector(".popup-status");
+
+        function setStatus(message, isError = false) {
+          statusEl.style.display = message ? "block" : "none";
+          statusEl.textContent = message;
+          statusEl.style.color = isError ? "#c0392b" : "#27ae60";
+        }
+
+        function closeModal() {
+          modal.style.display = "none";
+          setStatus("");
+        }
+
+        openBtn.addEventListener("click", () => {
+          if (!activeSupplier) return;
+
+          setStatus("");
+          titleEl.textContent = `Edit ${activeSupplier.name}`;
+          nameInput.value = activeSupplier.name || "";
+          emailInput.value = activeSupplier.contact_email || "";
+          phoneInput.value = activeSupplier.contact_phone || "";
+
+          existingProductsEl.innerHTML = "";
+          newProductsListEl.innerHTML = "";
+
+          const detailById = new Map(
+            (activeSupplierProductsDetail || []).map((p) => [
+              Number(p.id),
+              p,
+            ]),
+          );
+
+          (activeSupplier.products || []).forEach((prod) => {
+            const fullProd = detailById.get(Number(prod.product_id)) || {};
+            existingProductsEl.appendChild(
+              buildProductRow({
+                productId: prod.product_id,
+                name: fullProd.name ?? prod.product_name,
+                price: fullProd.sell_price ?? prod.supplier_price,
+                supplierPrice: fullProd.cost_price ?? prod.supplier_price,
+                units: prod.units_per_package,
+                inventory: fullProd.year_starting_inventory ?? "",
+                storageLocation: fullProd.storage_location ?? "",
+                isEdit: true,
+              }),
+            );
+          });
+
+          modal.style.display = "block";
+          nameInput.focus();
+        });
+
+        closeBtn.addEventListener("click", (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          closeModal();
+        });
+
+        modal.addEventListener("click", (e) => {
+          if (e.target === modal) closeModal();
+        });
+
+        addProductBtn?.addEventListener("click", () => {
+          newProductsListEl.appendChild(buildProductRow({ isEdit: true }));
+        });
+
+        form.addEventListener("submit", async (e) => {
+          e.preventDefault();
+          if (!activeSupplier) return;
+
+          const name = nameInput.value.trim();
+          const contactEmail = emailInput.value.trim();
+          const contactPhone = phoneInput.value.trim();
+
+          if (!name) return setStatus("Please enter a supplier name.", true);
+          if (!contactEmail) {
+            return setStatus("Please enter an email address.", true);
+          }
+
+          submitBtn.disabled = true;
+          setStatus("Updating supplier...", false);
+
+          try {
+            const supResponse = await fetch(
+              `/api/suppliers/${encodeURIComponent(activeSupplier.id)}`,
+              {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                  name,
+                  from_date: activeSupplier.from_date || todayISO(),
+                  contact_email: contactEmail,
+                  contact_phone: contactPhone,
+                }),
+              },
+            );
+
+            const supResult = await supResponse.json();
+            if (!supResponse.ok || !supResult.success) {
+              throw new Error(supResult.error || `HTTP ${supResponse.status}`);
+            }
+
+            // Update or delete existing linked products
+            const existingRows = existingProductsEl.querySelectorAll(
+              ".edit_product_details_block",
+            );
+            for (const row of existingRows) {
+              const prodId = row.dataset.productId;
+              if (row.dataset.deleted === "true") {
+                const delResponse = await fetch(
+                  `/api/products/${encodeURIComponent(prodId)}`,
+                  { method: "DELETE" },
+                );
+                const delResult = await delResponse.json().catch(() => ({}));
+                if (!delResponse.ok || delResult.success === false) {
+                  throw new Error(
+                    delResult.error || `Failed to delete product #${prodId}.`,
+                  );
+                }
+                continue;
+              }
+
+              const payload = extractProductPayload(row, activeSupplier.id);
+              if (payload) {
+                const putResponse = await fetch(
+                  `/api/products/${encodeURIComponent(prodId)}`,
+                  {
+                    method: "PUT",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                      name: payload.name,
+                      price: payload.price,
+                      supplier_price: payload.supplier_price,
+                      units_per_package: payload.units_per_package,
+                      year_starting_inventory: payload.year_starting_inventory,
+                      storage_location: payload.storage_location,
+                    }),
+                  },
+                );
+                const putResult = await putResponse.json();
+                if (!putResponse.ok || !putResult.success) {
+                  throw new Error(
+                    putResult.error || `Failed to update "${payload.name}".`,
+                  );
+                }
+              }
+            }
+
+            // Create newly added products
+            const newRows = newProductsListEl.querySelectorAll(
+              ".edit_product_details_block",
+            );
+            for (const row of newRows) {
+              const payload = extractProductPayload(row, activeSupplier.id);
+              if (!payload) continue;
+
+              const postResponse = await fetch("/api/products", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(payload),
+              });
+              const postResult = await postResponse.json();
+              if (!postResponse.ok || !postResult.success) {
+                throw new Error(
+                  postResult.error || `Failed to add "${payload.name}".`,
+                );
+              }
+            }
+
+            setStatus("Supplier updated successfully!", false);
+            await loadSuppliers();
+            await openSupplierPopup(activeSupplier.id);
+            setTimeout(closeModal, 600);
+          } catch (error) {
+            console.error("Error updating supplier:", error);
+            setStatus(error.message || "Failed to update supplier.", true);
+          } finally {
+            submitBtn.disabled = false;
+          }
+        });
+
+        deleteSupBtn?.addEventListener("click", async () => {
+          if (!activeSupplier) return;
+          if (
+            !confirm(
+              `Are you sure you want to delete "${activeSupplier.name}"?`,
+            )
+          ) {
+            return;
+          }
+
+          deleteSupBtn.disabled = true;
+          setStatus("Deleting supplier...", false);
+
+          try {
+            const response = await fetch(
+              `/api/suppliers/${encodeURIComponent(activeSupplier.id)}`,
+              { method: "DELETE" },
+            );
+            const result = await response.json().catch(() => ({}));
+            if (!response.ok || result.success === false) {
+              throw new Error(result.error || `HTTP ${response.status}`);
+            }
+
+            closeModal();
+            document.getElementById("sup_popup_Hold").style.display = "none";
+            activeSupplier = null;
+            activeSupplierProductsDetail = [];
+            await loadSuppliers();
+          } catch (error) {
+            console.error("Error deleting supplier:", error);
+            setStatus(error.message || "Failed to delete supplier.", true);
+          } finally {
+            deleteSupBtn.disabled = false;
+          }
+        });
+      }
+
+      /* ---------------- SUPPLIERS LIST & DETAIL POPUP ---------------- */
+      async function loadSuppliers() {
+        const container = document.getElementById("suppliers_container");
+        if (!container) return;
+
+        container.innerHTML = `<p class="text">Loading suppliers...</p>`;
+
+        try {
+          const response = await fetch("/api/suppliers");
+          if (!response.ok) throw new Error(`HTTP ${response.status}`);
+
+          const payload = await response.json();
+          allSuppliers = Array.isArray(payload) ? payload : payload.data || [];
+
+          renderSuppliers(allSuppliers);
+        } catch (error) {
+          console.error("Error fetching suppliers:", error);
+          container.innerHTML = `<p class="text">Failed to load suppliers.</p>`;
+        }
+      }
+
+      function renderSuppliers(suppliers) {
+        const container = document.getElementById("suppliers_container");
+        if (!container) return;
+
+        if (suppliers.length === 0) {
+          container.innerHTML = `<p class="text">No suppliers found.</p>`;
+          return;
+        }
+
+        container.innerHTML = "";
+        suppliers.forEach((supplier) => {
+          const supplierId = supplier.id ?? supplier.supplier_id;
+          const supplierName =
+            supplier.name ?? supplier.supplier_name ?? "Unnamed Supplier";
+
+          const btn = document.createElement("button");
+          btn.type = "button";
+          btn.className = "sup_block";
+          btn.dataset.supplierId = supplierId;
+
+          btn.innerHTML = `
+            <div class="sup_Block_left">
+              <div class="sup_icon">
+                <i data-lucide="users-round"></i>
+              </div>
+              <h3 class="sup_title"></h3>
+            </div>
+          `;
+          btn.querySelector(".sup_title").textContent = supplierName;
+
+          btn.addEventListener("click", () => openSupplierPopup(supplierId));
+          container.appendChild(btn);
+        });
+
+        refreshIcons();
+      }
+
+      function initSupplierDetailPopup() {
+        const supPopup = document.getElementById("sup_popup_Hold");
+        const supCloseBtn = document.getElementById("close_sup");
+
+        if (!supPopup || !supCloseBtn) return;
+
+        supCloseBtn.addEventListener("click", () => {
+          supPopup.style.display = "none";
+        });
+
+        supPopup.addEventListener("click", (event) => {
+          if (event.target === supPopup) {
+            supPopup.style.display = "none";
+          }
+        });
+      }
+
+      async function openSupplierPopup(supplierId) {
+        const supPopup = document.getElementById("sup_popup_Hold");
+        const nameEl = document.getElementById("popup_supplier_name");
+        const emailEl = document.getElementById("popup_supplier_email");
+        const phoneEl = document.getElementById("popup_supplier_telephone");
+        const productsEl = document.getElementById("popup_supplier_products");
+
+        supPopup.style.display = "flex";
+        nameEl.textContent = "Loading...";
+        emailEl.textContent = "-";
+        phoneEl.textContent = "-";
+        productsEl.innerHTML = `<div class="sup_prod_item"><h3>Loading products...</h3></div>`;
+        activeSupplierProductsDetail = [];
+
+        try {
+          const [supResponse, prodResponse] = await Promise.all([
+            fetch(`/api/suppliers/${encodeURIComponent(supplierId)}`),
+            fetch(`/api/suppliers/${encodeURIComponent(supplierId)}/products`),
+          ]);
+
+          if (!supResponse.ok) throw new Error(`HTTP ${supResponse.status}`);
+
+          const payload = await supResponse.json();
+          if (!payload.success) {
+            throw new Error(payload.error || "Failed to load supplier.");
+          }
+
+          activeSupplier = payload.data;
+          nameEl.textContent = activeSupplier.name || "Unnamed Supplier";
+          emailEl.textContent =
+            activeSupplier.contact_email || "No email provided";
+          phoneEl.textContent =
+            activeSupplier.contact_phone || "No phone number";
+
+          let detailedProducts = [];
+          if (prodResponse.ok) {
+            const prodPayload = await prodResponse.json();
+            if (prodPayload.success && Array.isArray(prodPayload.data?.products_data)) {
+              detailedProducts = prodPayload.data.products_data;
+            }
+          }
+          activeSupplierProductsDetail = detailedProducts;
+
+          const detailById = new Map(
+            detailedProducts.map((p) => [Number(p.id), p]),
+          );
+          const products = Array.isArray(activeSupplier.products)
+            ? activeSupplier.products
+            : [];
+
+          if (products.length === 0) {
+            productsEl.innerHTML = `
+              <div class="sup_prod_item">
+                <h3>No products linked to this supplier.</h3>
+              </div>
+            `;
+            return;
+          }
+
+          productsEl.innerHTML = "";
+          products.forEach((prod) => {
+            const fullProd = detailById.get(Number(prod.product_id)) || {};
+            const item = document.createElement("div");
+            item.className = "sup_prod_item";
+
+            const titleEl = document.createElement("h3");
+            titleEl.textContent = fullProd.name ?? prod.product_name;
+
+            const costEl = document.createElement("p");
+            costEl.textContent = `Supplier Price: R ${Number(fullProd.cost_price ?? prod.supplier_price ?? 0).toFixed(2)} | Sell Price: R ${Number(fullProd.sell_price ?? 0).toFixed(2)}`;
+
+            const stockEl = document.createElement("p");
+            stockEl.textContent = `Units/Box: ${fullProd.units_per_package ?? prod.units_per_package ?? 1} | Stock: ${fullProd.current_inventory ?? 0} | Location: ${fullProd.storage_location || "N/A"}`;
+
+            item.append(titleEl, costEl, stockEl);
+            productsEl.appendChild(item);
+          });
+        } catch (error) {
+          console.error("Error loading supplier details:", error);
+          nameEl.textContent = "Error loading supplier";
+          productsEl.innerHTML = `<div class="sup_prod_item"><h3>${error.message}</h3></div>`;
+        }
+      }
+
+      /* ---------------- SEARCH & FILTER ---------------- */
+      function initSearchAndFilter() {
+        const searchInput = document.getElementById("supplierSearchInput");
+        const filterBtn = document.querySelector(".filterbutt");
+        const clearBtn = document.querySelector(".clearbutt");
+
+        function applySearch() {
+          const term = (searchInput?.value || "").trim().toLowerCase();
+          if (!term) {
+            renderSuppliers(allSuppliers);
+            return;
+          }
+
+          const filtered = allSuppliers.filter((supplier) => {
+            const nameMatch = String(supplier.name ?? "")
+              .toLowerCase()
+              .includes(term);
+            const emailMatch = String(supplier.contact_email ?? "")
+              .toLowerCase()
+              .includes(term);
+            const prodMatch = (supplier.products || []).some((prod) =>
+              String(prod.product_name ?? "")
+                .toLowerCase()
+                .includes(term),
+            );
+            return nameMatch || emailMatch || prodMatch;
+          });
+
+          renderSuppliers(filtered);
+        }
+
+        filterBtn?.addEventListener("click", applySearch);
+        searchInput?.addEventListener("input", applySearch);
+        searchInput?.addEventListener("keydown", (event) => {
+          if (event.key === "Enter") {
+            event.preventDefault();
+            applySearch();
+          }
+        });
+
+        clearBtn?.addEventListener("click", () => {
+          if (searchInput) searchInput.value = "";
+          renderSuppliers(allSuppliers);
+        });
+      }
+    </script>
   </body>
 </html>
