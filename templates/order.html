@@ -333,20 +333,14 @@
                 <option value="" disabled selected hidden>
                   Select Supplier
                 </option>
-                <option value="supplier1">Supplier 1</option>
-                <option value="supplier2">Supplier 2</option>
-                <option value="supplier3">Supplier 3</option>
               </select>
             </div>
             <div class="product_and_unit_select" id="prod_unit_select">
               <div class="product_select">
-                <select class="product_sel" name="product" id="product">
+                <select class="product_sel" name="product" id="product" disabled>
                   <option value="" disabled selected hidden>
                     Select Product
                   </option>
-                  <option value="product1">Product 1</option>
-                  <option value="product2">Product 2</option>
-                  <option value="product3">Product 3</option>
                 </select>
               </div>
               <div class="unit_select">
@@ -355,13 +349,14 @@
                   class="unit_input"
                   name="units"
                   id="units"
+                  min="1"
                   placeholder="Units" />
               </div>
             </div>
           </div>
 
           <div class="order_action_btns">
-            <button class="add_prod" id="add_product">
+            <button class="add_prod" id="add_product" type="button">
               <i data-lucide="circle-plus"></i>
               <p>Add Product</p>
             </button>
@@ -399,25 +394,6 @@
               <i data-lucide="circle-dollar-sign"></i>
               <h3>Product 1</h3>
             </div>
-
-            <!-- FILLER START -->
-            <div class="prod_and_units_sum">
-              <i data-lucide="circle-dollar-sign"></i>
-              <h3>Product 2</h3>
-            </div>
-            <div class="prod_and_units_sum">
-              <i data-lucide="circle-dollar-sign"></i>
-              <h3>Product 3</h3>
-            </div>
-            <div class="prod_and_units_sum">
-              <i data-lucide="circle-dollar-sign"></i>
-              <h3>Product 4</h3>
-            </div>
-            <div class="prod_and_units_sum">
-              <i data-lucide="circle-dollar-sign"></i>
-              <h3>Product 5</h3>
-            </div>
-            <!-- FILLER END -->
           </div>
 
           <div class="tot_order_cost">
@@ -538,28 +514,312 @@
     </script>
 
     <script>
-      // Script for new order popup
+      // Script for new order popup & confirmed order breakdown
       const orderOpenBtn = document.getElementById("new_order_button");
       const orderPopup = document.getElementById("new_order_popup");
       const orderCloseBtn = document.getElementById("cancel");
+      const supplierSelect = document.getElementById("supplier");
+      const productRows = document.querySelector(".selectors");
+      const firstProductRow = document.getElementById("prod_unit_select");
+      const addProdBtn = document.getElementById("add_product");
+
+      const confirmOpenBtn = document.getElementById("confirm");
+      const confirmPopup = document.getElementById("confirm_background");
+      const confirmCloseBtn = document.getElementById("x_confirm");
+
+      let supplierProductsCache = [];
+      let isSubmittingOrder = false;
+
+      function formatRand(amount) {
+        const num = Number(amount || 0);
+        return (
+          "R " +
+          num.toLocaleString("en-ZA", {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2,
+          })
+        );
+      }
+
+      function getAllProductSelects() {
+        return Array.from(document.querySelectorAll(".product_sel"));
+      }
+
+      function getSelectedProductIds(excludeSelect = null) {
+        const selected = new Set();
+        getAllProductSelects().forEach((sel) => {
+          if (sel !== excludeSelect && sel.value) {
+            selected.add(String(sel.value));
+          }
+        });
+        return selected;
+      }
+
+      function populateProductSelect(selectEl, preserveValue = null) {
+        const hasSupplier = Boolean(supplierSelect && supplierSelect.value);
+        selectEl.innerHTML = "";
+
+        const placeholderOpt = document.createElement("option");
+        placeholderOpt.value = "";
+        placeholderOpt.disabled = true;
+        placeholderOpt.selected = true;
+        placeholderOpt.hidden = true;
+        placeholderOpt.textContent = hasSupplier
+          ? "Select Product"
+          : "Select Product";
+        selectEl.appendChild(placeholderOpt);
+
+        if (!hasSupplier) {
+          selectEl.disabled = true;
+          selectEl.value = "";
+          return;
+        }
+
+        const takenByOthers = getSelectedProductIds(selectEl);
+        const availableProducts = supplierProductsCache.filter(
+          (prod) =>
+            !takenByOthers.has(String(prod.id)) ||
+            String(prod.id) === String(preserveValue),
+        );
+
+        availableProducts.forEach((prod) => {
+          const opt = document.createElement("option");
+          opt.value = String(prod.id);
+          opt.textContent = prod.name;
+          selectEl.appendChild(opt);
+        });
+
+        selectEl.disabled = availableProducts.length === 0;
+
+        if (
+          preserveValue &&
+          availableProducts.some((p) => String(p.id) === String(preserveValue))
+        ) {
+          selectEl.value = String(preserveValue);
+        } else {
+          selectEl.value = "";
+          placeholderOpt.selected = true;
+        }
+      }
+
+      function refreshAllProductSelects() {
+        getAllProductSelects().forEach((sel) => {
+          populateProductSelect(sel, sel.value);
+        });
+      }
+
+      function resetNewOrderForm(keepSuppliers = true) {
+        document
+          .querySelectorAll(".product_and_unit_select:not(#prod_unit_select)")
+          .forEach((row) => row.remove());
+
+        supplierProductsCache = [];
+
+        if (supplierSelect) {
+          supplierSelect.value = "";
+          const defaultSupOpt = supplierSelect.querySelector('option[value=""]');
+          if (defaultSupOpt) defaultSupOpt.selected = true;
+          if (!keepSuppliers) {
+            supplierSelect.innerHTML =
+              '<option value="" disabled selected hidden>Select Supplier</option>';
+          }
+        }
+
+        if (firstProductRow) {
+          const firstProdSel = firstProductRow.querySelector(".product_sel");
+          const firstUnitInp = firstProductRow.querySelector(".unit_input");
+          if (firstProdSel) {
+            populateProductSelect(firstProdSel, null);
+          }
+          if (firstUnitInp) {
+            firstUnitInp.value = "";
+          }
+        }
+      }
+
+      async function loadSuppliers() {
+        if (!supplierSelect) return;
+        try {
+          const res = await fetch("/api/suppliers");
+          const payload = await res.json();
+          if (!res.ok || !payload.success) return;
+
+          supplierSelect.innerHTML =
+            '<option value="" disabled selected hidden>Select Supplier</option>';
+
+          (payload.data || []).forEach((sup) => {
+            const opt = document.createElement("option");
+            opt.value = String(sup.id);
+            opt.textContent = sup.name;
+            supplierSelect.appendChild(opt);
+          });
+        } catch (err) {
+          console.error("Failed to load suppliers:", err);
+        }
+      }
+
+      async function handleSupplierChange() {
+        const supplierId = supplierSelect ? supplierSelect.value : "";
+
+        // Reset extra rows and clear current selection when supplier changes
+        document
+          .querySelectorAll(".product_and_unit_select:not(#prod_unit_select)")
+          .forEach((row) => row.remove());
+
+        if (firstProductRow) {
+          const firstUnitInp = firstProductRow.querySelector(".unit_input");
+          if (firstUnitInp) firstUnitInp.value = "";
+        }
+
+        supplierProductsCache = [];
+
+        if (!supplierId) {
+          refreshAllProductSelects();
+          return;
+        }
+
+        try {
+          const res = await fetch(`/api/suppliers/${encodeURIComponent(supplierId)}/products`);
+          const payload = await res.json();
+          if (!res.ok || !payload.success) {
+            refreshAllProductSelects();
+            return;
+          }
+
+          const rawProducts = payload.data?.products_data || [];
+          supplierProductsCache = rawProducts.map((p) => ({
+            id: p.id,
+            name: p.name,
+            cost_price: Number(p.cost_price ?? 0),
+            effective_lt: Number(p.effective_lt ?? 0),
+          }));
+
+          refreshAllProductSelects();
+        } catch (err) {
+          console.error("Failed to load products for supplier:", err);
+          refreshAllProductSelects();
+        }
+      }
+
+      function renderConfirmedOrderBreakdown(orderData, submittedItems) {
+        if (!confirmPopup) return;
+
+        const orderNumHeading = confirmPopup.querySelector(".ordnum_heading h1");
+        if (orderNumHeading) {
+          orderNumHeading.textContent = `Order ${orderData.order_id} has been generated`;
+        }
+
+        const supplierSummaryH3 = confirmPopup.querySelector(
+          ".supplier_summary h3",
+        );
+        if (supplierSummaryH3) {
+          supplierSummaryH3.textContent = orderData.supplier_name || "Supplier";
+        }
+
+        const productsSummaryContainer =
+          confirmPopup.querySelector(".products_summary");
+        const orderItems =
+          Array.isArray(orderData.items) && orderData.items.length > 0
+            ? orderData.items
+            : submittedItems;
+
+        let calculatedTotal = 0;
+
+        if (productsSummaryContainer) {
+          productsSummaryContainer.innerHTML = "";
+          orderItems.forEach((item) => {
+            const cachedProd = supplierProductsCache.find(
+              (p) => String(p.id) === String(item.product_id),
+            );
+            const qty = Number(item.order_amount ?? item.units ?? 0);
+            const unitCost =
+              item.unit_cost !== undefined
+                ? Number(item.unit_cost)
+                : Number(cachedProd?.cost_price ?? 0);
+            const lineTotal =
+              item.line_total !== undefined
+                ? Number(item.line_total)
+                : qty * unitCost;
+
+            calculatedTotal += lineTotal;
+
+            const rowDiv = document.createElement("div");
+            rowDiv.className = "prod_and_units_sum";
+            rowDiv.innerHTML = `
+              <i data-lucide="circle-dollar-sign"></i>
+              <h3>${item.product_name || cachedProd?.name || "Product"} — ${qty} units (${formatRand(lineTotal)})</h3>
+            `;
+            productsSummaryContainer.appendChild(rowDiv);
+          });
+        }
+
+        const totalCostH3 = confirmPopup.querySelector(".tot_cost_right h3");
+        if (totalCostH3) {
+          totalCostH3.textContent = formatRand(calculatedTotal);
+        }
+
+        const estDateH3 = confirmPopup.querySelector(".est_date_right h3");
+        if (estDateH3) {
+          const maxLeadDays = submittedItems.reduce((acc, item) => {
+            const cachedProd = supplierProductsCache.find(
+              (p) => String(p.id) === String(item.product_id),
+            );
+            const lt = Number(cachedProd?.effective_lt ?? 0);
+            return Math.max(acc, lt);
+          }, 0);
+
+          if (maxLeadDays > 0) {
+            const baseDate = orderData.date
+              ? new Date(orderData.date)
+              : new Date();
+            const estDate = new Date(baseDate);
+            estDate.setDate(estDate.getDate() + maxLeadDays);
+            const yyyy = estDate.getFullYear();
+            const mm = String(estDate.getMonth() + 1).padStart(2, "0");
+            const dd = String(estDate.getDate()).padStart(2, "0");
+            estDateH3.textContent = `${yyyy}/${mm}/${dd}`;
+          } else {
+            estDateH3.textContent = orderData.date
+              ? String(orderData.date).replaceAll("-", "/")
+              : "####/##/##";
+          }
+        }
+
+        if (window.lucide && typeof window.lucide.createIcons === "function") {
+          window.lucide.createIcons();
+        }
+      }
+
+      if (supplierSelect) {
+        supplierSelect.addEventListener("change", handleSupplierChange);
+      }
+
+      if (firstProductRow) {
+        const firstSel = firstProductRow.querySelector(".product_sel");
+        if (firstSel) {
+          populateProductSelect(firstSel, null);
+          firstSel.addEventListener("change", refreshAllProductSelects);
+        }
+      }
 
       if (orderOpenBtn && orderPopup && orderCloseBtn) {
         // Open Popup
-        orderOpenBtn.addEventListener("click", function () {
+        orderOpenBtn.addEventListener("click", async function () {
+          resetNewOrderForm(false);
+          await loadSuppliers();
           orderPopup.style.display = "flex";
         });
 
         // Close Popup
         orderCloseBtn.addEventListener("click", function () {
-          document
-            .querySelectorAll(".product_and_unit_select:not(#prod_unit_select)")
-            .forEach((row) => row.remove());
+          resetNewOrderForm(true);
           orderPopup.style.display = "none";
         });
 
         // Close Popup (click outside)
         orderPopup.addEventListener("click", function (event) {
           if (event.target === orderPopup) {
+            resetNewOrderForm(true);
             orderPopup.style.display = "none";
           }
         });
@@ -572,15 +832,70 @@
       }
 
       // Script for confirm order popup
-      const confirmOpenBtn = document.getElementById("confirm");
-      const confirmPopup = document.getElementById("confirm_background");
-      const confirmCloseBtn = document.getElementById("x_confirm");
-
       if (confirmOpenBtn && confirmPopup && confirmCloseBtn) {
-        // Open Popup
-        confirmOpenBtn.addEventListener("click", function () {
-          orderPopup.style.display = "none";
-          confirmPopup.style.display = "flex";
+        confirmOpenBtn.addEventListener("click", async function () {
+          if (isSubmittingOrder) return;
+
+          const supplierId = supplierSelect ? Number(supplierSelect.value) : 0;
+          if (!supplierId) {
+            alert("Please select a supplier.");
+            return;
+          }
+
+          const rows = Array.from(
+            document.querySelectorAll(".product_and_unit_select"),
+          );
+          const items = [];
+
+          for (const row of rows) {
+            const prodSel = row.querySelector(".product_sel");
+            const unitInp = row.querySelector(".unit_input");
+            const productId = prodSel ? Number(prodSel.value) : 0;
+            const orderAmount = unitInp ? Number(unitInp.value) : 0;
+
+            if (!productId || !Number.isInteger(orderAmount) || orderAmount <= 0) {
+              alert("Please select a product and enter a valid unit quantity for each row.");
+              return;
+            }
+
+            items.push({
+              product_id: productId,
+              order_amount: orderAmount,
+            });
+          }
+
+          if (items.length === 0) {
+            alert("Please add at least one product to the order.");
+            return;
+          }
+
+          try {
+            isSubmittingOrder = true;
+            const res = await fetch("/api/purchase_orders", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                supplier_id: supplierId,
+                items: items,
+              }),
+            });
+            const payload = await res.json();
+
+            if (!res.ok || !payload.success) {
+              alert(payload.error || "Failed to create order.");
+              return;
+            }
+
+            renderConfirmedOrderBreakdown(payload.data, items);
+            resetNewOrderForm(true);
+            orderPopup.style.display = "none";
+            confirmPopup.style.display = "flex";
+          } catch (err) {
+            console.error("Error creating purchase order:", err);
+            alert("An error occurred while creating the order.");
+          } finally {
+            isSubmittingOrder = false;
+          }
         });
 
         // Close Popup
@@ -606,17 +921,35 @@
       }
 
       // ADD PRODUCT EXPANDING BUTTON START
-      const addProdBtn = document.getElementById("add_product");
-      const productRows = document.querySelector(".selectors");
-      const firstProductRow = document.getElementById("prod_unit_select");
-
       if (addProdBtn && productRows && firstProductRow) {
         addProdBtn.addEventListener("click", () => {
+          if (!supplierSelect || !supplierSelect.value) {
+            alert("Please select a supplier first.");
+            return;
+          }
+
+          const taken = getSelectedProductIds(null);
+          const remaining = supplierProductsCache.filter(
+            (p) => !taken.has(String(p.id)),
+          );
+          if (remaining.length === 0) {
+            alert("All products from this supplier have already been added.");
+            return;
+          }
+
           const productRow = firstProductRow.cloneNode(true);
           productRow.removeAttribute("id");
           productRow.querySelectorAll("[id]").forEach((element) => {
             element.removeAttribute("id");
           });
+
+          const clonedSel = productRow.querySelector(".product_sel");
+          const clonedUnit = productRow.querySelector(".unit_input");
+          if (clonedUnit) clonedUnit.value = "";
+          if (clonedSel) {
+            populateProductSelect(clonedSel, null);
+            clonedSel.addEventListener("change", refreshAllProductSelects);
+          }
 
           const deleteButton = document.createElement("button");
           deleteButton.type = "button";
@@ -625,10 +958,12 @@
             '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-trash preview-icon"><path d="M10 11v6"/><path d="M14 11v6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>';
           deleteButton.addEventListener("click", () => {
             productRow.remove();
+            refreshAllProductSelects();
           });
 
           productRow.appendChild(deleteButton);
           productRows.appendChild(productRow);
+          refreshAllProductSelects();
         });
       } else {
         console.error("Could not find the add-product button or product row.");
