@@ -197,16 +197,18 @@ li {
 
 .blockfacts {
   grid-area: blockfacts;
+  display: flex;
   align-items: center;
   justify-content: center;
-  display: flex;
   flex-direction: column;
 
-  height: 100%;
   width: 100%;
-  padding: 0.5rem;
+  background-color: rgb(84, 147, 136);
+  border-radius: 1rem;
+  border: 2px solid rgb(155, 255, 237);
 
-  /* gap: 0.2rem; */
+  padding: 0.5rem;
+  gap: 0.5rem;
 }
 /* FACTS STYLING START */
 
@@ -215,13 +217,12 @@ li {
   display: flex;
   align-items: center;
   flex-direction: row;
-  justify-content: space-between;
+  justify-content: center;
 
-  gap: 0.3rem;
+  gap: 1rem;
 
   width: 100%;
-  height: 100%;
-  margin: 0.5rem;
+  height: 90%;
 }
 
 .jobtracker,
@@ -237,8 +238,8 @@ li {
   gap: 0.5rem;
 
   background-color: rgb(169, 217, 208, 0.8);
-  width: 30%;
-  height: 100%;
+  width: 40%;
+  height: 85%;
 }
 /* FACTS STYLING END */
 
@@ -689,7 +690,7 @@ li {
   background-color: #152d2f;
   border-radius: 1rem;
   max-height: 80%;
-  width: 15%;
+  max-width: 15%;
 
   color: #e0e0e0;
 }
