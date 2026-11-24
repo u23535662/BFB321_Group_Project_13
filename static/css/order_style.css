@@ -1031,7 +1031,6 @@ li {
 .modal-content {
   background-color: rgb(84, 147, 136);
   margin: 6% auto;
-  padding: 20px;
   border-radius: 1rem;
   width: 40%;
   max-height: 70%;
@@ -1039,7 +1038,7 @@ li {
   justify-content: center;
   align-items: center;
 
-  overflow-y: scroll;
+  overflow: hidden;
 }
 .sup_popup_top_bar {
   display: flex;
@@ -1055,10 +1054,41 @@ li {
   color: #000000;
 }
 .editUnits_text{
+  margin-left: 0.5rem;
+  gap: 0.25rem;
   display: flex;
   flex-direction: row;
   align-items: center;
   justify-content: flex-start; 
+}
+.editUnits_box{
+  width: 1rem;
+}
+
+.editconf,
+.editcanc {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 2rem;
+  width: 30%;
+
+  padding: 0 1rem;
+
+  background-color: rgb(169, 217, 208, 0.6);
+  border-radius: 0.5rem;
+
+  border-style: solid;
+  border-color: #152d2f;
+  border-width: 1px;
+}
+.editconf:hover,
+.editcanc:hover {
+  cursor: pointer;
+}
+.editconf:active,
+.editcanc:active {
+  background-color: rgb(84, 147, 136);
 }
 /* edit update order product end */
 
