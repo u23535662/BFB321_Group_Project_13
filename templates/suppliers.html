@@ -352,6 +352,7 @@
     <script>
       let allSuppliers = [];
       let activeSupplier = null;
+      let activeSupplierProductsDetail = [];
 
       function refreshIcons() {
         if (window.lucide && typeof window.lucide.createIcons === "function") {
@@ -394,7 +395,10 @@
         productId = null,
         name = "",
         price = "",
+        supplierPrice = "",
         units = "",
+        inventory = "",
+        storageLocation = "",
         isEdit = false,
       } = {}) {
         const parentDiv = document.createElement("div");
@@ -423,22 +427,28 @@
         inputInventory.type = "number";
         inputInventory.step = "1";
         inputInventory.min = "0";
-        inputInventory.value = units;
+        inputInventory.value = inventory !== "" ? inventory : units;
 
         const inputSupplierPrice = document.createElement("input");
         inputSupplierPrice.className = "addProductSupplierPrice";
         inputSupplierPrice.type = "number";
+        inputSupplierPrice.step = "0.01";
         inputSupplierPrice.min = "0";
+        inputSupplierPrice.value =
+          supplierPrice !== "" ? supplierPrice : price;
 
         const inputProductPrice = document.createElement("input");
         inputProductPrice.className = "addProductPrice";
         inputProductPrice.type = "number";
+        inputProductPrice.step = "0.01";
         inputProductPrice.min = "0";
+        inputProductPrice.value = price;
 
         const inputStorageLocation = document.createElement("input");
         inputStorageLocation.className = "addProductStorageLocation";
         inputStorageLocation.type = "text";
         inputStorageLocation.placeholder = "Storage Location";
+        inputStorageLocation.value = storageLocation;
 
         const childDiv1 = document.createElement("div");
         childDiv1.className = "product_details_sub_block";
@@ -498,8 +508,8 @@
         childDiv1.append(inputName);
         childDiv2.append(childDiv2text, inputUnits);
         childDiv3.append(childDiv3text, inputInventory);
-        childDiv4.append(childDiv4text, inputProductPrice);
-        childDiv5.append(childDiv5text, inputSupplierPrice);
+        childDiv4.append(childDiv4text, inputSupplierPrice);
+        childDiv5.append(childDiv5text, inputProductPrice);
         childDiv9.append(childDiv4, childDiv5);
         childDiv6.append(inputStorageLocation);
         childDiv10.append(deleteBtn);
@@ -507,6 +517,34 @@
         childDiv8.append(childDiv6, childDiv10);
         parentDiv.append(childDiv1, childDiv7, childDiv9, childDiv8);
         return parentDiv;
+      }
+
+      function extractProductPayload(row, supplierId) {
+        const pName = row.querySelector(".addProductName")?.value.trim() || "";
+        if (!pName) return null;
+
+        const rawUnits = row.querySelector(".addProductUnits")?.value;
+        const rawInv = row.querySelector(".addProductInventory")?.value;
+        const rawSupPrice = row.querySelector(".addProductSupplierPrice")?.value;
+        const rawProdPrice = row.querySelector(".addProductPrice")?.value;
+        const storageLocation =
+          row.querySelector(".addProductStorageLocation")?.value.trim() || "";
+
+        const pUnits = Math.max(Math.trunc(Number(rawUnits) || 1), 1);
+        const pInv = Math.max(Math.trunc(Number(rawInv) || 0), 0);
+        const pSupPrice = Math.max(Number(rawSupPrice) || 0, 0);
+        const pProdPrice = Math.max(Number(rawProdPrice) || 0, 0);
+
+        return {
+          name: pName,
+          supplier_id: supplierId,
+          supplier_price: pSupPrice,
+          price: pProdPrice,
+          units_per_package: pUnits,
+          holding_cost: 0,
+          year_starting_inventory: pInv,
+          storage_location: storageLocation,
+        };
       }
 
       /* ---------------- ADD SUPPLIER MODAL ---------------- */
@@ -601,32 +639,19 @@
             );
 
             for (const row of productRows) {
-              const pName = row.querySelector(".addProductName").value.trim();
-              if (!pName) continue;
-
-              const pPrice =
-                Number(row.querySelector(".addProductPrice").value) || 0;
-              const pUnits =
-                Number(row.querySelector(".addProductUnits").value) || 1;
+              const payload = extractProductPayload(row, newSupplierId);
+              if (!payload) continue;
 
               const prodResponse = await fetch("/api/products", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                  name: pName,
-                  supplier_id: newSupplierId,
-                  supplier_price: pPrice,
-                  price: pPrice,
-                  units_per_package: Math.max(Math.trunc(pUnits), 1),
-                  holding_cost: 0,
-                  year_starting_inventory: 0,
-                }),
+                body: JSON.stringify(payload),
               });
 
               const prodResult = await prodResponse.json();
               if (!prodResponse.ok || !prodResult.success) {
                 throw new Error(
-                  prodResult.error || `Failed to add product "${pName}".`,
+                  prodResult.error || `Failed to add product "${payload.name}".`,
                 );
               }
             }
@@ -692,13 +717,24 @@
           existingProductsEl.innerHTML = "";
           newProductsListEl.innerHTML = "";
 
+          const detailById = new Map(
+            (activeSupplierProductsDetail || []).map((p) => [
+              Number(p.id),
+              p,
+            ]),
+          );
+
           (activeSupplier.products || []).forEach((prod) => {
+            const fullProd = detailById.get(Number(prod.product_id)) || {};
             existingProductsEl.appendChild(
               buildProductRow({
                 productId: prod.product_id,
-                name: prod.product_name,
-                price: prod.supplier_price,
+                name: fullProd.name ?? prod.product_name,
+                price: fullProd.sell_price ?? prod.supplier_price,
+                supplierPrice: fullProd.cost_price ?? prod.supplier_price,
                 units: prod.units_per_package,
+                inventory: fullProd.year_starting_inventory ?? "",
+                storageLocation: fullProd.storage_location ?? "",
                 isEdit: true,
               }),
             );
@@ -778,29 +814,27 @@
                 continue;
               }
 
-              const pName = row.querySelector(".addProductName").value.trim();
-              const pPrice =
-                Number(row.querySelector(".addProductPrice").value) || 0;
-              const pUnits =
-                Number(row.querySelector(".addProductUnits").value) || 1;
-
-              if (pName) {
+              const payload = extractProductPayload(row, activeSupplier.id);
+              if (payload) {
                 const putResponse = await fetch(
                   `/api/products/${encodeURIComponent(prodId)}`,
                   {
                     method: "PUT",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({
-                      name: pName,
-                      supplier_price: pPrice,
-                      units_per_package: Math.max(Math.trunc(pUnits), 1),
+                      name: payload.name,
+                      price: payload.price,
+                      supplier_price: payload.supplier_price,
+                      units_per_package: payload.units_per_package,
+                      year_starting_inventory: payload.year_starting_inventory,
+                      storage_location: payload.storage_location,
                     }),
                   },
                 );
                 const putResult = await putResponse.json();
                 if (!putResponse.ok || !putResult.success) {
                   throw new Error(
-                    putResult.error || `Failed to update "${pName}".`,
+                    putResult.error || `Failed to update "${payload.name}".`,
                   );
                 }
               }
@@ -811,31 +845,18 @@
               ".edit_product_details_block",
             );
             for (const row of newRows) {
-              const pName = row.querySelector(".addProductName").value.trim();
-              if (!pName) continue;
-
-              const pPrice =
-                Number(row.querySelector(".addProductPrice").value) || 0;
-              const pUnits =
-                Number(row.querySelector(".addProductUnits").value) || 1;
+              const payload = extractProductPayload(row, activeSupplier.id);
+              if (!payload) continue;
 
               const postResponse = await fetch("/api/products", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                  name: pName,
-                  supplier_id: activeSupplier.id,
-                  supplier_price: pPrice,
-                  price: pPrice,
-                  units_per_package: Math.max(Math.trunc(pUnits), 1),
-                  holding_cost: 0,
-                  year_starting_inventory: 0,
-                }),
+                body: JSON.stringify(payload),
               });
               const postResult = await postResponse.json();
               if (!postResponse.ok || !postResult.success) {
                 throw new Error(
-                  postResult.error || `Failed to add "${pName}".`,
+                  postResult.error || `Failed to add "${payload.name}".`,
                 );
               }
             }
@@ -878,6 +899,7 @@
             closeModal();
             document.getElementById("sup_popup_Hold").style.display = "none";
             activeSupplier = null;
+            activeSupplierProductsDetail = [];
             await loadSuppliers();
           } catch (error) {
             console.error("Error deleting supplier:", error);
@@ -975,14 +997,17 @@
         emailEl.textContent = "-";
         phoneEl.textContent = "-";
         productsEl.innerHTML = `<div class="sup_prod_item"><h3>Loading products...</h3></div>`;
+        activeSupplierProductsDetail = [];
 
         try {
-          const response = await fetch(
-            `/api/suppliers/${encodeURIComponent(supplierId)}`,
-          );
-          if (!response.ok) throw new Error(`HTTP ${response.status}`);
+          const [supResponse, prodResponse] = await Promise.all([
+            fetch(`/api/suppliers/${encodeURIComponent(supplierId)}`),
+            fetch(`/api/suppliers/${encodeURIComponent(supplierId)}/products`),
+          ]);
 
-          const payload = await response.json();
+          if (!supResponse.ok) throw new Error(`HTTP ${supResponse.status}`);
+
+          const payload = await supResponse.json();
           if (!payload.success) {
             throw new Error(payload.error || "Failed to load supplier.");
           }
@@ -994,6 +1019,18 @@
           phoneEl.textContent =
             activeSupplier.contact_phone || "No phone number";
 
+          let detailedProducts = [];
+          if (prodResponse.ok) {
+            const prodPayload = await prodResponse.json();
+            if (prodPayload.success && Array.isArray(prodPayload.data?.products_data)) {
+              detailedProducts = prodPayload.data.products_data;
+            }
+          }
+          activeSupplierProductsDetail = detailedProducts;
+
+          const detailById = new Map(
+            detailedProducts.map((p) => [Number(p.id), p]),
+          );
           const products = Array.isArray(activeSupplier.products)
             ? activeSupplier.products
             : [];
@@ -1009,13 +1046,20 @@
 
           productsEl.innerHTML = "";
           products.forEach((prod) => {
+            const fullProd = detailById.get(Number(prod.product_id)) || {};
             const item = document.createElement("div");
             item.className = "sup_prod_item";
 
-            const h3 = document.createElement("h3");
-            h3.textContent = `${prod.product_name} — R ${Number(prod.supplier_price || 0).toFixed(2)} (${prod.units_per_package} units/box)`;
+            const titleEl = document.createElement("h3");
+            titleEl.textContent = fullProd.name ?? prod.product_name;
 
-            item.appendChild(h3);
+            const costEl = document.createElement("p");
+            costEl.textContent = `Supplier Price: R ${Number(fullProd.cost_price ?? prod.supplier_price ?? 0).toFixed(2)} | Sell Price: R ${Number(fullProd.sell_price ?? 0).toFixed(2)}`;
+
+            const stockEl = document.createElement("p");
+            stockEl.textContent = `Units/Box: ${fullProd.units_per_package ?? prod.units_per_package ?? 1} | Stock: ${fullProd.current_inventory ?? 0} | Location: ${fullProd.storage_location || "N/A"}`;
+
+            item.append(titleEl, costEl, stockEl);
             productsEl.appendChild(item);
           });
         } catch (error) {
