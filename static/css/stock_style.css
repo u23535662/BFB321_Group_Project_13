@@ -472,7 +472,6 @@ li {
   background-color: rgba(94, 155, 145, 0.85);
   border-radius: 0.75rem;
   padding: 0.5rem 2.5rem 0.5rem 1.25rem;
-  transition: background-color 0.15s ease;
 }
 
 .product-row:hover {
@@ -480,11 +479,12 @@ li {
 }
 
 .product-row > div.text {
-  display: grid;
-  grid-template-columns: 1fr 2fr 1fr;
+  display: flex;
+  flex-direction: row;
+
   align-items: center;
   width: 100%;
-  gap: 0.5rem;
+  gap: 1rem;
 }
 
 .product-row p {
@@ -500,9 +500,24 @@ li {
   color: #152d2f;
 }
 
-.t1,
+.t1 {
+  width: 10%;
+}
+
 .t2 {
-  margin-left: 0;
+  width: 40%;
+}
+
+.text1 {
+  width: 10%;
+}
+
+.text12 {
+  width: 10%;
+}
+
+.text123 {
+  width: 10%;
 }
 /* SUPPLIER BLOCK END */
 

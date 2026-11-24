@@ -116,7 +116,10 @@
             </div>
           </div>
 
-          <p class="popup-status text" id="salesOrderStatus" style="display: none"></p>
+          <p
+            class="popup-status text"
+            id="salesOrderStatus"
+            style="display: none"></p>
 
           <div class="confirmAndcancel">
             <button class="add_prod" id="add_product" type="button">
@@ -312,7 +315,7 @@
           <p>Low Stock Items</p>
         </div>
         <div id="low_stock_list" class="contentblockstock">
-          <p class="text">Checking stock levels...</p>
+          <p class="text1">Checking stock levels...</p>
         </div>
       </div>
     </div>
@@ -384,7 +387,9 @@
         const suppSelect = document.getElementById("addSuppSelect");
         const unitsInput = document.getElementById("addProdUnits");
         const priceInput = document.getElementById("addProdPrice");
-        const supplierPriceInput = document.getElementById("addProdSupplierPrice");
+        const supplierPriceInput = document.getElementById(
+          "addProdSupplierPrice",
+        );
         const unitsPerPkgInput = document.getElementById("addProdUnitsPerPkg");
         const holdingCostInput = document.getElementById("addProdHoldingCost");
         const locationInput = document.getElementById("addProdLocation");
@@ -487,10 +492,7 @@
             );
           }
           if (Number.isNaN(unitsPerPackage) || unitsPerPackage < 1) {
-            return setStatus(
-              "Units per package must be 1 or greater.",
-              true,
-            );
+            return setStatus("Units per package must be 1 or greater.", true);
           }
 
           submitBtn.disabled = true;
@@ -868,11 +870,11 @@
             (product) => `
               <div class="text product-row">
                 <div class="text">
-                  <p class="text">${escapeHtml(product.current_inventory ?? 0)}</p>
+                  <p class="text1">${escapeHtml(product.current_inventory ?? 0)}</p>
                   <p class="text t1">${escapeHtml(product.sold ?? 0)}</p>
                   <p class="text t2">${escapeHtml(product.name ?? "")}</p>
-                  <p class="text">${escapeHtml(product.status ?? "")}</p>
-                  <p class="text">${escapeHtml(product.storage_location ?? "")}</p>
+                  <p class="text12">${escapeHtml(product.status ?? "")}</p>
+                  <p class="text123">${escapeHtml(product.storage_location ?? "")}</p>
                 </div>
               </div>
             `,
@@ -975,7 +977,14 @@
         const back2 = document.querySelector(".update_conf_background");
         const statusEl = document.getElementById("salesOrderStatus");
 
-        if (!openBtn || !closeBtn || !backg || !scroll_sales || !add_product || !cBtn) {
+        if (
+          !openBtn ||
+          !closeBtn ||
+          !backg ||
+          !scroll_sales ||
+          !add_product ||
+          !cBtn
+        ) {
           return;
         }
 
@@ -1079,7 +1088,9 @@
         });
 
         cBtn.addEventListener("click", async () => {
-          const rows = Array.from(scroll_sales.querySelectorAll(".prodd_unitt"));
+          const rows = Array.from(
+            scroll_sales.querySelectorAll(".prodd_unitt"),
+          );
           const salesToPost = [];
           const requestedByProduct = new Map();
 
@@ -1090,16 +1101,25 @@
             const saleQty = Number(inputEl?.value);
 
             if (!productId || Number.isNaN(productId)) {
-              return setSalesStatus("Please select a product for every row.", true);
+              return setSalesStatus(
+                "Please select a product for every row.",
+                true,
+              );
             }
             if (!saleQty || Number.isNaN(saleQty) || saleQty <= 0) {
-              return setSalesStatus("Please enter valid units (greater than 0) for every row.", true);
+              return setSalesStatus(
+                "Please enter valid units (greater than 0) for every row.",
+                true,
+              );
             }
 
             const qtyInt = Math.trunc(saleQty);
-            const product = cachedAllProducts.find((p) => Number(p.id) === productId);
+            const product = cachedAllProducts.find(
+              (p) => Number(p.id) === productId,
+            );
             const availableStock = Number(product?.current_inventory ?? 0);
-            const totalRequested = (requestedByProduct.get(productId) || 0) + qtyInt;
+            const totalRequested =
+              (requestedByProduct.get(productId) || 0) + qtyInt;
 
             if (totalRequested > availableStock) {
               return setSalesStatus(
@@ -1118,7 +1138,10 @@
           }
 
           if (salesToPost.length === 0) {
-            return setSalesStatus("Add at least one product to create a sales order.", true);
+            return setSalesStatus(
+              "Add at least one product to create a sales order.",
+              true,
+            );
           }
 
           setSalesStatus("Creating sales order...", false);
@@ -1143,7 +1166,10 @@
             refreshAllSupplierCards();
           } catch (error) {
             console.error("Failed to create sales order:", error);
-            setSalesStatus(error.message || "Failed to post sales order.", true);
+            setSalesStatus(
+              error.message || "Failed to post sales order.",
+              true,
+            );
           }
         });
 
