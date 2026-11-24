@@ -9,8 +9,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
       href="https://fonts.googleapis.com/css2?family=Gelasio:ital,wght@0,400..700;1,400..700&display=swap"
-      rel="stylesheet"
-    />
+      rel="stylesheet" />
     <link rel="stylesheet" href="../static/css/stock_style.css" />
   </head>
 
@@ -22,8 +21,7 @@
           <img
             src="../static/images/Stanway-Logo-picture.png"
             alt="Stanway Logo"
-            class="logoimg"
-          />
+            class="logoimg" />
         </div>
         <i class="fa-solid fa-grip-lines"></i>
       </div>
@@ -104,8 +102,7 @@
                 name="Product"
                 id="prodd"
                 class="prodd"
-                placeholder="Product..."
-              >
+                placeholder="Product...">
                 <option value="" disabled selected hidden>
                   Select a Product...
                 </option>
@@ -137,16 +134,14 @@
         class="modal"
         role="dialog"
         aria-modal="true"
-        aria-labelledby="addModalTitle"
-      >
+        aria-labelledby="addModalTitle">
         <div class="modal-content">
           <span
             class="close"
             id="close_stock_popup"
             role="button"
             tabindex="0"
-            aria-label="Close modal"
-          >
+            aria-label="Close modal">
             <i data-lucide="circle-x"></i>
           </span>
           <div class="popup_name">
@@ -159,8 +154,7 @@
               class="addProd"
               type="text"
               placeholder="Product name..."
-              required
-            />
+              required />
 
             <select id="addSuppSelect" class="addSupp" required>
               <option value="">Select a supplier...</option>
@@ -173,8 +167,7 @@
               min="0"
               step="1"
               placeholder="Units in Stock..."
-              required
-            />
+              required />
 
             <input
               id="addProdPrice"
@@ -182,8 +175,7 @@
               type="number"
               min="0"
               step="0.01"
-              placeholder="Unit Price"
-            />
+              placeholder="Unit Price" />
 
             <input
               id="addProdHoldingCost"
@@ -191,8 +183,7 @@
               type="number"
               min="0"
               step="0.01"
-              placeholder="Holding Cost"
-            />
+              placeholder="Holding Cost" />
 
             <p class="popup-status text" style="display: none"></p>
             <button type="submit" class="submit_popup">Submit</button>
@@ -232,16 +223,14 @@
         class="modal"
         role="dialog"
         aria-modal="true"
-        aria-labelledby="deleteModalTitle"
-      >
+        aria-labelledby="deleteModalTitle">
         <div class="modal-content">
           <span
             class="close"
             id="close_delete_popup"
             role="button"
             tabindex="0"
-            aria-label="Close modal"
-          >
+            aria-label="Close modal">
             <i data-lucide="circle-x"></i>
           </span>
           <div class="popup_name">
@@ -258,8 +247,7 @@
             <button
               type="submit"
               class="submit_popup"
-              style="background-color: #c0392b"
-            >
+              style="background-color: #c0392b">
               Delete Product
             </button>
           </form>
@@ -288,8 +276,7 @@
     <!-- Icon & Base Scripts -->
     <script
       src="https://kit.fontawesome.com/3000704a08.js"
-      crossorigin="anonymous"
-    ></script>
+      crossorigin="anonymous"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="../templates/script.js"></script>
 
@@ -907,7 +894,7 @@
       const add_product = document.getElementById("add_product");
       add_product.addEventListener("click", () => {
         const div1 = document.createElement("div");
-        div1.className = "product_details_sub_block";
+        div1.className = "prodd_unitt";
 
         const div2 = document.createElement("p");
         div2.textContent = "Delete";
