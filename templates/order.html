@@ -128,12 +128,13 @@
                     <button class="edit" id="editUnits_open">
                       <i data-lucide="pencil-line"></i>
                     </button>
+
                     <!-- update units modal start -->
                     <div class="modal" id="editUnits">
                       <div class="modal-content">
                         <div class="sup_popup_top_bar">
                           <div class="sup_popup_title"> <!-- supplier name here -->
-                            <h3>Supplier Name</h3>
+                            <h3>Product</h3>
                           </div>
                         </div>
 
@@ -141,7 +142,7 @@
                           <div class="editUnits_text">
                             <input type="checkbox" id="checkbox1" name="choice" value="1">
                             <p>Change product units</p>
-                            <div id="editUnits_box"></div>
+                            <div id="editUnits_box" class="editUnits_box"></div>
                           </div>
                           <div class="editUnits_text">
                             <input type="checkbox" id="checkbox2" name="choice" value="2">
@@ -150,10 +151,10 @@
                         </div>                          
 
                         <div class="conf_and_canc">
-                          <div class="conf" id="editUnits_close_conf">
+                          <div class="editconf" id="editUnits_close_conf">
                             <p>Confirm</p>
                           </div>
-                          <div class="canc" id="editUnits_close_canc">
+                          <div class="editcanc" id="editUnits_close_canc">
                             <p>Cancel</p>
                           </div>                           
                         </div>
@@ -686,6 +687,7 @@
             const unitsInput = document.createElement('input');
             unitsInput.type = 'number';
             unitsInput.id = 'dynamicUnitsInput';
+            unitsInput.class = 'unitsInput';
             editUnits_box.appendChild(unitsInput);
           }
         } else {
