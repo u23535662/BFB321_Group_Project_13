@@ -407,7 +407,7 @@ li {
   /* padding: 40px 20px 20px; */
   border: 2px solid rgb(155, 255, 237);
   border-radius: 1rem;
-  width: 35%;
+  width: 45%;
   height: 60%;
   /* height: 65%; */
 }
@@ -448,7 +448,6 @@ li {
   background-color: rgb(169, 217, 208, 0.6);
   width: 30%;
   height: 2rem;
-
   border-radius: 1rem;
   border: 2px solid rgb(155, 255, 237);
   gap: 8%;
@@ -472,7 +471,7 @@ li {
   /* width: 100%; */
   padding: 1rem;
   gap: 1rem;
-  height: 1fr;
+  height: 100%;
   /* border: 1px solid blue; */
 }
 .sup_info_left {
@@ -496,6 +495,14 @@ li {
   align-self: stretch;
   padding: 0.5rem;
 }
+sup_info_sub_textbox {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: flex-start;
+  align-self: stretch;
+}
+
 .sup_info_right {
   display: flex;
   flex-direction: column;
@@ -513,12 +520,15 @@ li {
 .sup_info_display {
   display: flex;
   flex-direction: column;
+  justify-content: flex-start;
   align-self: stretch;
 
   height: 100%;
   background-color: rgb(169, 217, 208, 0.6);
-  padding: 0.5rem;
+  padding: 1rem;
+  gap: 1rem;
   border-radius: 1rem;
+
   /* border: 1px solid purple; */
   overflow-y: scroll;
 }
@@ -529,15 +539,14 @@ li {
   align-items: center;
   align-self: stretch;
 
-  padding: 0.5rem;
-  border-color: rgb(155, 255, 237);
-  border-top: 1px;
+  padding: 1rem;
+  border: 2px solid #a9d9d0;
+  border: 1rem;
   border-bottom: 1px;
   height: 2.5rem;
 }
 /* Supplier info popup content end */
 /* SUPPLIER INFO POPUP END */
-
 
 /* ADD SUPPLIER POPUP START */
 /* Add supplier title start */
@@ -774,7 +783,7 @@ li {
   border-style: none;
 }
 .addProductUnits,
-.addProductInventory{ 
+.addProductInventory {
   border-color: #9acec5;
   background-color: #9acec5;
   width: 30%;
@@ -782,7 +791,7 @@ li {
 }
 .addProductSupplierPrice,
 .addProductPrice {
-    border-color: #9acec5;
+  border-color: #9acec5;
   background-color: #9acec5;
   width: 50%;
   border-radius: 1rem;
@@ -814,8 +823,6 @@ li {
 }
 /* The close and submit button end */
 /* ADD SUPPLIER POPUP END */
-
-
 
 /* EDIT SUPPLIER POPUP START */
 /* Add supplier main blocks start */
@@ -868,7 +875,6 @@ li {
   width: 100%;
 }
 .edit_add_li {
-
   width: 90%;
 }
 .edit_product_details_block {
