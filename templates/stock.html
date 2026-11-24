@@ -246,6 +246,15 @@
         }
       }
 
+      function escapeHtml(value) {
+        return String(value ?? "")
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;")
+          .replace(/'/g, "&#39;");
+      }
+
       document.addEventListener("DOMContentLoaded", () => {
         refreshIcons();
         loadSuppliers();
@@ -617,9 +626,9 @@
                 <i data-lucide="pencil"></i>
               </button>
             </div>
-            <ul class="expanded_values product-list">
-              <li class="text product-loading-status">Fetching data ...</li>
-            </ul>
+            <div class="expanded_values product-list">
+              <div class="text product-loading-status">Fetching data ...</div>
+            </div>
           </div>
         `;
 
@@ -708,14 +717,17 @@
         return itemEl;
       }
 
-      function ensureStatusEl(listEl) {
+      function setProductListStatus(listEl, message, isVisible = true) {
         let statusEl = listEl.querySelector(".product-loading-status");
         if (!statusEl) {
-          statusEl = document.createElement("li");
-          statusEl.className = "text product-loading-status";
-          listEl.appendChild(statusEl);
+          listEl.insertAdjacentHTML(
+            "beforeend",
+            `<div class="text product-loading-status"></div>`,
+          );
+          statusEl = listEl.querySelector(".product-loading-status");
         }
-        return statusEl;
+        statusEl.style.display = isVisible ? "" : "none";
+        statusEl.textContent = message;
       }
 
       function renderSupplierProducts(itemEl, products) {
@@ -723,39 +735,29 @@
         if (!listEl) return;
 
         listEl.querySelectorAll(".product-row").forEach((row) => row.remove());
-        const statusEl = ensureStatusEl(listEl);
 
         if (!Array.isArray(products) || products.length === 0) {
-          statusEl.style.display = "";
-          statusEl.textContent = "No products found";
+          setProductListStatus(listEl, "No products found", true);
           return;
         }
 
-        statusEl.style.display = "none";
+        setProductListStatus(listEl, "", false);
 
-        products.forEach((product) => {
-          const li = document.createElement("li");
-          li.className = "text product-row";
+        const rowsHtml = products
+          .map(
+            (product) => `
+              <div class="text product-row">
+                <div class="text">
+                  <p class="text">${escapeHtml(product.current_inventory ?? 0)}</p>
+                  <p class="text t2">${escapeHtml(product.name ?? "")}</p>
+                  <p class="text t1">${escapeHtml(product.sold ?? 0)}</p>
+                </div>
+              </div>
+            `,
+          )
+          .join("");
 
-          const wrapper = document.createElement("div");
-          wrapper.className = "text";
-
-          const invP = document.createElement("p");
-          invP.className = "text";
-          invP.textContent = product.current_inventory ?? 0;
-
-          const nameP = document.createElement("p");
-          nameP.className = "text t2";
-          nameP.textContent = product.name ?? "";
-
-          const soldP = document.createElement("p");
-          soldP.className = "text t1";
-          soldP.textContent = product.sold ?? 0;
-
-          wrapper.append(invP, nameP, soldP);
-          li.appendChild(wrapper);
-          listEl.appendChild(li);
-        });
+        listEl.insertAdjacentHTML("beforeend", rowsHtml);
       }
 
       async function fetchSupplierProducts(itemEl, supplierId) {
@@ -763,9 +765,7 @@
         if (!listEl) return [];
 
         listEl.querySelectorAll(".product-row").forEach((row) => row.remove());
-        const statusEl = ensureStatusEl(listEl);
-        statusEl.style.display = "";
-        statusEl.textContent = "Fetching data ...";
+        setProductListStatus(listEl, "Fetching data ...", true);
 
         try {
           const url = `/api/suppliers/${encodeURIComponent(supplierId)}/products`;
@@ -787,8 +787,7 @@
             `Error fetching products for supplier ${supplierId}:`,
             error,
           );
-          statusEl.style.display = "";
-          statusEl.textContent = "Failed to load products.";
+          setProductListStatus(listEl, "Failed to load products.", true);
           return [];
         }
       }
@@ -822,29 +821,20 @@
           listBlock.innerHTML = "";
 
           if (lowStockProducts.length === 0) {
-            const emptyEl = document.createElement("p");
-            emptyEl.className = "text";
-            emptyEl.textContent = "No low-stock products.";
-            listBlock.appendChild(emptyEl);
+            listBlock.innerHTML = `<p class="text">No low-stock products.</p>`;
             return;
           }
 
-          lowStockProducts.forEach((product) => {
-            const rowEl = document.createElement("div");
-            rowEl.className = "lowstockitem";
-            rowEl.dataset.productId = product.id ?? "";
-
-            const nameEl = document.createElement("p");
-            nameEl.className = "text";
-            nameEl.textContent = product.name ?? "Unnamed Product";
-
-            const qtyEl = document.createElement("p");
-            qtyEl.className = "text";
-            qtyEl.textContent = product.current_inventory ?? 0;
-
-            rowEl.append(nameEl, qtyEl);
-            listBlock.appendChild(rowEl);
-          });
+          listBlock.innerHTML = lowStockProducts
+            .map(
+              (product) => `
+                <div class="lowstockitem" data-product-id="${escapeHtml(product.id ?? "")}">
+                  <p class="text">${escapeHtml(product.name ?? "Unnamed Product")}</p>
+                  <p class="text">${escapeHtml(product.current_inventory ?? 0)}</p>
+                </div>
+              `,
+            )
+            .join("");
         } catch (error) {
           console.error("Error loading low-stock products:", error);
           listBlock.innerHTML = `<p class="text low-stock-status">Failed to load stock data.</p>`;
