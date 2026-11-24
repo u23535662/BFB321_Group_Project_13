@@ -31,6 +31,7 @@ def orders():
     return render_template("order.html")
 
 @app.route("/suppliers")
+@app.route("/supplier")
 def suppliers():
     return render_template("suppliers.html")
 
