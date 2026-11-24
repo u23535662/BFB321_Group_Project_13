@@ -9,7 +9,8 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
       href="https://fonts.googleapis.com/css2?family=Gelasio:ital,wght@0,400..700;1,400..700&display=swap"
-      rel="stylesheet" />
+      rel="stylesheet"
+    />
     <!-- Styles -->
     <link rel="stylesheet" href="../static/css/suppliers_style.css" />
   </head>
@@ -22,7 +23,8 @@
           <img
             src="../static/images/Stanway-Logo-picture.png"
             alt="Stanway Logo"
-            class="logoimg" />
+            class="logoimg"
+          />
         </div>
         <i class="fa-solid fa-grip-lines"></i>
       </div>
@@ -34,14 +36,14 @@
               Overview
             </div>
           </a>
-        </li> 
+        </li>
         <li class="pagenames">
           <a href="stock.html" class="noto-sans-display-page"
             ><div>
               <i class="fa-solid fa-boxes-packing"></i>
               Stock
             </div>
-            </a>         
+          </a>
         </li>
         <li class="pagenames">
           <a href="order.html" class="noto-sans-display-page"
@@ -79,12 +81,13 @@
         </button>
 
         <!-- Add Supplier Modal -->
-        <div 
+        <div
           id="addSupplier"
           class="modal"
           role="dialog"
-          aria-labelledby="addSupplierModalTitle" 
-          aria-modal="true">
+          aria-labelledby="addSupplierModalTitle"
+          aria-modal="true"
+        >
           <div class="modal-content">
             <div class="popup_name">
               <h1 id="addSupplierModalTitle" class="popup_title">
@@ -96,31 +99,35 @@
               <div class="supplier_details_block">
                 <h3 class="block_title">Supplier Details</h3>
                 <div class="supplier_details_sub_block">
-                  <input 
-                    id="addSuppName" 
+                  <input
+                    id="addSuppName"
                     class="addSupplierDetail"
                     type="text"
                     placeholder="Supplier Name"
-                    required />
-                  <input 
-                    id="addSuppEmail" 
-                    class="addSupplierDetail" 
-                    type="email" 
+                    required
+                  />
+                  <input
+                    id="addSuppEmail"
+                    class="addSupplierDetail"
+                    type="email"
                     placeholder="Email Address"
-                    required />
+                    required
+                  />
                 </div>
-                <input 
-                  id="addSuppPhone" 
-                  class="addSupplierDetail" 
-                  type="text" 
-                  placeholder="Telephone Number (optional)" />
+                <input
+                  id="addSuppPhone"
+                  class="addSupplierDetail"
+                  type="text"
+                  placeholder="Telephone Number (optional)"
+                />
               </div>
 
               <div class="add_product_button_block">
-                <button 
+                <button
                   type="button"
                   id="add_product_button"
-                  class="addProductButton">
+                  class="addProductButton"
+                >
                   <div class="sup_icon">
                     <i data-lucide="circle-plus"></i>
                   </div>
@@ -134,72 +141,78 @@
                 </ul>
               </div>
 
-              <p class="popup-status text" style="display: none;"></p>
+              <p class="popup-status text" style="display: none"></p>
 
               <div class="cancel_and_submit_block">
-                <span 
+                <span
                   class="close"
                   id="close_addSupplier_popup"
                   role="button"
-                  tabindex="0">
+                  tabindex="0"
+                >
                   Cancel
                 </span>
                 <button type="submit" class="submit_popup">Submit</button>
               </div>
-            </form>            
+            </form>
           </div>
-        </div>        
+        </div>
       </div>
       <!-- SUPPLIER BUTTONS END -->
 
       <!-- Search & Filter Bar -->
       <div class="sup_topblock">
-        <input 
+        <input
           id="supplierSearchInput"
           class="sup_searchbar"
           type="text"
-          placeholder="Search..." />
-        <button 
-        type="button"
-        class="clearbutt"
-        aria-label="Clear supplier search and filters">
+          placeholder="Search..."
+        />
+        <button
+          type="button"
+          class="clearbutt"
+          aria-label="Clear supplier search and filters"
+        >
           <i data-lucide="funnel-x"></i>
         </button>
       </div>
-      
+
       <!-- Main Suppliers List -->
       <div class="sup_bodyblock" id="suppliers_container">
         <p class="text">Loading suppliers...</p>
       </div>
 
       <!-- Supplier Details Popup Modal -->
-      <div 
+      <div
         id="sup_popup_Hold"
         class="sup_popup_hold"
         role="dialog"
         aria-modal="true"
-        aria-labelledby="popup_supplier_name">
+        aria-labelledby="popup_supplier_name"
+      >
         <div class="sup_popup_content">
           <!-- Popup Heading -->
           <div class="sup_popup_top_bar">
-            <div class="sup_popup_title"> 
+            <div class="sup_popup_title">
               <h3 id="popup_supplier_name">Supplier Name</h3>
             </div>
-            <button 
+            <button
               type="button"
               id="close_sup"
               class="close_sup_popup"
-              aria-label="Close supplier details">
+              aria-label="Close supplier details"
+            >
               <i data-lucide="circle-x"></i>
             </button>
           </div>
 
           <!-- Edit Supplier Action & Modal -->
           <div class="editsupplierbutton_block">
-            <button 
+            <button
               type="button"
               id="editsupplierButton"
-              class="editsupplierbutton">
+              class="editsupplierbutton"
+            >
               <div class="new_item_icon">
                 <i data-lucide="circle-plus"></i>
               </div>
@@ -207,19 +220,21 @@
             </button>
 
             <!-- Edit Supplier Modal -->
-            <div 
-            id="editSupplier"
-            class="edit_modal"
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="editSupplierTitle">
+            <div
+              id="editSupplier"
+              class="edit_modal"
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="editSupplierTitle"
+            >
               <!-- Modal content -->
               <div class="edit_modal-content">
                 <div class="delete_block">
-                  <button 
+                  <button
                     type="button"
                     id="deleteSupplierButton"
-                    class="deleteSupplierBigButton">
+                    class="deleteSupplierBigButton"
+                  >
                     <p>Delete Supplier</p>
                   </button>
                 </div>
@@ -227,91 +242,95 @@
                 <div class="popup_name">
                   <h1 class="popup_title" id="editSupplierTitle">
                     Edit Supplier Name
-                  </h1> 
+                  </h1>
                 </div>
-                
+
                 <form id="editSupplierForm" novalidate>
                   <div class="supplier_details_block">
                     <h3 class="block_title">Supplier Details</h3>
                     <div class="supplier_details_sub_block">
-                      
-                      <input 
-                        id="editSuppName"  
-                        class="addSupplierDetail" 
-                        type="text" 
+                      <input
+                        id="editSuppName"
+                        class="addSupplierDetail"
+                        type="text"
                         placeholder="Supplier Name"
-                        required />
-                      <input 
+                        required
+                      />
+                      <input
                         id="editSuppEmail"
-                        class="addSupplierDetail" 
-                        type="email" 
+                        class="addSupplierDetail"
+                        type="email"
                         placeholder="Email Address"
-                        required />
+                        required
+                      />
                     </div>
-                    <input 
+                    <input
                       id="editSuppPhone"
-                      class="addSupplierDetail" 
-                      type="text" 
-                      placeholder="Telephone Number (optional)" />
+                      class="addSupplierDetail"
+                      type="text"
+                      placeholder="Telephone Number (optional)"
+                    />
                   </div>
 
-                  <h3 class="block_title">Products</h3>   
+                  <h3 class="block_title">Products</h3>
                   <div id="edit_existing_products"></div>
 
                   <div class="add_product_button_block">
-                    <button 
+                    <button
                       type="button"
                       id="edit_add_product_button"
-                      class="addProductButton">
+                      class="addProductButton"
+                    >
                       <div class="sup_icon">
-                         <i data-lucide="circle-plus"></i>
+                        <i data-lucide="circle-plus"></i>
                       </div>
                       <div class="new_item_text">Add Product</div>
                     </button>
                   </div>
-                                    
+
                   <div class="edit_ul_block">
                     <ul class="edit_add_ul" id="edit_add_product_ul">
                       <li class="edit_add_li" id="edit_add_product_li"></li>
                     </ul>
                   </div>
 
-                  <p class="popup-status text" style="display: none;"></p>
-                  
+                  <p class="popup-status text" style="display: none"></p>
+
                   <div class="cancel_and_submit_block">
-                    <span 
+                    <span
                       class="close"
                       id="close_editSupplier_popup"
                       role="button"
-                      tabindex="0">
+                      tabindex="0"
+                    >
                       Cancel
                     </span>
-                    <button 
-                      type="submit"
-                      class="submit_popup">
-                      Submit
-                    </button>
+                    <button type="submit" class="submit_popup">Submit</button>
                   </div>
                 </form>
               </div>
-            </div>            
+            </div>
           </div>
 
           <!-- Supplier Contact & Linked Products Display -->
           <div class="sup_product_info">
             <div class="sup_info_left">
               <div class="sup_info_textbox">
-                <h4>Email Address</h4>
-                <h4 id="popup_supplier_email">email@address</h4> 
-                <h4>Phone Number</h4>
-                <h4 id="popup_supplier_telephone">0123456789</h4>
+                <div class="sup_info_sub_textbox">
+                  <p>Email Address</p>
+                  <p id="popup_supplier_email">email@address</p>
+                </div>
+                <div class="sup_info_sub_textbox">
+                  <p>Phone Number</p>
+                  <p id="popup_supplier_telephone">0123456789</p>
+                </div>
               </div>
             </div>
 
             <div class="sup_info_right">
               <div class="sup_info_display" id="popup_supplier_products">
                 <div class="sup_prod_item">
-                  <h3>Loading products...</h3>
+                  <p>Loading products...</p>
                 </div>
               </div>
             </div>
@@ -322,7 +341,10 @@
     <!-- SUPPLIER BODY END -->
 
     <!-- Icon & Base Scripts -->
-    <script src="https://kit.fontawesome.com/3000704a08.js" crossorigin="anonymous"></script>
+    <script
+      src="https://kit.fontawesome.com/3000704a08.js"
+      crossorigin="anonymous"
+    ></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="../templates/script.js"></script>
 
@@ -337,8 +359,8 @@
         }
       }
 
-      function todayISO(){
-        return new Date().toISOString().split('T')[0];
+      function todayISO() {
+        return new Date().toISOString().split("T")[0];
       }
 
       document.addEventListener("DOMContentLoaded", () => {
@@ -348,7 +370,7 @@
         initSupplierDetailPopup();
         initAddSupplierModal();
         initEditSupplierModal();
-        
+
         // Allow Escape key to close the top-most open modal
         document.addEventListener("keydown", (event) => {
           if (event.key === "Escape") {
@@ -424,26 +446,26 @@
         const childDiv2 = document.createElement("div");
         childDiv2.className = "product_details_sub_block";
 
-        const childDiv2text = document.createElement('div')
+        const childDiv2text = document.createElement("div");
         childDiv2text.textContent = "Units per box";
 
         const childDiv3 = document.createElement("div");
         childDiv3.className = "product_details_sub_block";
 
-        const childDiv3text = document.createElement('div')
+        const childDiv3text = document.createElement("div");
         childDiv3text.textContent = "Amount in inventory";
-    
+
         const childDiv4 = document.createElement("div");
         childDiv4.className = "product_details_sub_block";
 
-        const childDiv4text = document.createElement('div')
-        childDiv4text.textContent = "Supplier Price";        
+        const childDiv4text = document.createElement("div");
+        childDiv4text.textContent = "Supplier Price";
 
         const childDiv5 = document.createElement("div");
         childDiv5.className = "product_details_sub_block";
 
-        const childDiv5text = document.createElement('div')
-        childDiv5text.textContent = "Product Price";        
+        const childDiv5text = document.createElement("div");
+        childDiv5text.textContent = "Product Price";
 
         const childDiv6 = document.createElement("div");
         childDiv6.className = "product_details_sub_block";
@@ -910,7 +932,7 @@
           btn.innerHTML = `
             <div class="sup_Block_left">
               <div class="sup_icon">
-                <i data-lucide="circle-dollar-sign"></i>
+                <i data-lucide="users-round"></i>
               </div>
               <h3 class="sup_title"></h3>
             </div>
