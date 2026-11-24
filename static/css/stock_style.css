@@ -766,7 +766,7 @@ li {
 
 /* EDIT STOCK POPUP START */
 .edit_background {
-  display: flex; /*MAKE NONE */
+  display: none; /*MAKE NONE */
   flex-direction: column;
   position: fixed;
   z-index: 1000;
